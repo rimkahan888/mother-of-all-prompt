@@ -145,7 +145,7 @@
         <p class="kicker">Vol. I · Stills &amp; motion</p>
       </div>
       <h1>Sentences for pictures that stay, and pictures that move.</h1>
-      <p class="margin-note">Paste a line into your image or video tool. Press ? for the keys.</p>
+      <p class="margin-note">Copy a prompt and paste it into your image or video app. Press ? to see the keyboard shortcuts.</p>
       <svg class="sprig" viewBox="0 0 140 46" aria-hidden="true">
         <path d="M32 44V8M72 44V4M108 44V12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         <path d="M32 16h3M32 28h3M72 14h3.2M72 26h3.2M72 36h3.2M108 22h3M108 34h3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
@@ -167,6 +167,33 @@
         </p>
         <h2 id="bg-title">Backgrounds <span class="h-issue">Issue No. 01</span></h2>
         <p class="lede">Scenes for a still image, written as full sentences rather than a pile of keywords. Any setting is shuffled per plate. Lock one when the whole batch should share it.</p>
+      </div>
+
+      <div class="keyword-box">
+        <div class="keyword-head">
+          <label class="field-label" for="bg-keyword">Your keywords</label>
+          <button type="button" class="keyword-share" id="bg-keyword-share" aria-pressed="true" title="On keeps one keyword line for Backgrounds and Animation">Use for both sections</button>
+        </div>
+        <div class="keyword-line">
+          <input id="bg-keyword" class="keyword-input" type="text" maxlength="240" autocomplete="off" spellcheck="false" placeholder="pokemon world, rainy night" title="Comma-separated keywords are welcome">
+          <div class="segmented keyword-modes" id="bg-keyword-mode" role="radiogroup" aria-label="Keyword mode">
+            <button type="button" data-mode="world" aria-pressed="true">World</button>
+            <button type="button" data-mode="blend" aria-pressed="false">Blend</button>
+            <button type="button" data-mode="exact" aria-pressed="false">Exact</button>
+          </div>
+          <div class="recent-label">
+            <span class="field-label" id="bg-recent-label">Recent</span>
+            <div class="recent-menu">
+              <button type="button" class="recent-toggle" id="bg-keyword-recent" aria-labelledby="bg-recent-label" aria-haspopup="listbox" aria-expanded="false" aria-controls="bg-keyword-recent-list" title="Recent keywords. Double-click one to copy it." disabled>No recent keywords</button>
+              <ul class="recent-list" id="bg-keyword-recent-list" role="listbox" hidden></ul>
+            </div>
+          </div>
+        </div>
+        <p class="hint">Tip: some image apps block brand or character names. If yours does, describe it instead, e.g. "a colourful world of cute pocket monsters".</p>
+        <label class="switch keyword-describe">
+          <input type="checkbox" id="bg-keyword-describe">
+          <span>Describe instead of naming</span>
+        </label>
       </div>
 
       <div class="genbar">
@@ -326,6 +353,33 @@
           <span class="stamp">Luma</span>
           <span class="stamp">Sora-like</span>
         </p>
+      </div>
+
+      <div class="keyword-box">
+        <div class="keyword-head">
+          <label class="field-label" for="anim-keyword">Your keywords</label>
+          <button type="button" class="keyword-share" id="anim-keyword-share" aria-pressed="true" title="On keeps one keyword line for Backgrounds and Animation">Use for both sections</button>
+        </div>
+        <div class="keyword-line">
+          <input id="anim-keyword" class="keyword-input" type="text" maxlength="240" autocomplete="off" spellcheck="false" placeholder="studio ghibli forest" title="Comma-separated keywords are welcome">
+          <div class="segmented keyword-modes" id="anim-keyword-mode" role="radiogroup" aria-label="Keyword mode">
+            <button type="button" data-mode="world" aria-pressed="true">World</button>
+            <button type="button" data-mode="blend" aria-pressed="false">Blend</button>
+            <button type="button" data-mode="exact" aria-pressed="false">Exact</button>
+          </div>
+          <div class="recent-label">
+            <span class="field-label" id="anim-recent-label">Recent</span>
+            <div class="recent-menu">
+              <button type="button" class="recent-toggle" id="anim-keyword-recent" aria-labelledby="anim-recent-label" aria-haspopup="listbox" aria-expanded="false" aria-controls="anim-keyword-recent-list" title="Recent keywords. Double-click one to copy it." disabled>No recent keywords</button>
+              <ul class="recent-list" id="anim-keyword-recent-list" role="listbox" hidden></ul>
+            </div>
+          </div>
+        </div>
+        <p class="hint">Tip: some image apps block brand or character names. If yours does, describe it instead, e.g. "a colourful world of cute pocket monsters".</p>
+        <label class="switch keyword-describe">
+          <input type="checkbox" id="anim-keyword-describe">
+          <span>Describe instead of naming</span>
+        </label>
       </div>
 
       <div class="anatomy" id="anatomy">
@@ -535,12 +589,14 @@
         <tbody>
           <tr><th><kbd>G</kbd></th><td>Generate in the section you are reading</td></tr>
           <tr><th><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></th><td>Quantity 1, 10, or 30</td></tr>
-          <tr><th><kbd>J</kbd> <kbd>K</kbd></th><td>Next or previous card</td></tr>
+          <tr><th><kbd>J</kbd></th><td>Next card</td></tr>
+          <tr><th><kbd>Shift</kbd> <kbd>J</kbd></th><td>Previous card</td></tr>
+          <tr><th><kbd>K</kbd></th><td>Focus Your keywords</td></tr>
           <tr><th><kbd>C</kbd></th><td>Copy the focused card</td></tr>
           <tr><th><kbd>A</kbd></th><td>Copy all in this section, one per line</td></tr>
           <tr><th><kbd>S</kbd></th><td>Star the focused card</td></tr>
           <tr><th><kbd>Enter</kbd></th><td>Open the detail panel</td></tr>
-          <tr><th><kbd>Esc</kbd></th><td>Close the panel or this help</td></tr>
+          <tr><th><kbd>Esc</kbd></th><td>Leave the keyword field, or close the panel or this help</td></tr>
           <tr><th><kbd>B</kbd></th><td>Jump to Backgrounds</td></tr>
           <tr><th><kbd>N</kbd></th><td>Jump to Animation</td></tr>
           <tr><th><kbd>F</kbd></th><td>Jump to Favourites</td></tr>

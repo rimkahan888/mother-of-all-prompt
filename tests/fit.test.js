@@ -194,6 +194,76 @@ const ten = MOAP.buildBatch("background", {
 });
 assert(ten.map(function (plate) { return plate.text; }).join("\n") === batch.slice(0, 10).map(function (plate) { return plate.text; }).join("\n"), "first 10 of 30 match");
 
+function countPhrase(text, phrase) {
+  const hay = String(text || "").toLowerCase();
+  const needle = phrase.toLowerCase();
+  let count = 0;
+  let from = 0;
+  while (from <= hay.length) {
+    const at = hay.indexOf(needle, from);
+    if (at < 0) break;
+    count += 1;
+    from = at + needle.length;
+  }
+  return count;
+}
+
+function keywordBatch(kind, keywords, extra) {
+  const settings = Object.assign({
+    seed: "1847",
+    qty: 10,
+    clean: false,
+    negativeOn: false,
+    negativeText: "",
+    sceneText: "",
+    sceneLocked: false,
+    loop: false,
+    keywords: keywords,
+    keywordMode: "world",
+    keywordDescribe: false,
+    fields: fields()
+  }, extra || {});
+  return MOAP.buildBatch(kind, settings);
+}
+
+const pokemon = keywordBatch("background", "pokemon world");
+assert(pokemon.length === 10, "pokemon batch is 10");
+pokemon.forEach(function (plate) {
+  assert(countPhrase(plate.text, "pokemon world") === 1, "pokemon world once: " + plate.text);
+  assert(/^[A-Z]/.test(plate.text), "pokemon sentence starts with a capital: " + plate.text);
+  assert(/[.!?]$/.test(plate.text), "pokemon sentence ends: " + plate.text);
+  assert(!/pokemon world\s*,\s*pokemon world/i.test(plate.text), "pokemon world is not repeated as a list");
+  assert(/\b(a|the) pokemon world\b|\bpokemon world\b/i.test(plate.text), "pokemon world sits in a sentence");
+});
+const pokemonAgain = keywordBatch("background", "pokemon world");
+assert(pokemon.map(function (plate) { return plate.text; }).join("\n") === pokemonAgain.map(function (plate) { return plate.text; }).join("\n"), "same keywords and seed reproduce the batch");
+const pokemonAnim = keywordBatch("animation", "pokemon world");
+pokemonAnim.forEach(function (plate) {
+  assert(countPhrase(plate.text, "pokemon world") === 1, "animation pokemon world once: " + plate.text);
+  assert(/^[A-Z]/.test(plate.text) && /[.!?]$/.test(plate.text), "animation pokemon reads as a sentence");
+});
+
+const wetUnder = /\brain\b|\bsnow\b|\bwind\b|\bdrizzle\b|\bfrost\b|\bstorm\b/i;
+for (let n = 0; n < 20; n += 1) {
+  keywordBatch("background", "underwater kingdom", { seed: "sea-" + n, qty: 1 }).forEach(function (plate) {
+    assert(!wetUnder.test(plate.text), "underwater kingdom background stayed with the water: " + plate.text);
+    assert(!wetUnder.test(plate.meta.time + " " + plate.meta.lighting + " " + plate.meta.mood), "underwater kingdom weather " + plate.meta.time);
+  });
+  keywordBatch("animation", "underwater kingdom", { seed: "sea-anim-" + n, qty: 1 }).forEach(function (plate) {
+    assert(!wetUnder.test(plate.text), "underwater kingdom animation stayed with the water: " + plate.text);
+    assert(!/\bwind\b|\brain\b|\bdrone\b/i.test(plate.meta.motion + " " + plate.meta.camera), "underwater kingdom motion " + plate.meta.motion);
+  });
+}
+
+const mixed = keywordBatch("background", "cyberpunk tokyo, rainy night", { qty: 10, seed: "mix" });
+const sawTokyo = mixed.some(function (plate) { return /cyberpunk tokyo/i.test(plate.text); });
+const sawNight = mixed.some(function (plate) { return /rainy night/i.test(plate.text); });
+assert(sawTokyo && sawNight, "several keywords are shared across the batch");
+mixed.forEach(function (plate) {
+  assert(countPhrase(plate.text, "cyberpunk tokyo") <= 1, "tokyo once in a plate");
+  assert(countPhrase(plate.text, "rainy night") <= 1, "rainy night once in a plate");
+});
+
 ["desert", "underwater", "space", "interior", "nature", "city"].forEach(function (place) {
   const motions = BANKS.motions.filter(function (item) {
     return FIT.allows(item, "motion", { place: place });

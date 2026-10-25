@@ -67,6 +67,179 @@
     return BANKS[BANK_OF[key]];
   }
 
+  const FRANCHISE = [
+    { test: /\bstar wars\b/i, phrase: "a worn space-opera of desert planets and ancient ships" },
+    { test: /\bharry potter\b/i, phrase: "a candlelit school of moving staircases and stone corridors" },
+    { test: /\bpok[eé]mon\b/i, phrase: "a colourful world of cute pocket monsters" },
+    { test: /\bghibli\b/i, phrase: "a hand-painted landscape in the manner of a gentle animated film" },
+    { test: /\bzelda\b/i, phrase: "a legendary kingdom of ruins, forests, and quiet adventure" },
+    { test: /\bmario\b/i, phrase: "a bright cartoon kingdom of pipes, hills, and mushrooms" },
+    { test: /\bmarvel\b/i, phrase: "a comic-book city of heroes and towering glass" },
+    { test: /\bdisney\b/i, phrase: "a storybook kingdom of castles and woodland" },
+    { test: /\bminecraft\b/i, phrase: "a blocky crafted world of lanterns and cubes" }
+  ];
+
+  function splitKeywords(raw) {
+    return String(raw || "").split(",").map(function (part) { return part.trim(); }).filter(Boolean);
+  }
+
+  function describePhrase(phrase) {
+    const text = String(phrase || "");
+    for (let i = 0; i < FRANCHISE.length; i += 1) {
+      if (FRANCHISE[i].test.test(text)) return FRANCHISE[i].phrase;
+    }
+    return text;
+  }
+
+  function keywordPlace(text) {
+    const lower = String(text || "").toLowerCase();
+    if (/\bstar wars\b/.test(lower)) return "space";
+    if (/\bmarvel\b/.test(lower)) return "city";
+    const inferred = FIT.inferPlace(text);
+    if (inferred) return inferred;
+    if (/\bunderwater\b|\bunder water\b|\bcoral\b|\bkelp\b/.test(lower)) return "underwater";
+    if (/\bdesert\b|\bdunes?\b/.test(lower)) return "desert";
+    if (/\bspace\b|\borbit\b|\bstarfield\b|\bspaceship\b/.test(lower)) return "space";
+    if (/\bcity\b|\burban\b|\bcyberpunk\b/.test(lower)) return "city";
+    if (/\bforest\b|\bmeadow\b|\bwoods\b|\bmountain\b/.test(lower)) return "nature";
+    return "";
+  }
+
+  function keywordsImplyPlace(raw) {
+    const list = splitKeywords(raw);
+    for (let i = 0; i < list.length; i += 1) {
+      if (keywordPlace(list[i])) return true;
+    }
+    return false;
+  }
+
+  function articleFor(phrase) {
+    const text = String(phrase || "").trim();
+    if (!text) return "";
+    if (/^(a|an|the)\b/i.test(text)) return text;
+    if (/^(tokyo|paris|london|kyoto|rome|venice|osaka|berlin|new york|cyberpunk tokyo)\b/i.test(text)) return text;
+    return (/^[aeiou]/i.test(text) ? "an " : "a ") + text;
+  }
+
+  function keywordModeOf(settings) {
+    const mode = settings && settings.keywordMode;
+    if (mode === "blend" || mode === "exact" || mode === "world") return mode;
+    return "world";
+  }
+
+  function worldLead(phrase, rng) {
+    const articulated = articleFor(phrase);
+    const options = [
+      "A sweeping view of " + articulated + ".",
+      "The setting is " + articulated + ".",
+      "The frame opens onto " + articulated + "."
+    ];
+    return options[Math.floor(rng() * options.length)];
+  }
+
+  function blendLine(phrase, rng) {
+    const articulated = articleFor(phrase);
+    const options = [
+      "Woven through the picture is " + articulated + ".",
+      "A quiet flavour of " + articulated + " sits inside the scene.",
+      "The theme stays, with a thread of " + articulated + " running through it."
+    ];
+    return options[Math.floor(rng() * options.length)];
+  }
+
+  function exactPrefix(phrase) {
+    const text = String(phrase || "").trim();
+    if (!text) return "";
+    return /[.!?]$/.test(text) ? text : text + ".";
+  }
+
+  function dedupeKeywordItems(items) {
+    const seen = {};
+    const out = [];
+    items.forEach(function (item) {
+      const key = item.text.toLowerCase();
+      if (seen[key]) {
+        if (!seen[key].place && item.place) seen[key].place = item.place;
+        return;
+      }
+      seen[key] = item;
+      out.push(item);
+    });
+    return out;
+  }
+
+  function planKeywords(settings, qty, seedKey) {
+    const raw = splitKeywords(settings.keywords);
+    if (!raw.length) return null;
+    const items = dedupeKeywordItems(raw.map(function (phrase) {
+      return {
+        text: settings.keywordDescribe ? describePhrase(phrase) : phrase,
+        place: keywordPlace(phrase)
+      };
+    }));
+    if (!items.length) return null;
+    const rng = mulberry32(hashSeed(seedKey + "|kw"));
+    const order = items.slice();
+    for (let i = order.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(rng() * (i + 1));
+      const swap = order[i];
+      order[i] = order[j];
+      order[j] = swap;
+    }
+    const slots = order.slice();
+    if (order.length > 1) {
+      for (let i = 0; i < order.length; i += 1) {
+        const a = order[i];
+        const b = order[(i + 1) % order.length];
+        slots.push({
+          text: a.text + " and " + articleFor(b.text),
+          place: a.place || b.place || ""
+        });
+      }
+    }
+    const assigned = [];
+    for (let i = 0; i < qty; i += 1) assigned.push(slots[i % slots.length]);
+    return { mode: keywordModeOf(settings), slots: assigned };
+  }
+
+  function syntheticScene(place) {
+    const group = {
+      nature: "Nature",
+      coast: "Coast",
+      desert: "Desert",
+      city: "City",
+      interior: "Interior",
+      fantasy: "Fantasy",
+      underwater: "Underwater",
+      space: "Space",
+      abstract: "Abstract",
+      yard: "Workshop"
+    }[place] || "";
+    return { label: "From keywords", text: "", group: group, tags: place ? [place] : [] };
+  }
+
+  function pickSceneInPlace(rng, place, ctx) {
+    const pool = BANKS.scenes.filter(function (item) { return FIT.placeOf(item) === place; });
+    return FIT.pick(rng, pool.length ? pool : BANKS.scenes, "scene", ctx).item;
+  }
+
+  function applyKeywordVoice(parts, phrase, mode, rng) {
+    const spoken = String(phrase || "").trim();
+    if (!spoken) return parts;
+    const next = parts.filter(function (part) { return part && String(part.text || "").trim(); });
+    if (mode === "world") {
+      const without = next.filter(function (part) { return part.key !== "scene" && part.key !== "subject"; });
+      without.unshift({ key: "scene", label: "Scene", text: worldLead(spoken, rng) });
+      return without;
+    }
+    if (mode === "blend") {
+      next.push({ key: "keyword", label: "Keywords", text: blendLine(spoken, rng) });
+      return next;
+    }
+    next.unshift({ key: "keyword", label: "Keywords", text: exactPrefix(spoken) });
+    return next;
+  }
+
   function seedKeyFor(kind, settings) {
     const keys = kind === "background" ? BG_KEYS : ANIM_KEYS;
     const fields = {};
@@ -84,6 +257,9 @@
       sceneText: String(settings.sceneText || "").trim(),
       sceneLocked: !!settings.sceneLocked,
       loop: !!settings.loop,
+      keywords: String(settings.keywords || "").trim(),
+      keywordMode: String(settings.keywords || "").trim() ? keywordModeOf(settings) : "",
+      keywordDescribe: !!(String(settings.keywords || "").trim() && settings.keywordDescribe),
       fields: fields
     });
   }
@@ -104,7 +280,7 @@
     const keys = kind === "background" ? BG_KEYS : ANIM_KEYS;
     keys.forEach(function (key) {
       const field = (settings.fields && settings.fields[key]) || { value: "any", locked: false };
-      if (field.value !== "any") {
+      if (field.value !== "any" && field.value !== "keywords") {
         const item = bankFor(key)[Number(field.value)];
         if (item) shared[key] = item;
       }
@@ -140,8 +316,21 @@
   }
 
   function makeBackground(rng, shared, settings, forced) {
+    const spoken = String(settings.keywordPhrase || "").trim();
+    const mode = spoken ? (settings.keywordMode || "world") : "";
+    const cardPlace = spoken ? String(settings.keywordPlace || "") : "";
     const partial = {};
-    const scene = drawField(rng, shared, settings, partial, "scene");
+    let scene;
+    if (spoken && mode === "world") {
+      scene = cardPlace ? syntheticScene(cardPlace) : null;
+      if (scene) partial.scene = scene;
+    } else if (spoken && cardPlace && (!shared.scene || FIT.placeOf(shared.scene) !== cardPlace)) {
+      const ctx = FIT.context({ shared: shared, settings: settings, partial: partial });
+      scene = pickSceneInPlace(rng, cardPlace, ctx);
+      partial.scene = scene;
+    } else {
+      scene = drawField(rng, shared, settings, partial, "scene");
+    }
     const time = drawField(rng, shared, settings, partial, "time");
     const lighting = drawField(rng, shared, settings, partial, "lighting");
     const mood = drawField(rng, shared, settings, partial, "mood");
@@ -150,7 +339,9 @@
     const composition = drawField(rng, shared, settings, partial, "composition");
     const aspect = drawField(rng, shared, settings, partial, "aspect");
     const blocks = {
-      scene: { key: "scene", label: "Scene", text: period(scene.text) },
+      scene: scene && String(scene.text || "").trim()
+        ? { key: "scene", label: "Scene", text: period(scene.text) }
+        : null,
       style: { key: "style", label: "Style", text: period(style.text) },
       lighting: { key: "lighting", label: "Lighting", text: period(lighting.text) },
       time: { key: "time", label: "Time & weather", text: period("It is " + phrase(time.text)) },
@@ -173,8 +364,9 @@
       ["scene", "style", "mood", "lighting", "palette", "time", "composition", "aspect", "clean"]
     ];
     const order = orders[Math.floor(rng() * orders.length)];
-    const parts = order.map(function (key) { return blocks[key]; }).filter(Boolean);
-    const place = FIT.placeOf(scene);
+    let parts = order.map(function (key) { return blocks[key]; }).filter(Boolean);
+    parts = applyKeywordVoice(parts, spoken, mode, rng);
+    const place = (scene && FIT.placeOf(scene)) || cardPlace;
     const warnings = FIT.warnings({
       place: place,
       scene: scene,
@@ -183,7 +375,7 @@
       mood: mood
     }, forced);
     return {
-      text: parts.map(function (part) { return part.text; }).join(" "),
+      text: parts.map(function (part) { return part.text; }).join(" ").replace(/\s+/g, " ").trim(),
       parts: parts,
       stamp: aspect.stamp || aspect.label,
       stamp2: style.label,
@@ -198,11 +390,21 @@
   }
 
   function makeAnimation(rng, shared, settings, forced) {
+    const spoken = String(settings.keywordPhrase || "").trim();
+    const mode = spoken ? (settings.keywordMode || "world") : "";
+    const cardPlace = spoken ? String(settings.keywordPlace || "") : "";
     const typed = String(settings.sceneText || "").trim();
     const partial = {};
     let subject = "";
     let filledScene = "";
-    if (typed) {
+    if (spoken && mode === "world") {
+      if (cardPlace) partial.scene = syntheticScene(cardPlace);
+    } else if (spoken && cardPlace) {
+      const ctx = FIT.context({ shared: shared, settings: settings, partial: partial });
+      partial.scene = pickSceneInPlace(rng, cardPlace, ctx);
+      subject = period(partial.scene.text);
+      filledScene = subject;
+    } else if (typed) {
       subject = period(typed);
       const known = FIT.matchScene(typed);
       if (known) partial.scene = known;
@@ -223,6 +425,9 @@
     const loopText = settings.loop
       ? "The clip is a seamless loop, with the ending made to match the beginning."
       : "The clip plays once, with a clear beginning and end.";
+    if (spoken && mode === "world") subject = worldLead(spoken, rng);
+    else if (spoken && mode === "blend") subject = (subject ? subject + " " : "") + blendLine(spoken, rng);
+    else if (spoken && mode === "exact") subject = exactPrefix(spoken) + (subject ? " " + subject : "");
     const parts = [
       { key: "subject", label: "Subject", text: subject },
       { key: "motion", label: "Motion", text: period(motion.text) },
@@ -239,7 +444,7 @@
       film: film
     }, forced);
     return {
-      text: parts.map(function (part) { return part.text; }).join(" "),
+      text: parts.map(function (part) { return part.text; }).join(" ").replace(/\s+/g, " ").trim(),
       parts: parts,
       stamp: duration.stamp || duration.label,
       stamp2: film.label,
@@ -289,16 +494,23 @@
     const seedKey = seedKeyFor(kind, settings);
     const shared = resolveShared(kind, seedKey, settings);
     const forced = forcedMap(kind, settings);
+    const planned = planKeywords(settings, qty, seedKey);
     const seen = new Set();
     const prompts = [];
     let filledScene = "";
     for (let i = 0; i < qty; i += 1) {
+      const cardSettings = {};
+      Object.keys(settings).forEach(function (key) { cardSettings[key] = settings[key]; });
+      const slot = planned ? planned.slots[i] : null;
+      cardSettings.keywordPhrase = slot ? slot.text : "";
+      cardSettings.keywordPlace = slot ? slot.place : "";
+      cardSettings.keywordMode = slot ? planned.mode : "";
       let built = null;
       for (let salt = 0; salt < 8; salt += 1) {
         const rng = mulberry32(hashSeed(seedKey + "|i|" + i + "|s|" + salt));
         built = kind === "background"
-          ? makeBackground(rng, shared, settings, forced)
-          : makeAnimation(rng, shared, settings, forced);
+          ? makeBackground(rng, shared, cardSettings, forced)
+          : makeAnimation(rng, shared, cardSettings, forced);
         if (!seen.has(built.text)) break;
       }
       if (seen.has(built.text)) {
@@ -704,9 +916,15 @@
     keys.forEach(function (key) {
       const select = document.getElementById(prefix + "-" + key);
       const lock = document.getElementById("lock-" + prefix + "-" + key);
+      let value = select ? select.value : "any";
+      let locked = !!(lock && lock.getAttribute("aria-pressed") === "true");
+      if (value === "keywords") {
+        value = keywordHold.background.value || "any";
+        locked = !!keywordHold.background.locked;
+      }
       fields[key] = {
-        value: select ? select.value : "any",
-        locked: !!(lock && lock.getAttribute("aria-pressed") === "true")
+        value: value,
+        locked: locked
       };
     });
     return fields;
@@ -725,15 +943,24 @@
         clean: document.getElementById("bg-clean").checked,
         negativeOn: document.getElementById("bg-neg-on").checked,
         negativeText: document.getElementById("bg-neg").value.trim(),
+        keywords: keywordBox("bg").text.trim(),
+        keywordMode: keywordBox("bg").mode,
+        keywordDescribe: keywordBox("bg").describe,
         fields: readFields("bg", BG_KEYS)
       };
     }
+    const animWords = keywordBox("anim");
     return {
       seed: document.getElementById("anim-seed").value.trim(),
       qty: getQty("anim-qty"),
       sceneText: document.getElementById("anim-scene").value.trim(),
-      sceneLocked: document.getElementById("lock-anim-scene").getAttribute("aria-pressed") === "true",
+      sceneLocked: keywordHold.animation.held
+        ? !!keywordHold.animation.locked
+        : document.getElementById("lock-anim-scene").getAttribute("aria-pressed") === "true",
       loop: document.getElementById("anim-loop").checked,
+      keywords: animWords.text.trim(),
+      keywordMode: animWords.mode,
+      keywordDescribe: animWords.describe,
       fields: readFields("anim", ANIM_KEYS)
     };
   }
@@ -819,6 +1046,7 @@
       updateSceneHint(built.filledScene || "");
     }
     remember(entries);
+    if (settings.keywords) rememberKeyword(settings.keywords);
     renderBatch(kind);
     renderLibrary();
     const noun = kind === "background"
@@ -891,6 +1119,10 @@
 
   function updateSceneHint(pinned) {
     const hint = document.getElementById("scene-hint");
+    if (keywordHold.animation.held) {
+      hint.textContent = "From keywords. Weather, motion, and camera follow that place.";
+      return;
+    }
     const text = document.getElementById("anim-scene").value.trim();
     const locked = document.getElementById("lock-anim-scene").getAttribute("aria-pressed") === "true";
     if (text) {
@@ -1287,6 +1519,17 @@
       return;
     }
     if (event.key === "Escape") {
+      if (event.target && event.target.classList && event.target.classList.contains("keyword-input")) {
+        event.preventDefault();
+        closeRecentMenus();
+        event.target.blur();
+        return;
+      }
+      if (document.querySelector(".recent-toggle[aria-expanded='true']")) {
+        event.preventDefault();
+        closeRecentMenus();
+        return;
+      }
       if (state.panelId) {
         event.preventDefault();
         closePanel();
@@ -1324,8 +1567,9 @@
       else setQty("background", qty);
       return;
     }
+    if ((key === "j" || key === "J") && event.shiftKey) { event.preventDefault(); moveCard(-1); return; }
     if (key === "j" || key === "J") { event.preventDefault(); moveCard(1); return; }
-    if (key === "k" || key === "K") { event.preventDefault(); moveCard(-1); return; }
+    if (key === "k" || key === "K") { event.preventDefault(); focusKeywords(); return; }
     if (key === "c" || key === "C") {
       event.preventDefault();
       const entry = currentEntry();
@@ -1367,6 +1611,7 @@
   function bindLocks() {
     document.querySelectorAll(".lock").forEach(function (btn) {
       btn.addEventListener("click", function () {
+        if (btn.disabled || (btn.closest(".control") && btn.closest(".control").classList.contains("is-from-keywords"))) return;
         const on = btn.getAttribute("aria-pressed") !== "true";
         applyLockState(btn, on);
         flash(btn);
@@ -1374,6 +1619,279 @@
         toast(on ? name + " pinned" : name + " can vary");
         saveSettings(btn.dataset.kind);
         if (btn.id === "lock-anim-scene") updateSceneHint(state.lastPinnedScene || "");
+      });
+    });
+  }
+
+  const keywordHold = {
+    background: { value: "any", locked: false, held: false },
+    animation: { locked: false, held: false }
+  };
+
+  function keywordBox(prefix) {
+    const input = document.getElementById(prefix + "-keyword");
+    const modeRoot = document.getElementById(prefix + "-keyword-mode");
+    const pressed = modeRoot ? modeRoot.querySelector('button[aria-pressed="true"]') : null;
+    const describe = document.getElementById(prefix + "-keyword-describe");
+    return {
+      text: input ? input.value : "",
+      mode: pressed && pressed.dataset.mode ? pressed.dataset.mode : "world",
+      describe: !!(describe && describe.checked)
+    };
+  }
+
+  function keywordShared() {
+    const button = document.getElementById("bg-keyword-share");
+    return !button || button.getAttribute("aria-pressed") !== "false";
+  }
+
+  function setSharePressed(on) {
+    document.querySelectorAll(".keyword-share").forEach(function (button) {
+      button.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+
+  function applyKeywordBox(prefix, box, quiet) {
+    const input = document.getElementById(prefix + "-keyword");
+    const describe = document.getElementById(prefix + "-keyword-describe");
+    const modeRoot = document.getElementById(prefix + "-keyword-mode");
+    if (input && input.value !== box.text) input.value = box.text;
+    if (describe) describe.checked = !!box.describe;
+    if (modeRoot) {
+      modeRoot.querySelectorAll("button").forEach(function (button) {
+        button.setAttribute("aria-pressed", button.dataset.mode === box.mode ? "true" : "false");
+      });
+    }
+    if (!quiet && keywordShared()) {
+      const other = prefix === "bg" ? "anim" : "bg";
+      applyKeywordBox(other, box, true);
+    }
+  }
+
+  function saveKeywordMemory() {
+    const bg = keywordBox("bg");
+    const anim = keywordShared() ? bg : keywordBox("anim");
+    storageSet("moap.keywords", JSON.stringify({ share: keywordShared(), bg: bg, anim: anim }));
+  }
+
+  function recentKeywordList() {
+    try {
+      const list = JSON.parse(storageGet("moap.keywordRecent") || "[]");
+      if (!Array.isArray(list)) return [];
+      return list.filter(function (item) { return typeof item === "string" && item.trim(); }).slice(0, 10);
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function closeRecentMenus() {
+    document.querySelectorAll(".recent-toggle").forEach(function (toggle) {
+      toggle.setAttribute("aria-expanded", "false");
+      const menu = document.getElementById(toggle.getAttribute("aria-controls"));
+      if (menu) menu.hidden = true;
+    });
+  }
+
+  function renderRecentKeywords() {
+    const list = recentKeywordList();
+    ["bg", "anim"].forEach(function (prefix) {
+      const toggle = document.getElementById(prefix + "-keyword-recent");
+      const menu = document.getElementById(prefix + "-keyword-recent-list");
+      if (!toggle || !menu) return;
+      const open = toggle.getAttribute("aria-expanded") === "true" && list.length > 0;
+      menu.replaceChildren();
+      toggle.disabled = list.length === 0;
+      toggle.textContent = list.length ? "Recent" : "No recent keywords";
+      list.forEach(function (item) {
+        const li = document.createElement("li");
+        li.setAttribute("role", "presentation");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "recent-item";
+        button.setAttribute("role", "option");
+        button.textContent = item;
+        button.title = "Double-click to copy";
+        button.addEventListener("click", function () {
+          const input = document.getElementById(prefix + "-keyword");
+          input.value = item;
+          if (keywordShared()) {
+            document.getElementById(prefix === "bg" ? "anim-keyword" : "bg-keyword").value = item;
+          }
+          saveKeywordMemory();
+          refreshKeywordLocks();
+        });
+        button.addEventListener("dblclick", function (event) {
+          event.preventDefault();
+          copyText(item, null, "Copied keyword");
+          closeRecentMenus();
+        });
+        li.appendChild(button);
+        menu.appendChild(li);
+      });
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      menu.hidden = !open;
+    });
+  }
+
+  function rememberKeyword(text) {
+    const value = String(text || "").trim();
+    if (!value) return;
+    const list = recentKeywordList().filter(function (item) { return item.toLowerCase() !== value.toLowerCase(); });
+    list.unshift(value);
+    storageSet("moap.keywordRecent", JSON.stringify(list.slice(0, 10)));
+    renderRecentKeywords();
+  }
+
+  function lockThemeFromKeywords(on) {
+    const select = document.getElementById("bg-scene");
+    const lock = document.getElementById("lock-bg-scene");
+    const control = lock.closest(".control");
+    if (on) {
+      if (!keywordHold.background.held) {
+        keywordHold.background.value = select.value === "keywords" ? "any" : select.value;
+        keywordHold.background.locked = lock.getAttribute("aria-pressed") === "true";
+        keywordHold.background.held = true;
+      }
+      let option = select.querySelector('option[value="keywords"]');
+      if (!option) {
+        option = document.createElement("option");
+        option.value = "keywords";
+        option.textContent = "From keywords";
+        select.insertBefore(option, select.firstChild);
+      }
+      select.value = "keywords";
+      select.disabled = true;
+      lock.disabled = true;
+      applyLockState(lock, true);
+      control.classList.add("is-from-keywords");
+      return;
+    }
+    if (!keywordHold.background.held && select.value !== "keywords") return;
+    select.disabled = false;
+    lock.disabled = false;
+    control.classList.remove("is-from-keywords");
+    const option = select.querySelector('option[value="keywords"]');
+    if (option) option.remove();
+    select.value = keywordHold.background.value || "any";
+    if (!select.value || select.value === "keywords") select.value = "any";
+    applyLockState(lock, keywordHold.background.locked);
+    keywordHold.background.held = false;
+  }
+
+  function lockSceneFromKeywords(on) {
+    const area = document.getElementById("anim-scene");
+    const lock = document.getElementById("lock-anim-scene");
+    const control = lock.closest(".control");
+    if (on) {
+      if (!keywordHold.animation.held) {
+        keywordHold.animation.locked = lock.getAttribute("aria-pressed") === "true";
+        keywordHold.animation.held = true;
+      }
+      area.disabled = true;
+      lock.disabled = true;
+      applyLockState(lock, true);
+      control.classList.add("is-from-keywords");
+      document.getElementById("scene-hint").textContent = "From keywords. Weather, motion, and camera follow that place.";
+      return;
+    }
+    if (!keywordHold.animation.held) return;
+    area.disabled = false;
+    lock.disabled = false;
+    control.classList.remove("is-from-keywords");
+    applyLockState(lock, keywordHold.animation.locked);
+    keywordHold.animation.held = false;
+    updateSceneHint(state.lastPinnedScene || "");
+  }
+
+  function refreshKeywordLocks() {
+    lockThemeFromKeywords(keywordsImplyPlace(keywordBox("bg").text));
+    lockSceneFromKeywords(keywordsImplyPlace(keywordBox("anim").text));
+  }
+
+  function restoreKeywordMemory() {
+    let saved = null;
+    try { saved = JSON.parse(storageGet("moap.keywords") || "null"); } catch (err) { saved = null; }
+    const share = !saved || saved.share !== false;
+    const bg = saved && saved.bg ? saved.bg : { text: "", mode: "world", describe: false };
+    const anim = share ? bg : (saved && saved.anim ? saved.anim : { text: "", mode: "world", describe: false });
+    setSharePressed(share);
+    applyKeywordBox("bg", {
+      text: String(bg.text || ""),
+      mode: bg.mode || "world",
+      describe: !!bg.describe
+    }, true);
+    applyKeywordBox("anim", {
+      text: String(anim.text || ""),
+      mode: anim.mode || "world",
+      describe: !!anim.describe
+    }, true);
+    renderRecentKeywords();
+    refreshKeywordLocks();
+  }
+
+  function focusKeywords() {
+    if (state.active === "favourites") setActive("backgrounds");
+    const id = state.active === "animation" ? "anim-keyword" : "bg-keyword";
+    const input = document.getElementById(id);
+    if (!input) return;
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    input.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    input.focus({ preventScroll: true });
+  }
+
+  function bindKeywords() {
+    ["bg", "anim"].forEach(function (prefix) {
+      const input = document.getElementById(prefix + "-keyword");
+      input.addEventListener("input", function () {
+        if (keywordShared()) {
+          document.getElementById(prefix === "bg" ? "anim-keyword" : "bg-keyword").value = input.value;
+        }
+        saveKeywordMemory();
+        refreshKeywordLocks();
+      });
+      document.getElementById(prefix + "-keyword-describe").addEventListener("change", function () {
+        if (keywordShared()) {
+          document.getElementById(prefix === "bg" ? "anim-keyword-describe" : "bg-keyword-describe").checked = this.checked;
+        }
+        saveKeywordMemory();
+        toast(this.checked ? "Brand names will be described" : "Keywords stay as written");
+      });
+      document.getElementById(prefix + "-keyword-mode").addEventListener("click", function (event) {
+        const button = event.target.closest("button");
+        if (!button || !button.dataset.mode) return;
+        applyKeywordBox(prefix, {
+          text: input.value,
+          mode: button.dataset.mode,
+          describe: document.getElementById(prefix + "-keyword-describe").checked
+        });
+        saveKeywordMemory();
+        const names = { world: "World", blend: "Blend", exact: "Exact" };
+        toast(names[button.dataset.mode] || "World");
+      });
+      const recent = document.getElementById(prefix + "-keyword-recent");
+      recent.addEventListener("click", function () {
+        const open = recent.getAttribute("aria-expanded") === "true";
+        closeRecentMenus();
+        if (open || recent.disabled) return;
+        recent.setAttribute("aria-expanded", "true");
+        document.getElementById(prefix + "-keyword-recent-list").hidden = false;
+      });
+    });
+    document.addEventListener("click", function (event) {
+      if (event.target.closest(".recent-menu")) return;
+      closeRecentMenus();
+    });
+    document.querySelectorAll(".keyword-share").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const next = button.getAttribute("aria-pressed") !== "true";
+        setSharePressed(next);
+        if (next) {
+          const bg = keywordBox("bg");
+          applyKeywordBox("anim", bg, true);
+        }
+        saveKeywordMemory();
+        refreshKeywordLocks();
+        toast(next ? "Keywords are shared" : "Each section keeps its own keywords");
       });
     });
   }
@@ -1387,6 +1905,8 @@
     ANIM_KEYS.forEach(function (key) { fillSelect(document.getElementById("anim-" + key), bankFor(key)); });
     restoreSettings("background");
     restoreSettings("animation");
+    restoreKeywordMemory();
+    bindKeywords();
     if (!storageGet("moap.bg")) syncNeg();
     updateCameraTip();
     updateSceneHint();
