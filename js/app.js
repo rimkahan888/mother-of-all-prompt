@@ -22,6 +22,7 @@
 
   const state = {
     active: "backgrounds",
+    shelf: "fav",
     currentCard: null,
     panelId: null,
     bgBatch: [],
@@ -600,10 +601,10 @@
 
   function emptyHTML(which) {
     if (which === "background" || which === "animation") return '<p class="empty">Press Generate.</p>';
-    if (which === "fav") return '<p class="empty">No starred prompts.</p>';
-    if (which === "hist") return '<p class="empty">No history yet.</p>';
-    if (which === "search") return '<p class="empty">Nothing matches.</p>';
-    return '<p class="empty">Nothing here yet.</p>';
+    if (which === "fav") return '<p class="empty empty-mark" aria-label="No favourites">' + svgUse("i-star") + "</p>";
+    if (which === "hist") return '<p class="empty empty-mark" aria-label="No history">' + svgUse("i-clock") + "</p>";
+    if (which === "search") return '<p class="empty empty-mark" aria-label="Nothing matches">' + svgUse("i-search") + "</p>";
+    return '<p class="empty empty-mark">' + svgUse("i-star") + "</p>";
   }
 
   function showTick(card) {
@@ -773,14 +774,15 @@
     else renderCards(favList, fav, { library: "fav", empty: "fav" });
     if (query && !hist.length) renderCards(histList, [], { empty: "search" });
     else renderCards(histList, hist, { library: "hist", empty: "hist" });
-    const favLabel = document.getElementById("fav-label");
-    const histLabel = document.getElementById("hist-label");
-    if (favLabel) {
-      const note = lib.favourites.length + (lib.favourites.length === 1 ? " favourite" : " favourites");
-      favLabel.title = note;
-      favLabel.setAttribute("aria-label", note);
-    }
-    if (histLabel) histLabel.title = lib.history.length + (lib.history.length === 1 ? " earlier prompt" : " earlier prompts");
+    const favCount = document.getElementById("fav-count");
+    const histCount = document.getElementById("hist-count");
+    if (favCount) favCount.textContent = String(lib.favourites.length);
+    if (histCount) histCount.textContent = String(lib.history.length);
+    const favTab = document.getElementById("tab-fav");
+    const histTab = document.getElementById("tab-hist");
+    if (favTab) favTab.setAttribute("aria-label", "Favourites, " + lib.favourites.length);
+    if (histTab) histTab.setAttribute("aria-label", "History, " + lib.history.length);
+    setShelf(state.shelf);
     if (state.currentCard && !state.currentCard.isConnected) state.currentCard = null;
   }
 
@@ -833,7 +835,7 @@
     renderLibrary();
     if (focusId && focusId.id) {
       const again = document.querySelector('#fav-list .card[data-id="' + focusId.id + '"], #hist-list .card[data-id="' + focusId.id + '"]');
-      if (again) again.focus();
+      if (again && !again.closest("[hidden]")) again.focus();
     }
     if (state.panelId === id) {
       const fresh = findEntry(id);
@@ -1157,8 +1159,57 @@
   }
 
   function cardsInActive() {
-    const id = state.active === "animation" ? "anim-output" : state.active === "favourites" ? "favourites" : "bg-output";
-    return Array.prototype.slice.call(document.getElementById(id).querySelectorAll(".card"));
+    const id = state.active === "animation" ? "anim-output" : state.active === "favourites" ? (state.shelf === "hist" ? "hist-list" : "fav-list") : "bg-output";
+    const root = document.getElementById(id);
+    if (!root) return [];
+    return Array.prototype.slice.call(root.querySelectorAll(".card"));
+  }
+
+  function setShelf(which) {
+    state.shelf = which === "hist" ? "hist" : "fav";
+    const favOn = state.shelf === "fav";
+    const favList = document.getElementById("fav-list");
+    const histList = document.getElementById("hist-list");
+    const favTab = document.getElementById("tab-fav");
+    const histTab = document.getElementById("tab-hist");
+    if (favList) favList.hidden = !favOn;
+    if (histList) histList.hidden = favOn;
+    if (favTab) {
+      favTab.classList.toggle("is-on", favOn);
+      favTab.setAttribute("aria-selected", favOn ? "true" : "false");
+    }
+    if (histTab) {
+      histTab.classList.toggle("is-on", !favOn);
+      histTab.setAttribute("aria-selected", favOn ? "false" : "true");
+    }
+  }
+
+  function setSearchOpen(on) {
+    const wrap = document.getElementById("search-pop");
+    const input = document.getElementById("search");
+    const button = document.getElementById("search-open");
+    if (!wrap || !input) return;
+    wrap.classList.toggle("is-open", !!on);
+    input.tabIndex = on ? 0 : -1;
+    if (button) button.setAttribute("aria-expanded", on ? "true" : "false");
+    if (on) input.focus();
+  }
+
+  function closeLibraryMenu() {
+    const menu = document.getElementById("library-menu");
+    const button = document.getElementById("library-more");
+    if (!menu || menu.hidden) return;
+    menu.hidden = true;
+    if (button) button.setAttribute("aria-expanded", "false");
+  }
+
+  function toggleLibraryMenu() {
+    const menu = document.getElementById("library-menu");
+    const button = document.getElementById("library-more");
+    if (!menu) return;
+    const open = menu.hidden;
+    menu.hidden = !open;
+    if (button) button.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
   function moveCard(dir) {
@@ -1474,6 +1525,20 @@
       if (document.querySelector(".recent-toggle[aria-expanded='true']")) {
         event.preventDefault();
         closeRecentMenus();
+        return;
+      }
+      if (event.target && event.target.id === "search") {
+        event.preventDefault();
+        event.target.value = "";
+        renderLibrary();
+        setSearchOpen(false);
+        event.target.blur();
+        return;
+      }
+      const libraryMenu = document.getElementById("library-menu");
+      if (libraryMenu && !libraryMenu.hidden) {
+        event.preventDefault();
+        closeLibraryMenu();
         return;
       }
       const settings = document.getElementById("settings-pop");
@@ -1820,6 +1885,10 @@
     document.addEventListener("click", function (event) {
       if (!event.target.closest(".recent-menu")) closeRecentMenus();
       if (!event.target.closest("#settings-pop, #settings-open")) closeSettings();
+      if (!event.target.closest(".overflow-menu")) closeLibraryMenu();
+      const searchPop = document.getElementById("search-pop");
+      const search = document.getElementById("search");
+      if (searchPop && search && !event.target.closest("#search-pop") && !search.value.trim()) setSearchOpen(false);
     });
     document.querySelectorAll(".keyword-share").forEach(function (button) {
       button.addEventListener("click", function () {
@@ -1928,7 +1997,14 @@
       link.addEventListener("click", function () { setActive(link.dataset.jump); });
     });
 
+    document.getElementById("tab-fav").addEventListener("click", function () { setShelf("fav"); });
+    document.getElementById("tab-hist").addEventListener("click", function () { setShelf("hist"); });
+    document.getElementById("search-open").addEventListener("click", function () {
+      const open = document.getElementById("search-pop").classList.contains("is-open");
+      setSearchOpen(!open);
+    });
     document.getElementById("search").addEventListener("input", renderLibrary);
+    document.getElementById("library-more").addEventListener("click", function () { toggleLibraryMenu(); });
     document.getElementById("export").addEventListener("click", function () {
       const lib = loadLibrary();
       const payload = {
@@ -1937,9 +2013,11 @@
         favourites: lib.favourites,
         history: lib.history
       };
-      downloadText("prompt-folio-library.json", JSON.stringify(payload, null, 2), document.getElementById("export"));
+      closeLibraryMenu();
+      downloadText("prompt-folio-library.json", JSON.stringify(payload, null, 2), document.getElementById("library-more"));
     });
     document.getElementById("import-btn").addEventListener("click", function () {
+      closeLibraryMenu();
       document.getElementById("import-file").click();
     });
     document.getElementById("import-file").addEventListener("change", function (event) {
@@ -1948,54 +2026,51 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onerror = function () {
-        failFlash(document.getElementById("import-btn"));
+        failFlash(document.getElementById("library-more"));
         toast("Could not read that file.", true);
       };
       reader.onload = function () {
         try {
           const result = mergeImport(JSON.parse(String(reader.result)));
           renderLibrary();
-          flash(document.getElementById("import-btn"));
+          flash(document.getElementById("library-more"));
           toast("Imported " + result.fav + " favourites and " + result.hist + " history notes.");
         } catch (err) {
-          failFlash(document.getElementById("import-btn"));
+          failFlash(document.getElementById("library-more"));
           toast("Import failed. Choose a JSON file exported from this folio.", true);
         }
       };
       reader.readAsText(file);
     });
 
-    document.getElementById("clear-fav").addEventListener("click", async function () {
+    document.getElementById("library-clear").addEventListener("click", async function () {
+      closeLibraryMenu();
+      const more = document.getElementById("library-more");
+      if (state.shelf === "hist") {
+        const ok = await askConfirm("Clear history?", "This removes the generations kept in this browser. Favourites stay.", "Clear history");
+        if (!ok) { toast("History kept"); return; }
+        const lib = loadLibrary();
+        lib.history = [];
+        if (!saveLibrary(lib)) { failFlash(more); return; }
+        renderLibrary();
+        flash(more);
+        toast("History cleared");
+        return;
+      }
       const ok = await askConfirm("Clear favourites?", "Stars are removed. History stays. This cannot be undone.", "Clear favourites");
       if (!ok) { toast("Favourites kept"); return; }
       const lib = loadLibrary();
       const ids = lib.favourites.map(function (entry) { return entry.id; });
       lib.favourites = [];
       lib.history.forEach(function (entry) { entry.starred = false; });
-      if (!saveLibrary(lib)) {
-        failFlash(document.getElementById("clear-fav"));
-        return;
-      }
+      if (!saveLibrary(lib)) { failFlash(more); return; }
       state.bgBatch.concat(state.animBatch).forEach(function (entry) {
         if (ids.indexOf(entry.id) >= 0) entry.starred = false;
       });
       ids.forEach(function (id) { syncStarDom(id, false); });
       renderLibrary();
-      flash(document.getElementById("clear-fav"));
+      flash(more);
       toast("Favourites cleared");
-    });
-    document.getElementById("clear-hist").addEventListener("click", async function () {
-      const ok = await askConfirm("Clear history?", "This removes the generations kept in this browser. Favourites stay.", "Clear history");
-      if (!ok) { toast("History kept"); return; }
-      const lib = loadLibrary();
-      lib.history = [];
-      if (!saveLibrary(lib)) {
-        failFlash(document.getElementById("clear-hist"));
-        return;
-      }
-      renderLibrary();
-      flash(document.getElementById("clear-hist"));
-      toast("History cleared");
     });
 
     bindSlider("text-size", "text-size-val", "moap.textScale", "--text-scale", function (n) { return String(n / 100); });
