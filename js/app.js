@@ -168,38 +168,38 @@
     return out;
   }
 
-  function planKeywords(settings, qty, seedKey) {
+  function keywordTurn(settings) {
+    const n = Number(settings && settings.turn);
+    if (!isFinite(n) || n < 0) return 0;
+    return Math.floor(n);
+  }
+
+  function planKeywords(settings) {
     const raw = splitKeywords(settings.keywords);
     if (!raw.length) return null;
     const items = dedupeKeywordItems(raw.map(function (phrase) {
-      return {
-        text: settings.keywordDescribe ? describePhrase(phrase) : phrase,
-        place: keywordPlace(phrase)
-      };
+      return { text: phrase, place: keywordPlace(phrase) };
     }));
     if (!items.length) return null;
-    const rng = mulberry32(hashSeed(seedKey + "|kw"));
     const order = items.slice();
+    const rng = mulberry32(hashSeed(JSON.stringify({
+      seed: String(settings.seed || "1847"),
+      keywords: order.map(function (item) { return item.text; }).join("\n")
+    })));
     for (let i = order.length - 1; i > 0; i -= 1) {
       const j = Math.floor(rng() * (i + 1));
       const swap = order[i];
       order[i] = order[j];
       order[j] = swap;
     }
-    const slots = order.slice();
-    if (order.length > 1) {
-      for (let i = 0; i < order.length; i += 1) {
-        const a = order[i];
-        const b = order[(i + 1) % order.length];
-        slots.push({
-          text: a.text + " and " + articleFor(b.text),
-          place: a.place || b.place || ""
-        });
-      }
-    }
-    const assigned = [];
-    for (let i = 0; i < qty; i += 1) assigned.push(slots[i % slots.length]);
-    return { mode: keywordModeOf(settings), slots: assigned };
+    const chosen = order[keywordTurn(settings) % order.length];
+    return {
+      mode: keywordModeOf(settings),
+      slots: [{
+        text: settings.keywordDescribe ? describePhrase(chosen.text) : chosen.text,
+        place: chosen.place
+      }]
+    };
   }
 
   function syntheticScene(place) {
@@ -251,6 +251,7 @@
       v: 2,
       kind: kind,
       seed: settings.seed || "1847",
+      turn: keywordTurn(settings),
       clean: !!settings.clean,
       negativeOn: !!settings.negativeOn,
       negativeText: settings.negativeOn ? settings.negativeText || "" : "",
@@ -461,68 +462,23 @@
     };
   }
 
-  function withUnique(baseText, parts, seen, index, seedKey) {
-    if (!seen.has(baseText)) return { text: baseText, parts: parts };
-    const finishers = BANKS.finishers;
-    for (let n = 0; n < finishers.length; n += 1) {
-      const rng = mulberry32(hashSeed(seedKey + "|fin|" + index + "|" + n));
-      const finisher = pick(rng, finishers);
-      const candidate = baseText + " " + finisher.text;
-      if (!seen.has(candidate)) {
-        return {
-          text: candidate,
-          parts: parts.concat([{ key: "note", label: "Note", text: finisher.text }])
-        };
-      }
-    }
-    let extra = "Plate " + (index + 1) + " keeps this reading distinct within the batch.";
-    let text = baseText + " " + extra;
-    let n = 2;
-    while (seen.has(text)) {
-      extra = "Plate " + (index + 1) + " keeps this reading distinct within the batch (" + n + ").";
-      text = baseText + " " + extra;
-      n += 1;
-    }
-    return {
-      text: text,
-      parts: parts.concat([{ key: "note", label: "Note", text: extra }])
-    };
-  }
-
   function buildBatch(kind, settings) {
-    const qty = [1, 10, 30].indexOf(settings.qty) >= 0 ? settings.qty : 1;
     const seedKey = seedKeyFor(kind, settings);
     const shared = resolveShared(kind, seedKey, settings);
     const forced = forcedMap(kind, settings);
-    const planned = planKeywords(settings, qty, seedKey);
-    const seen = new Set();
-    const prompts = [];
-    let filledScene = "";
-    for (let i = 0; i < qty; i += 1) {
-      const cardSettings = {};
-      Object.keys(settings).forEach(function (key) { cardSettings[key] = settings[key]; });
-      const slot = planned ? planned.slots[i] : null;
-      cardSettings.keywordPhrase = slot ? slot.text : "";
-      cardSettings.keywordPlace = slot ? slot.place : "";
-      cardSettings.keywordMode = slot ? planned.mode : "";
-      let built = null;
-      for (let salt = 0; salt < 8; salt += 1) {
-        const rng = mulberry32(hashSeed(seedKey + "|i|" + i + "|s|" + salt));
-        built = kind === "background"
-          ? makeBackground(rng, shared, cardSettings, forced)
-          : makeAnimation(rng, shared, cardSettings, forced);
-        if (!seen.has(built.text)) break;
-      }
-      if (seen.has(built.text)) {
-        const fixed = withUnique(built.text, built.parts, seen, i, seedKey);
-        built.text = fixed.text;
-        built.parts = fixed.parts;
-      }
-      if (built.filledScene) filledScene = built.filledScene;
-      seen.add(built.text);
-      prompts.push(built);
-    }
-    prompts.filledScene = filledScene;
+    const planned = planKeywords(settings);
+    const cardSettings = {};
+    Object.keys(settings).forEach(function (key) { cardSettings[key] = settings[key]; });
+    const slot = planned ? planned.slots[0] : null;
+    cardSettings.keywordPhrase = slot ? slot.text : "";
+    cardSettings.keywordPlace = slot ? slot.place : "";
+    cardSettings.keywordMode = slot ? planned.mode : "";
+    const rng = mulberry32(hashSeed(seedKey + "|card"));
+    const built = kind === "background"
+      ? makeBackground(rng, shared, cardSettings, forced)
+      : makeAnimation(rng, shared, cardSettings, forced);
+    const prompts = [built];
+    prompts.filledScene = built.filledScene || "";
     return prompts;
   }
 
@@ -614,7 +570,7 @@
 
   function cardHTML(entry, opts) {
     const library = opts.library || "";
-    const plate = library ? formatWhen(entry.created) : "Plate " + String(opts.index).padStart(2, "0");
+    const plate = library ? formatWhen(entry.created) : "Plate";
     const kindLabel = entry.kind === "animation" ? "Motion" : "Still";
     const prompt = entry.kind === "animation" ? partsHTML(entry.parts) : esc(entry.text);
     const tip = entry.tip
@@ -646,8 +602,8 @@
   }
 
   function emptyHTML(which) {
-    if (which === "background") return '<p class="empty">No plates in this issue yet. <span class="margin-note">Press Generate, or the G key.</span></p>';
-    if (which === "animation") return '<p class="empty">No motion plates yet. <span class="margin-note">Send a still across, or leave the scene empty.</span></p>';
+    if (which === "background") return '<p class="empty">No prompt yet. <span class="margin-note">Press Generate, or the G key.</span></p>';
+    if (which === "animation") return '<p class="empty">No motion prompt yet. <span class="margin-note">Send a still across, or leave the scene empty.</span></p>';
     if (which === "fav") return '<p class="empty">No starred prompts yet. <span class="margin-note">Star a plate and it will wait here.</span></p>';
     if (which === "hist") return '<p class="empty">History is empty. <span class="margin-note">The last hundred generations gather here.</span></p>';
     if (which === "search") return '<p class="empty">Nothing matches that search.</p>';
@@ -788,8 +744,6 @@
     const output = document.getElementById(kind === "background" ? "bg-output" : "anim-output");
     const entries = kind === "background" ? state.bgBatch : state.animBatch;
     renderCards(output, entries, { empty: kind === "background" ? "background" : "animation" });
-    const count = document.getElementById(kind === "background" ? "bg-count" : "anim-count");
-    count.textContent = entries.length ? entries.length + (entries.length === 1 ? " plate" : " plates") : "No plates yet";
     if (state.currentCard && !state.currentCard.isConnected) state.currentCard = null;
   }
 
@@ -930,16 +884,25 @@
     return fields;
   }
 
-  function getQty(id) {
-    const pressed = document.querySelector("#" + id + ' button[aria-pressed="true"]');
-    return pressed ? Number(pressed.dataset.qty) : 1;
+  function turnKey(kind) {
+    return kind === "background" ? "moap.bgTurn" : "moap.animTurn";
+  }
+
+  function storedTurn(kind) {
+    const n = Number(storageGet(turnKey(kind)));
+    if (!isFinite(n) || n < 0) return 0;
+    return Math.floor(n);
+  }
+
+  function setTurn(kind, n) {
+    storageSet(turnKey(kind), String(n));
   }
 
   function readSettings(kind) {
     if (kind === "background") {
       return {
         seed: document.getElementById("bg-seed").value.trim(),
-        qty: getQty("bg-qty"),
+        turn: storedTurn(kind),
         clean: document.getElementById("bg-clean").checked,
         negativeOn: document.getElementById("bg-neg-on").checked,
         negativeText: document.getElementById("bg-neg").value.trim(),
@@ -952,7 +915,7 @@
     const animWords = keywordBox("anim");
     return {
       seed: document.getElementById("anim-seed").value.trim(),
-      qty: getQty("anim-qty"),
+      turn: storedTurn(kind),
       sceneText: document.getElementById("anim-scene").value.trim(),
       sceneLocked: keywordHold.animation.held
         ? !!keywordHold.animation.locked
@@ -982,7 +945,6 @@
     if (!saved) return;
     const prefix = kind === "background" ? "bg" : "anim";
     if (saved.seed) document.getElementById(prefix + "-seed").value = saved.seed;
-    if (saved.qty) setQty(kind, saved.qty, { silent: true });
     const keys = kind === "background" ? BG_KEYS : ANIM_KEYS;
     keys.forEach(function (key) {
       const field = saved.fields && saved.fields[key];
@@ -1009,19 +971,6 @@
     }
   }
 
-  function setQty(kind, qty, opts) {
-    const options = opts || {};
-    const root = document.getElementById(kind === "background" ? "bg-qty" : "anim-qty");
-    root.querySelectorAll("button").forEach(function (btn) {
-      btn.setAttribute("aria-pressed", Number(btn.dataset.qty) === qty ? "true" : "false");
-    });
-    if (!options.silent) {
-      flash(root);
-      toast((kind === "background" ? "Backgrounds" : "Animation") + " quantity is " + qty);
-      saveSettings(kind);
-    }
-  }
-
   function generate(kind, opts) {
     const options = opts || {};
     const settings = readSettings(kind);
@@ -1031,49 +980,38 @@
       seedInput.value = "1847";
       saveSettings(kind);
     }
+    const previous = (kind === "background" ? state.bgBatch : state.animBatch)[0] || null;
+    settings.turn = storedTurn(kind) + 1;
+    setTurn(kind, settings.turn);
     let built;
     try {
       built = buildBatch(kind, settings);
     } catch (err) {
-      toast("Could not generate that batch.", true);
+      toast("Could not write that prompt.", true);
       return;
     }
-    const entries = built.map(function (item) { return toEntry(kind, item, settings); });
-    if (kind === "background") state.bgBatch = entries;
-    else state.animBatch = entries;
+    const entry = toEntry(kind, built[0], settings);
+    if (kind === "background") state.bgBatch = [entry];
+    else state.animBatch = [entry];
     if (kind === "animation") {
       state.lastPinnedScene = built.filledScene || "";
       updateSceneHint(built.filledScene || "");
     }
-    remember(entries);
+    remember([entry]);
     if (settings.keywords) rememberKeyword(settings.keywords);
     renderBatch(kind);
     renderLibrary();
-    const noun = kind === "background"
-      ? (entries.length === 1 ? "background" : "backgrounds")
-      : (entries.length === 1 ? "animation prompt" : "animation prompts");
-    toast(entries.length + " " + noun + " ready");
+    toast("Prompt ready");
     flash(document.getElementById(kind === "background" ? "bg-generate" : "anim-generate"));
-    if (options.focusFirst) {
-      const first = document.querySelector("#" + (kind === "background" ? "bg-output" : "anim-output") + " .card");
-      if (first) setCurrent(first);
-    }
+    const card = document.querySelector("#" + (kind === "background" ? "bg-output" : "anim-output") + " .card");
+    if (options.focusFirst && card) setCurrent(card);
+    if (previous && state.panelId === previous.id && card) openPanel(entry);
   }
 
   function promptsText(entries) {
     const includeNegative = copyNegativeOn() && entries.some(function (entry) { return !!entry.negative; });
     const sep = includeNegative ? "\n\n" : "\n";
     return entries.map(function (entry) { return entryCopyText(entry, includeNegative); }).join(sep);
-  }
-
-  function copyAll(kind) {
-    const entries = kind === "background" ? state.bgBatch : state.animBatch;
-    if (!entries.length) {
-      toast("Nothing to copy yet. Generate a batch first.", true);
-      return;
-    }
-    copyText(promptsText(entries), null, "Copied " + entries.length + (entries.length === 1 ? " prompt" : " prompts"));
-    flash(document.getElementById(kind === "background" ? "bg-copy-all" : "anim-copy-all"));
   }
 
   function downloadText(filename, text) {
@@ -1096,7 +1034,7 @@
   function downloadBatch(kind) {
     const entries = kind === "background" ? state.bgBatch : state.animBatch;
     if (!entries.length) {
-      toast("Nothing to download yet. Generate a batch first.", true);
+      toast("Nothing to download yet. Generate a prompt first.", true);
       return;
     }
     const settings = readSettings(kind);
@@ -1127,26 +1065,26 @@
     const locked = document.getElementById("lock-anim-scene").getAttribute("aria-pressed") === "true";
     if (text) {
       hint.textContent = locked
-        ? "Pinned. Every prompt in the next batch starts from this scene."
-        : "This text is the subject of every prompt in the batch. Lock it if you want to keep it while you experiment.";
+        ? "Pinned. The next prompt starts from this scene."
+        : "This text is the subject of the next prompt. Lock it to keep it while you experiment.";
       return;
     }
     if (locked && pinned) {
-      hint.textContent = "Pinned place for this batch: " + pinned;
+      hint.textContent = "Pinned place: " + pinned;
       return;
     }
     if (locked) {
-      hint.textContent = "Locked while empty: the batch shares one seeded place. Generate to see which.";
+      hint.textContent = "Locked while empty: the next prompt uses one seeded place. Generate to see which.";
       return;
     }
-    hint.textContent = "Leave this empty for a different place on each card, or send one across with Animate this.";
+    hint.textContent = "Leave this empty to invent a place, or send one across with Animate this.";
   }
 
   function updateCameraTip() {
     const select = document.getElementById("anim-camera");
     const tip = document.getElementById("camera-tip");
     if (select.value === "any") {
-      tip.textContent = "Any chooses a move for each prompt. Lock it when every card should share one move. Each card explains the move in plain words.";
+      tip.textContent = "Any chooses a move for the next prompt. Lock it to keep that move. The plate explains the move in plain words.";
       return;
     }
     const item = BANKS.cameras[Number(select.value)];
@@ -1307,6 +1245,7 @@
   function rollSeed(input, kind) {
     const next = String(1000 + Math.floor(Math.random() * 9000));
     input.value = next;
+    setTurn(kind, 0);
     flash(input);
     saveSettings(kind);
     toast("New seed " + next + ". Generate to use it.");
@@ -1554,39 +1493,31 @@
       generate(state.active === "animation" ? "animation" : "background", { focusFirst: true });
       return;
     }
-    if (key === "1" || key === "2" || key === "3") {
-      event.preventDefault();
-      const qty = key === "1" ? 1 : key === "2" ? 10 : 30;
-      if (state.active === "favourites") {
-        setQty("background", qty, { silent: true });
-        setQty("animation", qty, { silent: true });
-        saveSettings("background");
-        saveSettings("animation");
-        toast("Quantity is " + qty);
-      } else if (state.active === "animation") setQty("animation", qty);
-      else setQty("background", qty);
-      return;
-    }
     if ((key === "j" || key === "J") && event.shiftKey) { event.preventDefault(); moveCard(-1); return; }
     if (key === "j" || key === "J") { event.preventDefault(); moveCard(1); return; }
     if (key === "k" || key === "K") { event.preventDefault(); focusKeywords(); return; }
     if (key === "c" || key === "C") {
       event.preventDefault();
       const entry = currentEntry();
-      if (!entry) { toast("Press J to land on a card first.", true); return; }
+      if (!entry) {
+        toast(state.active === "favourites" ? "Press J to land on a plate first." : "Generate a prompt first.", true);
+        return;
+      }
       copyEntry(entry, state.currentCard);
       return;
     }
-    if (key === "a" || key === "A") {
+    if ((key === "a" || key === "A") && state.active === "favourites") {
       event.preventDefault();
-      if (state.active === "favourites") copyVisibleLibrary();
-      else copyAll(state.active === "animation" ? "animation" : "background");
+      copyVisibleLibrary();
       return;
     }
     if (key === "s" || key === "S") {
       event.preventDefault();
       const entry = currentEntry();
-      if (!entry) { toast("Press J to land on a card first.", true); return; }
+      if (!entry) {
+        toast(state.active === "favourites" ? "Press J to land on a plate first." : "Generate a prompt first.", true);
+        return;
+      }
       setStar(entry.id, !entry.starred);
       return;
     }
@@ -1597,15 +1528,6 @@
       event.preventDefault();
       openPanel(entry);
     }
-  }
-
-  function bindQty(kind) {
-    const root = document.getElementById(kind === "background" ? "bg-qty" : "anim-qty");
-    root.addEventListener("click", function (event) {
-      const btn = event.target.closest("button");
-      if (!btn) return;
-      setQty(kind, Number(btn.dataset.qty));
-    });
   }
 
   function bindLocks() {
@@ -1913,15 +1835,11 @@
     renderLibrary();
     setActive("backgrounds");
 
-    bindQty("background");
-    bindQty("animation");
     bindLocks();
     bindCopyNeg();
 
     document.getElementById("bg-generate").addEventListener("click", function () { generate("background"); });
     document.getElementById("anim-generate").addEventListener("click", function () { generate("animation"); });
-    document.getElementById("bg-copy-all").addEventListener("click", function () { copyAll("background"); });
-    document.getElementById("anim-copy-all").addEventListener("click", function () { copyAll("animation"); });
     document.getElementById("bg-download").addEventListener("click", function () { downloadBatch("background"); });
     document.getElementById("anim-download").addEventListener("click", function () { downloadBatch("animation"); });
     document.getElementById("bg-dice").addEventListener("click", function () { rollSeed(document.getElementById("bg-seed"), "background"); });
@@ -1949,7 +1867,7 @@
       saveSettings("animation");
       updateSceneHint();
       flash(area);
-      toast("Scene cleared. The next batch can invent places.");
+      toast("Scene cleared. The next prompt can invent a place.");
     });
     document.getElementById("anim-camera").addEventListener("change", function () {
       updateCameraTip();
@@ -1963,7 +1881,9 @@
         select.addEventListener("change", function () { saveSettings(prefix === "bg" ? "background" : "animation"); });
       });
       document.getElementById(prefix + "-seed").addEventListener("change", function () {
-        saveSettings(prefix === "bg" ? "background" : "animation");
+        const kind = prefix === "bg" ? "background" : "animation";
+        setTurn(kind, 0);
+        saveSettings(kind);
       });
     });
 

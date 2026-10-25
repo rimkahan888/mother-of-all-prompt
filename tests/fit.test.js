@@ -165,34 +165,26 @@ for (let n = 0; n < 40; n += 1) {
 }
 assert(cityTrails > 0, "city scenes sometimes get traffic or light trails");
 
-const batch = MOAP.buildBatch("background", {
-  seed: "1847",
-  qty: 30,
-  clean: true,
-  negativeOn: true,
-  negativeText: "people",
-  fields: fields()
+function onePrompt(kind, extra) {
+  return MOAP.buildBatch(kind, Object.assign({
+    seed: "1847",
+    turn: 0,
+    clean: true,
+    negativeOn: true,
+    negativeText: "people",
+    fields: fields()
+  }, extra || {}));
+}
+
+[1, 10, 30].forEach(function (qty) {
+  const plate = onePrompt("background", { qty: qty, turn: 0 });
+  assert(plate.length === 1, "qty " + qty + " still writes one prompt");
 });
-assert(batch.length === 30, "qty 30");
-assert(new Set(batch.map(function (plate) { return plate.text; })).size === 30, "30 prompts are unique");
-const again = MOAP.buildBatch("background", {
-  seed: "1847",
-  qty: 30,
-  clean: true,
-  negativeOn: true,
-  negativeText: "people",
-  fields: fields()
-});
-assert(batch.map(function (plate) { return plate.text; }).join("\n") === again.map(function (plate) { return plate.text; }).join("\n"), "same seed reproduces");
-const ten = MOAP.buildBatch("background", {
-  seed: "1847",
-  qty: 10,
-  clean: true,
-  negativeOn: true,
-  negativeText: "people",
-  fields: fields()
-});
-assert(ten.map(function (plate) { return plate.text; }).join("\n") === batch.slice(0, 10).map(function (plate) { return plate.text; }).join("\n"), "first 10 of 30 match");
+const step = onePrompt("background", { turn: 0 });
+const stepAgain = onePrompt("background", { turn: 0, qty: 30 });
+assert(step[0].text === stepAgain[0].text, "same seed and step reproduce one prompt");
+const stepNext = onePrompt("background", { turn: 1 });
+assert(stepNext.length === 1 && stepNext[0].text !== step[0].text, "the next step is a new prompt");
 
 function countPhrase(text, phrase) {
   const hay = String(text || "").toLowerCase();
@@ -211,7 +203,7 @@ function countPhrase(text, phrase) {
 function keywordBatch(kind, keywords, extra) {
   const settings = Object.assign({
     seed: "1847",
-    qty: 10,
+    turn: 0,
     clean: false,
     negativeOn: false,
     negativeText: "",
@@ -227,7 +219,7 @@ function keywordBatch(kind, keywords, extra) {
 }
 
 const pokemon = keywordBatch("background", "pokemon world");
-assert(pokemon.length === 10, "pokemon batch is 10");
+assert(pokemon.length === 1, "pokemon generation is one prompt");
 pokemon.forEach(function (plate) {
   assert(countPhrase(plate.text, "pokemon world") === 1, "pokemon world once: " + plate.text);
   assert(/^[A-Z]/.test(plate.text), "pokemon sentence starts with a capital: " + plate.text);
@@ -236,8 +228,12 @@ pokemon.forEach(function (plate) {
   assert(/\b(a|the) pokemon world\b|\bpokemon world\b/i.test(plate.text), "pokemon world sits in a sentence");
 });
 const pokemonAgain = keywordBatch("background", "pokemon world");
-assert(pokemon.map(function (plate) { return plate.text; }).join("\n") === pokemonAgain.map(function (plate) { return plate.text; }).join("\n"), "same keywords and seed reproduce the batch");
+assert(pokemon[0].text === pokemonAgain[0].text, "same keywords, seed, and step reproduce the prompt");
+const pokemonNext = keywordBatch("background", "pokemon world", { turn: 1 });
+assert(pokemonNext.length === 1 && countPhrase(pokemonNext[0].text, "pokemon world") === 1, "the next pokemon prompt still names it once");
+assert(pokemonNext[0].text !== pokemon[0].text, "the next pokemon step is a new prompt");
 const pokemonAnim = keywordBatch("animation", "pokemon world");
+assert(pokemonAnim.length === 1, "animation generation is one prompt");
 pokemonAnim.forEach(function (plate) {
   assert(countPhrase(plate.text, "pokemon world") === 1, "animation pokemon world once: " + plate.text);
   assert(/^[A-Z]/.test(plate.text) && /[.!?]$/.test(plate.text), "animation pokemon reads as a sentence");
@@ -255,14 +251,23 @@ for (let n = 0; n < 20; n += 1) {
   });
 }
 
-const mixed = keywordBatch("background", "cyberpunk tokyo, rainy night", { qty: 10, seed: "mix" });
-const sawTokyo = mixed.some(function (plate) { return /cyberpunk tokyo/i.test(plate.text); });
-const sawNight = mixed.some(function (plate) { return /rainy night/i.test(plate.text); });
-assert(sawTokyo && sawNight, "several keywords are shared across the batch");
-mixed.forEach(function (plate) {
-  assert(countPhrase(plate.text, "cyberpunk tokyo") <= 1, "tokyo once in a plate");
-  assert(countPhrase(plate.text, "rainy night") <= 1, "rainy night once in a plate");
+function openingKeyword(text) {
+  const head = String(text || "").split(/(?<=\.)\s/)[0];
+  const tokyo = /cyberpunk tokyo/i.test(head);
+  const night = /rainy night/i.test(head);
+  return { head: head, tokyo: tokyo, night: night };
+}
+const mixedTurns = [0, 1, 2, 3].map(function (turn) {
+  const plate = keywordBatch("background", "cyberpunk tokyo, rainy night", { turn: turn, seed: "mix" })[0];
+  const found = openingKeyword(plate.text);
+  assert(found.tokyo !== found.night, "one keyword leads the prompt: " + found.head);
+  assert(plate.text.length > 40 && /[.!?]$/.test(plate.text), "rotated keyword still reads as a prompt");
+  return found.tokyo ? "tokyo" : "night";
 });
+assert(mixedTurns[0] !== mixedTurns[1], "the next generation takes the other keyword");
+assert(mixedTurns[0] === mixedTurns[2] && mixedTurns[1] === mixedTurns[3], "keywords rotate and then repeat");
+const mixedAgain = keywordBatch("background", "cyberpunk tokyo, rainy night", { turn: 1, seed: "mix" })[0];
+assert(openingKeyword(mixedAgain.text).tokyo === (mixedTurns[1] === "tokyo"), "the same step picks the same keyword");
 
 ["desert", "underwater", "space", "interior", "nature", "city"].forEach(function (place) {
   const motions = BANKS.motions.filter(function (item) {

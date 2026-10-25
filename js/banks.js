@@ -1,6 +1,6 @@
 /* Word banks for The Prompt Folio.
    Aspect ratios and durations stay on the short lists from the brief.
-   Every other creative bank has 40 or more entries so a batch of 30 can vary.
+   Every other creative bank has 40 or more entries so successive prompts can vary.
    Loaded as a classic script so the page works from file://. */
 globalThis.MOAP_BANKS = {
   scenes: [

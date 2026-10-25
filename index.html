@@ -166,7 +166,7 @@
           <span class="margin-note">image generators</span>
         </p>
         <h2 id="bg-title">Backgrounds <span class="h-issue">Issue No. 01</span></h2>
-        <p class="lede">Scenes for a still image, written as full sentences rather than a pile of keywords. Any setting is shuffled per plate. Lock one when the whole batch should share it.</p>
+        <p class="lede">Scenes for a still image, written as full sentences. Lock a control when the next prompt should keep it.</p>
       </div>
 
       <div class="keyword-box">
@@ -200,23 +200,28 @@
         <div class="field field-seed">
           <label class="field-label" for="bg-seed">Seed</label>
           <div class="seed-line">
-            <input id="bg-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Same seed and the same settings rebuild the same batch">
+            <input id="bg-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Each Generate draws the next prompt from this seed">
             <button type="button" class="icon-btn" id="bg-dice" aria-label="Roll a new seed" title="Roll a new seed">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
             </button>
           </div>
         </div>
-        <div class="field">
-          <span class="field-label" id="bg-qty-label">Quantity</span>
-          <div class="segmented" id="bg-qty" role="radiogroup" aria-labelledby="bg-qty-label">
-            <button type="button" data-qty="1" aria-pressed="true">1</button>
-            <button type="button" data-qty="10" aria-pressed="false">10</button>
-            <button type="button" data-qty="30" aria-pressed="false">30</button>
-          </div>
-        </div>
         <button type="button" class="btn-go" id="bg-generate" title="Generate (G)">Generate</button>
       </div>
-      <p class="hint">Same seed and the same settings always rebuild the same batch. The dice only changes the seed.</p>
+      <p class="hint">Generate replaces this plate with the next prompt. History keeps the earlier ones. The dice starts a new seed.</p>
+
+      <div class="toolbar">
+        <div class="toolbar-actions">
+          <label class="switch copy-neg-switch" title="Off copies the prompt only. On also appends the negative line.">
+            <input type="checkbox" class="copy-neg-toggle">
+            <span>Include negative prompt</span>
+          </label>
+          <button type="button" class="btn" id="bg-download">Download .txt</button>
+        </div>
+      </div>
+      <div class="cards plate-well" id="bg-output">
+        <p class="empty">No prompt yet. <span class="margin-note">Press Generate, or the G key.</span></p>
+      </div>
 
       <div class="controls">
         <div class="control">
@@ -319,20 +324,6 @@
         </div>
       </div>
 
-      <div class="toolbar">
-        <p class="count" id="bg-count">No plates yet</p>
-        <div class="toolbar-actions">
-          <label class="switch copy-neg-switch" title="Off copies the prompt only. On also appends the negative line.">
-            <input type="checkbox" class="copy-neg-toggle">
-            <span>Include negative prompt</span>
-          </label>
-          <button type="button" class="btn" id="bg-copy-all" title="Copy all, one prompt per line (A)">Copy all</button>
-          <button type="button" class="btn" id="bg-download">Download .txt</button>
-        </div>
-      </div>
-      <div class="cards" id="bg-output">
-        <p class="empty">No plates in this issue yet. <span class="margin-note">Press Generate, or the G key.</span></p>
-      </div>
     </section>
 
     <section class="issue" id="animation" aria-labelledby="anim-title">
@@ -415,21 +406,22 @@
         <div class="field field-seed">
           <label class="field-label" for="anim-seed">Seed</label>
           <div class="seed-line">
-            <input id="anim-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Same seed and the same settings rebuild the same batch">
+            <input id="anim-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Each Generate draws the next prompt from this seed">
             <button type="button" class="icon-btn" id="anim-dice" aria-label="Roll a new seed" title="Roll a new seed">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
             </button>
           </div>
         </div>
-        <div class="field">
-          <span class="field-label" id="anim-qty-label">Quantity</span>
-          <div class="segmented" id="anim-qty" role="radiogroup" aria-labelledby="anim-qty-label">
-            <button type="button" data-qty="1" aria-pressed="true">1</button>
-            <button type="button" data-qty="10" aria-pressed="false">10</button>
-            <button type="button" data-qty="30" aria-pressed="false">30</button>
-          </div>
-        </div>
         <button type="button" class="btn-go" id="anim-generate" title="Generate (G)">Generate</button>
+      </div>
+      <p class="hint">Generate replaces this plate with the next prompt. History keeps the earlier ones. The dice starts a new seed.</p>
+      <div class="toolbar">
+        <div class="toolbar-actions">
+          <button type="button" class="btn" id="anim-download">Download .txt</button>
+        </div>
+      </div>
+      <div class="cards plate-well" id="anim-output">
+        <p class="empty">No motion prompt yet. <span class="margin-note">Send a still across, or leave the scene empty.</span></p>
       </div>
 
       <div class="controls">
@@ -442,7 +434,7 @@
               <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
             </button>
           </div>
-          <p class="hint" id="scene-hint">Leave this empty for a different place on each card, or send one across with Animate this.</p>
+          <p class="hint" id="scene-hint">Leave this empty to invent a place, or send one across with Animate this.</p>
           <button type="button" class="btn" id="anim-scene-clear">Clear scene</button>
         </div>
         <div class="control">
@@ -507,20 +499,6 @@
         </div>
       </div>
 
-      <div class="toolbar">
-        <p class="count" id="anim-count">No plates yet</p>
-        <div class="toolbar-actions">
-          <label class="switch copy-neg-switch" title="Off copies the prompt only. On also appends the negative line.">
-            <input type="checkbox" class="copy-neg-toggle">
-            <span>Include negative prompt</span>
-          </label>
-          <button type="button" class="btn" id="anim-copy-all" title="Copy all, one prompt per line (A)">Copy all</button>
-          <button type="button" class="btn" id="anim-download">Download .txt</button>
-        </div>
-      </div>
-      <div class="cards" id="anim-output">
-        <p class="empty">No motion plates yet. <span class="margin-note">Send a still across, or leave the scene empty.</span></p>
-      </div>
     </section>
 
     <section class="issue" id="favourites" aria-labelledby="fav-title">
@@ -587,14 +565,13 @@
       <p class="hint">These rest while you are typing in a field.</p>
       <table class="shortcuts">
         <tbody>
-          <tr><th><kbd>G</kbd></th><td>Generate in the section you are reading</td></tr>
-          <tr><th><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></th><td>Quantity 1, 10, or 30</td></tr>
-          <tr><th><kbd>J</kbd></th><td>Next card</td></tr>
-          <tr><th><kbd>Shift</kbd> <kbd>J</kbd></th><td>Previous card</td></tr>
+          <tr><th><kbd>G</kbd></th><td>Replace the plate in the section you are reading</td></tr>
+          <tr><th><kbd>J</kbd></th><td>Next plate in Favourites or History</td></tr>
+          <tr><th><kbd>Shift</kbd> <kbd>J</kbd></th><td>Previous plate in Favourites or History</td></tr>
           <tr><th><kbd>K</kbd></th><td>Focus Your keywords</td></tr>
-          <tr><th><kbd>C</kbd></th><td>Copy the focused card</td></tr>
-          <tr><th><kbd>A</kbd></th><td>Copy all in this section, one per line</td></tr>
-          <tr><th><kbd>S</kbd></th><td>Star the focused card</td></tr>
+          <tr><th><kbd>C</kbd></th><td>Copy the focused plate</td></tr>
+          <tr><th><kbd>A</kbd></th><td>In Favourites, copy the plates on screen</td></tr>
+          <tr><th><kbd>S</kbd></th><td>Star the focused plate</td></tr>
           <tr><th><kbd>Enter</kbd></th><td>Open the detail panel</td></tr>
           <tr><th><kbd>Esc</kbd></th><td>Leave the keyword field, or close the panel or this help</td></tr>
           <tr><th><kbd>B</kbd></th><td>Jump to Backgrounds</td></tr>
