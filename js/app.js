@@ -22,6 +22,7 @@
 
   const state = {
     active: "backgrounds",
+    section: "backgrounds",
     shelf: "fav",
     currentCard: null,
     panelId: null,
@@ -1138,18 +1139,28 @@
     state.panelId = null;
   }
 
+  function applySection() {
+    const anim = state.section === "animation";
+    document.querySelectorAll(".for-bg").forEach(function (el) { el.hidden = anim; });
+    document.querySelectorAll(".for-anim").forEach(function (el) { el.hidden = !anim; });
+    document.querySelectorAll("[data-jump]").forEach(function (link) {
+      const on = link.dataset.jump === state.section;
+      link.classList.toggle("is-active", on);
+      link.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+
   function setActive(id, opts) {
     const options = opts || {};
     if (!id) return;
+    if (id === "backgrounds" || id === "animation") {
+      state.section = id;
+      closeRecentMenus();
+      applySection();
+    }
     state.active = id;
-    document.querySelectorAll("[data-jump]").forEach(function (link) {
-      const on = link.dataset.jump === id;
-      link.classList.toggle("is-active", on);
-      if (on) link.setAttribute("aria-current", "true");
-      else link.removeAttribute("aria-current");
-    });
     if (options.scroll) {
-      const el = document.getElementById(id);
+      const el = document.getElementById(id === "favourites" ? "favourites" : "hero");
       if (!el) return;
       const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")) || 0;
       const top = Math.max(0, el.getBoundingClientRect().top + window.scrollY - navH - 6);
@@ -1212,8 +1223,15 @@
     if (button) button.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
+  function shelfCards() {
+    const id = state.shelf === "hist" ? "hist-list" : "fav-list";
+    const root = document.getElementById(id);
+    if (!root) return [];
+    return Array.prototype.slice.call(root.querySelectorAll(".card"));
+  }
+
   function moveCard(dir) {
-    const cards = cardsInActive();
+    const cards = shelfCards();
     if (!cards.length) {
       toast("No cards here yet. Press G to generate.", true);
       return;
@@ -1251,12 +1269,31 @@
     return !!(pop && !pop.hidden);
   }
 
+  function placeSettings() {
+    const pop = document.getElementById("settings-pop");
+    const button = document.getElementById("settings-open");
+    if (!pop || pop.hidden || !button) return;
+    const rect = button.getBoundingClientRect();
+    const margin = 8;
+    const width = Math.min(352, window.innerWidth - margin * 2);
+    pop.style.width = width + "px";
+    let left = rect.right - width;
+    left = Math.max(margin, Math.min(left, window.innerWidth - width - margin));
+    let top = rect.bottom + margin;
+    const height = pop.offsetHeight || 280;
+    if (top + height > window.innerHeight - margin) top = Math.max(margin, rect.top - height - margin);
+    pop.style.top = top + "px";
+    pop.style.left = left + "px";
+    pop.style.right = "auto";
+  }
+
   function openSettings() {
     const pop = document.getElementById("settings-pop");
     const button = document.getElementById("settings-open");
     if (!pop) return;
     pop.hidden = false;
     if (button) button.setAttribute("aria-expanded", "true");
+    placeSettings();
   }
 
   function closeSettings() {
@@ -1427,7 +1464,7 @@
 
   function measureNav() {
     const nav = document.getElementById("nav");
-    document.documentElement.style.setProperty("--nav-h", nav.offsetHeight + "px");
+    document.documentElement.style.setProperty("--nav-h", (nav ? nav.offsetHeight : 0) + "px");
   }
 
   function cleanImported(list, fallbackKind) {
@@ -1563,11 +1600,7 @@
     if (key === "f" || key === "F") { event.preventDefault(); setActive("favourites", { scroll: true }); return; }
     if (key === "g" || key === "G") {
       event.preventDefault();
-      if (state.active === "favourites") {
-        toast("Favourites keeps what you already made. Press B or N to generate.");
-        return;
-      }
-      generate(state.active === "animation" ? "animation" : "background", { focusFirst: true });
+      generate(state.section === "animation" ? "animation" : "background", { focusFirst: true });
       return;
     }
     if ((key === "j" || key === "J") && event.shiftKey) { event.preventDefault(); moveCard(-1); return; }
@@ -1835,8 +1868,7 @@
   }
 
   function focusKeywords() {
-    if (state.active === "favourites") setActive("backgrounds");
-    const id = state.active === "animation" ? "anim-keyword" : "bg-keyword";
+    const id = state.section === "animation" ? "anim-keyword" : "bg-keyword";
     const input = document.getElementById(id);
     if (!input) return;
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -2081,24 +2113,14 @@
     themeBtn.setAttribute("aria-pressed", dark ? "true" : "false");
     themeBtn.setAttribute("aria-label", dark ? "Switch to parchment theme" : "Switch to Sol and Shadow");
 
+    applySection();
     document.addEventListener("keydown", onKey);
     measureNav();
-    if (window.ResizeObserver) {
-      const observer = new ResizeObserver(measureNav);
-      observer.observe(document.getElementById("nav"));
-    } else {
-      window.addEventListener("resize", measureNav);
-    }
-    const sections = ["backgrounds", "animation", "favourites"].map(function (id) { return document.getElementById(id); });
-    if (window.IntersectionObserver) {
-      const watcher = new IntersectionObserver(function (entries) {
-        const visible = entries.filter(function (entry) { return entry.isIntersecting; });
-        if (!visible.length) return;
-        visible.sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; });
-        setActive(visible[0].target.id);
-      }, { rootMargin: "-18% 0px -55% 0px", threshold: [0.1, 0.25, 0.5] });
-      sections.forEach(function (section) { watcher.observe(section); });
-    }
+    window.addEventListener("resize", function () {
+      measureNav();
+      placeSettings();
+    });
+    window.addEventListener("scroll", placeSettings, { passive: true });
   }
 
   globalThis.MOAP = {

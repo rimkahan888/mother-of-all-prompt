@@ -26,7 +26,7 @@
   --hl-timing: rgba(42, 38, 34, 0.09);
   --text-scale: 1;
   --panel: 50;
-  --nav-h: 58px;
+  --nav-h: 0px;
   --g-a-base: #2a1610;
   --g-b-base: #8a3a22;
   --p-a-base: #3e261e;
@@ -279,9 +279,9 @@ html:not([data-theme="dark"]) .icon-to-light { display: none; }
 .settings-pop {
   position: fixed;
   z-index: 55;
-  top: calc(var(--nav-h) + 8px);
-  right: 10px;
-  max-height: calc(100vh - var(--nav-h) - 16px);
+  top: 8px;
+  left: 8px;
+  max-height: calc(100vh - 16px);
   overflow: auto;
   width: min(22rem, calc(100vw - 1.5rem));
   display: flex;
@@ -401,8 +401,148 @@ input[type="range"]::-moz-range-thumb {
   z-index: 2;
   width: min(1120px, 100%);
   margin: 0 auto;
-  padding: 8px 16px 80px;
+  padding: 16px 16px 80px;
 }
+
+.bento {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.tile {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(243, 234, 219, 0.18);
+  border-radius: 18px;
+}
+
+.bento .issue { margin-top: 0; }
+
+.tile-hero { order: 1; z-index: 2; display: flex; flex-direction: column; padding: 12px; }
+.tile-keywords { order: 2; z-index: 6; display: flex; align-items: center; }
+.tile-library { order: 3; z-index: 4; display: flex; flex-direction: column; min-height: 220px; }
+.tile-switch { order: 4; z-index: 3; display: flex; align-items: center; }
+.tile-tools { order: 5; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tile-advanced { order: 6; z-index: 1; padding: 10px 14px; }
+
+.tile-hero {
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--g-a) 92%, transparent),
+    color-mix(in srgb, var(--g-b) 86%, transparent)
+  );
+}
+
+.tile-hero .card {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  flex: 1 1 auto;
+}
+
+.tile-hero .card:nth-child(n) { border-top: 0; }
+
+.tile-hero .btn-go {
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px 18px;
+  font-size: 14px;
+}
+
+.tile-keywords .flow { width: 100%; }
+.tile-keywords .keyword-field { flex: 1 1 auto; }
+.tile-hero .cards { margin-top: 0; }
+
+.section-switch {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.switch-btn {
+  flex: 1 1 0;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  padding: 0;
+}
+
+.switch-btn .icon { width: 20px; height: 20px; }
+
+.switch-btn.is-active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.tool-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tile-library .cards { flex: 1 1 auto; }
+.tile-library .cards:not(:has(.card)) {
+  display: grid;
+  place-items: center;
+  min-height: 96px;
+}
+
+.tile-advanced .advanced {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
+}
+
+@media (max-width: 600px) {
+  .tile-hero .plate-well .card {
+    min-height: clamp(220px, 36vh, 380px);
+  }
+}
+
+@media (min-width: 601px) {
+  .bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "hero hero"
+      "keys switch"
+      "lib lib"
+      "tools tools"
+      "adv adv";
+  }
+
+  .tile-hero { grid-area: hero; }
+  .tile-keywords { grid-area: keys; }
+  .tile-switch { grid-area: switch; }
+  .tile-tools { grid-area: tools; }
+  .tile-library { grid-area: lib; }
+  .tile-advanced { grid-area: adv; }
+
+  .tile-hero .plate-well .card {
+    min-height: clamp(280px, 28vh, 560px);
+  }
+}
+
+@media (min-width: 1100px) {
+  .bento {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-areas:
+      "hero hero hero hero"
+      "keys keys switch tools"
+      "lib lib lib lib"
+      "adv adv adv adv";
+  }
+}
+
 
 .visually-hidden {
   position: absolute;
@@ -418,6 +558,7 @@ input[type="range"]::-moz-range-thumb {
 
 .mast,
 .issue,
+.tile,
 .anatomy,
 .card,
 .detail,
@@ -447,6 +588,7 @@ input[type="range"]::-moz-range-thumb {
 
 .mast,
 .issue,
+.tile,
 .anatomy,
 .dialog,
 .colophon,
@@ -542,6 +684,18 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
   scroll-margin-top: calc(var(--nav-h) + 12px);
   border: 1px solid var(--line);
   border-radius: 18px;
+}
+
+.bento .tile-hero {
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--g-a) 92%, transparent),
+    color-mix(in srgb, var(--g-b) 86%, transparent)
+  );
+}
+
+.bento .tile-advanced {
+  padding: 10px 14px;
 }
 
 .issue-head { margin-bottom: 4px; }
@@ -871,7 +1025,9 @@ html[data-theme="dark"] select,
 
 .mast input::placeholder,
 .issue input::placeholder,
+.tile input::placeholder,
 .issue textarea::placeholder,
+.tile textarea::placeholder,
 .detail input::placeholder,
 .detail textarea::placeholder,
 .dialog input::placeholder,
