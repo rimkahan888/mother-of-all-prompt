@@ -14,11 +14,9 @@
       try {
         var theme = localStorage.getItem("moap.theme");
         if (theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
-        var scale = localStorage.getItem("moap.textScale");
-        var panel = localStorage.getItem("moap.panel");
+        localStorage.removeItem("moap.textScale");
+        localStorage.removeItem("moap.panel");
         var photo = localStorage.getItem("moap.bgPhoto");
-        if (scale) document.documentElement.style.setProperty("--text-scale", String(Number(scale) / 100));
-        if (panel) document.documentElement.style.setProperty("--panel", panel);
         var photoN = photo == null || photo === "" ? 40 : Number(photo);
         if (!isFinite(photoN)) photoN = 40;
         photoN = Math.max(0, Math.min(100, photoN));
@@ -144,16 +142,6 @@
     <label class="switch" title="Off copies the prompt only. On also appends the negative line.">
       <input type="checkbox" class="copy-neg-toggle">
       <span>Include negative prompt</span>
-    </label>
-    <label class="settings-row">
-      <span>Text</span>
-      <input id="text-size" type="range" min="85" max="135" step="1" value="100" aria-label="Text size">
-      <span id="text-size-val" class="visually-hidden">100</span>
-    </label>
-    <label class="settings-row">
-      <span>Panel</span>
-      <input id="panel-size" type="range" min="32" max="68" step="1" value="50" aria-label="Detail panel size">
-      <span id="panel-size-val" class="visually-hidden">50</span>
     </label>
     <label class="settings-row">
       <span>Backdrop</span>

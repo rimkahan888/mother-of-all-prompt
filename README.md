@@ -12,7 +12,7 @@ The look is an earthy editorial notebook: warm paper, terracotta and sage, a ser
 
 Each Generate draws the next prompt from the seed. The same seed and the same step rebuild that prompt. The dice, under Advanced, starts a new seed.
 
-The gear holds keyword mode (World, Blend, Exact), “Describe instead of naming”, “Include negative prompt”, and the text, panel, and backdrop sliders. Those are remembered in this browser. On a wide screen the detail panel is the right half of the page. In a narrow window, including a side panel around 540px, it becomes a bottom sheet at half the height. Double-click any plate to copy its prompt.
+The gear holds keyword mode (World, Blend, Exact), “Describe instead of naming”, “Include negative prompt”, and the backdrop slider. The detail panel is the right half of a wide page. In a narrow window, including a side panel around 540px, it becomes a bottom sheet at half the height. Double-click any plate to copy its prompt.
 
 Place, weather, light, motion, and camera are chosen so they agree: a desert stays dry, underwater stays with the water, a walking figure is followed rather than orbited. If you pin a combination that disagrees, the prompt is still written and the mismatch is kept quietly. Copy stays on the prompt alone unless **Include negative prompt** is on. Jumps between sections scroll smoothly, and they stay instant when the browser asks for reduced motion.
 
@@ -44,7 +44,7 @@ The workflow in `.github/workflows/pages.yml` publishes the static files on `mai
 
 ## Privacy
 
-Favourites, history, theme, the card dye, keywords and the last ten keyword lines, text size, panel size, the backdrop slider, seeds, and locks stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
+Favourites, history, theme, the card dye, keywords and the last ten keyword lines, the backdrop slider, seeds, and locks stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
 
 ## License
 
