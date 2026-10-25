@@ -1,6 +1,8 @@
-/* The Prompt Folio — earthy editorial UI. Texture is pure CSS. */
+/* The Prompt Folio — Wellness Calm. Lora for the prompt and headings, Raleway for the UI. */
 
 :root {
+  --font-serif: "Lora", Georgia, "Palatino Linotype", Palatino, serif;
+  --font-sans: "Raleway", "Segoe UI", system-ui, sans-serif;
   --paper: #f3ecdf;
   --paper-deep: #e6d9c6;
   --paper-raised: #fbf7ef;
@@ -16,7 +18,7 @@
   --olive: #6a7044;
   --line: rgba(42, 38, 34, 0.14);
   --line-strong: rgba(42, 38, 34, 0.3);
-  --shadow: 0 14px 34px rgba(80, 52, 32, 0.08);
+  --shadow: 0 10px 28px rgba(72, 48, 32, 0.07), 0 2px 8px rgba(72, 48, 32, 0.04);
   --danger: #8f2d2d;
   --danger-ink: #fff8f4;
   --hl-subject: rgba(193, 95, 69, 0.22);
@@ -54,7 +56,7 @@ html[data-theme="dark"] {
   --olive: #c2b47a;
   --line: rgba(244, 234, 220, 0.14);
   --line-strong: rgba(244, 234, 220, 0.32);
-  --shadow: 0 16px 40px rgba(0, 0, 0, 0.38);
+  --shadow: 0 14px 32px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.16);
   --danger: #e15b5b;
   --danger-ink: #2a1212;
   --hl-subject: rgba(224, 122, 95, 0.32);
@@ -98,7 +100,7 @@ body {
   margin: 0;
   min-height: 100%;
   color: var(--ink);
-  font-family: Outfit, "Avenir Next", "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
@@ -190,7 +192,7 @@ html[data-theme="dark"] body::before {
   outline-offset: 2px;
 }
 
-button, input, select, textarea { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; font-family: var(--font-sans); color: inherit; }
 
 button { cursor: pointer; }
 
@@ -266,8 +268,9 @@ html[data-theme="dark"] .icon-to-dark,
 html:not([data-theme="dark"]) .icon-to-light { display: none; }
 
 .qmark {
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 16px;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 17px;
   font-style: italic;
   letter-spacing: 0;
   text-transform: none;
@@ -285,12 +288,13 @@ html:not([data-theme="dark"]) .icon-to-light { display: none; }
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 12px;
-  padding: 12px;
+  gap: 14px;
+  padding: 16px;
   background: var(--paper-raised);
   color: var(--ink);
-  border: 1px solid var(--line-strong);
-  border-radius: 14px;
+  font-family: var(--font-sans);
+  border: 1px solid var(--line);
+  border-radius: 20px;
   box-shadow: var(--shadow);
 }
 
@@ -418,12 +422,12 @@ input[type="range"]::-moz-range-thumb {
   z-index: 2;
   width: min(1120px, 100%);
   margin: 0 auto;
-  padding: 16px 16px 80px;
+  padding: 22px 20px 88px;
 }
 
 .bento {
   display: grid;
-  gap: 14px;
+  gap: 18px;
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
 }
@@ -432,14 +436,14 @@ input[type="range"]::-moz-range-thumb {
   position: relative;
   min-width: 0;
   margin: 0;
-  padding: 14px;
-  border: 1px solid rgba(243, 234, 219, 0.18);
-  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid rgba(243, 234, 219, 0.12);
+  border-radius: 22px;
 }
 
 .bento .issue { margin-top: 0; }
 
-.tile-hero { order: 1; z-index: 2; display: flex; flex-direction: column; padding: 12px; }
+.tile-hero { order: 1; z-index: 2; display: flex; flex-direction: column; padding: 20px 22px 18px; }
 .tile-keywords { order: 2; z-index: 6; display: flex; align-items: center; }
 .tile-library { order: 3; z-index: 4; display: flex; flex-direction: column; min-height: 220px; }
 .tile-switch { order: 4; z-index: 3; display: flex; align-items: center; }
@@ -465,9 +469,9 @@ input[type="range"]::-moz-range-thumb {
 
 .tile-hero .btn-go {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 12px;
   padding: 14px 18px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .tile-keywords .flow { width: 100%; }
@@ -598,7 +602,7 @@ input[type="range"]::-moz-range-thumb {
   --hl-camera: rgba(210, 180, 140, 0.2);
   --hl-style: rgba(198, 184, 106, 0.2);
   --hl-timing: rgba(243, 234, 219, 0.11);
-  --shadow: 0 18px 36px rgba(24, 14, 8, 0.28);
+  --shadow: 0 14px 32px rgba(24, 14, 8, 0.16);
   color: var(--ink);
   color-scheme: dark;
 }
@@ -647,14 +651,14 @@ input[type="range"]::-moz-range-thumb {
   background: var(--line-strong);
 }
 
-h1, h2, h3, .prompt, .formula, .lede {
-  font-family: "Cormorant Garamond", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+h1, h2, h3, .prompt, .formula, .lede, .shelf-tab, .empty {
+  font-family: var(--font-serif);
 }
 
 h1, h2, h3 {
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 0.96;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
   margin: 0;
 }
 
@@ -668,7 +672,7 @@ h3 {
 .h-issue {
   display: inline-block;
   margin-left: 8px;
-  font-family: Outfit, "Avenir Next", "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.34em;
   font-weight: 500;
   letter-spacing: 0.16em;
@@ -678,7 +682,7 @@ h3 {
 }
 
 .margin-note {
-  font-family: Caveat, "Segoe Script", "Bradley Hand", cursive;
+  font-family: var(--font-serif);
   font-size: 1.45rem;
   line-height: 1.15;
   color: var(--terracotta-deep);
@@ -697,13 +701,14 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
 .issue {
   position: relative;
   margin-top: 8px;
-  padding: 10px 12px 12px;
+  padding: 18px;
   scroll-margin-top: calc(var(--nav-h) + 12px);
-  border: 1px solid var(--line);
-  border-radius: 18px;
+  border: 1px solid rgba(243, 234, 219, 0.12);
+  border-radius: 22px;
 }
 
 .bento .tile-hero {
+  padding: 22px 24px 20px;
   background-image: linear-gradient(
     135deg,
     color-mix(in srgb, var(--g-a) 92%, transparent),
@@ -712,7 +717,7 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
 }
 
 .bento .tile-advanced {
-  padding: 10px 14px;
+  padding: 14px 18px;
 }
 
 .issue-head { margin-bottom: 4px; }
@@ -735,7 +740,7 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
   right: 0;
   top: 10px;
   z-index: 0;
-  font-family: "Cormorant Garamond", Georgia, serif;
+  font-family: var(--font-serif);
   font-size: clamp(4.2rem, 10vw, 7.5rem);
   line-height: 0.75;
   color: var(--ink);
@@ -752,7 +757,7 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
 }
 
 .hint {
-  font-family: "Cormorant Garamond", Georgia, serif;
+  font-family: var(--font-sans);
   font-style: italic;
   font-size: 1.08rem;
   line-height: 1.3;
@@ -770,7 +775,7 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
 
 .stamp {
   display: inline-block;
-  font-family: Caveat, "Segoe Script", cursive;
+  font-family: var(--font-serif);
   font-size: 1.2rem;
   line-height: 1.2;
   color: var(--terracotta-deep);
@@ -857,9 +862,10 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
   padding: 4px;
   list-style: none;
   background: var(--paper-raised);
-  border: 1px solid var(--line-strong);
-  border-radius: 10px;
-  box-shadow: 0 12px 28px rgba(26, 21, 18, 0.28);
+  font-family: var(--font-sans);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
 }
 
 .recent-list .recent-item {
@@ -891,7 +897,7 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
 .advanced summary {
   cursor: pointer;
   width: fit-content;
-  font-family: Outfit, "Avenir Next", "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1093,10 +1099,9 @@ html[data-theme="dark"] select,
   background: var(--ink);
   color: var(--paper);
   border-color: var(--ink);
-  padding: 10px 18px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 12px;
+  padding: 12px 18px;
+  letter-spacing: 0.02em;
+  font-size: 15px;
   font-weight: 500;
 }
 
@@ -1121,7 +1126,7 @@ html[data-theme="dark"] select,
   height: 38px;
   display: inline-grid;
   place-items: center;
-  border-radius: 11px;
+  border-radius: 14px;
   padding: 0;
   flex: 0 0 auto;
 }
@@ -1201,7 +1206,7 @@ html[data-theme="dark"] select,
   height: 16px;
   border-radius: 50%;
   background: var(--ink-soft);
-  transition: transform 0.16s ease;
+  transition: transform 240ms ease-out;
 }
 
 .switch input:checked {
@@ -1313,12 +1318,13 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
 }
 
 .plate-well .prompt {
-  font-size: clamp(1.45rem, 1.15vw + 1.05rem, 2.35rem);
-  line-height: 1.38;
-  max-width: 38em;
+  font-size: clamp(1.35rem, 0.5vw + 1.2rem, 1.7rem);
+  font-weight: 500;
+  line-height: 1.6;
+  max-width: 40em;
   flex: 1 1 auto;
-  margin-top: 14px;
-  margin-bottom: 16px;
+  margin-top: 8px;
+  margin-bottom: 18px;
 }
 
 .plate-well .card-actions {
@@ -1333,10 +1339,10 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   }
 
   .plate-well .prompt {
-    font-size: clamp(1.2rem, 3.6vw, 1.55rem);
-    line-height: 1.34;
-    margin-top: 10px;
-    margin-bottom: 12px;
+    font-size: clamp(1.2rem, 2.8vw, 1.45rem);
+    line-height: 1.6;
+    margin-top: 6px;
+    margin-bottom: 14px;
   }
 }
 
@@ -1351,8 +1357,8 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   );
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(243, 234, 219, 0.14);
-  border-radius: 16px;
+  border: 1px solid rgba(243, 234, 219, 0.1);
+  border-radius: 20px;
   padding: 12px 12px 10px;
   box-shadow:
     inset 0 1px 0 rgba(243, 234, 219, 0.24),
@@ -1361,17 +1367,12 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   cursor: pointer;
 }
 
-.card:nth-child(4n + 1) { border-top: 3px solid #e07a5f; }
-.card:nth-child(4n + 2) { border-top: 3px solid #b7c9ae; }
-.card:nth-child(4n + 3) { border-top: 3px solid #e0c4a4; }
-.card:nth-child(4n) { border-top: 3px solid #d5c98a; }
-
 .card.is-current {
   box-shadow:
     inset 0 1px 0 rgba(243, 234, 219, 0.24),
     inset 0 0 0 1px rgba(243, 234, 219, 0.1),
     0 0 0 2px #f0a090,
-    0 0 22px rgba(224, 122, 95, 0.55),
+    0 8px 22px rgba(80, 48, 32, 0.16),
     var(--shadow);
 }
 
@@ -1391,9 +1392,9 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
 }
 
 .prompt {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 500;
-  line-height: 1.32;
+  line-height: 1.6;
   margin: 8px 0 10px;
   overflow-wrap: anywhere;
 }
@@ -1411,7 +1412,7 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
 
 .chip-k {
   display: block;
-  font-family: Outfit, "Avenir Next", sans-serif;
+  font-family: var(--font-sans);
   font-style: normal;
   font-size: 10px;
   letter-spacing: 0.14em;
@@ -1465,7 +1466,7 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   background: #f0d7b4;
   color: #3a2418;
   border: 1px solid rgba(90, 48, 28, 0.28);
-  font-family: Outfit, "Avenir Next", "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 500;
   line-height: 1.35;
@@ -1501,13 +1502,14 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
-  transition: height 0.28s ease;
+  transition: height 260ms ease-out;
 }
 
 .compact .prompt {
   margin: 0;
   font-size: 1rem;
-  line-height: 1.35;
+  font-weight: 400;
+  line-height: 1.45;
 }
 
 .compact .prompt.is-clamped {
@@ -1529,7 +1531,7 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   align-items: center;
   justify-content: center;
   color: var(--ink-soft);
-  transition: transform 0.28s ease;
+  transition: transform 260ms ease-out;
 }
 
 .compact.is-open .card-chevron { transform: rotate(180deg); }
@@ -1541,7 +1543,7 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   margin: 0;
   padding: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease, max-height 0.2s ease, margin 0.2s ease;
+  transition: opacity 240ms ease-out, max-height 240ms ease-out, margin 240ms ease-out;
 }
 
 .compact:hover .card-actions,
@@ -1557,8 +1559,9 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
 .empty {
   margin: 8px 0 0;
   color: var(--ink-soft);
-  font-family: "Cormorant Garamond", Georgia, serif;
+  font-family: var(--font-serif);
   font-size: 1.3rem;
+  line-height: 1.5;
 }
 
 .empty-mark {
@@ -1585,13 +1588,15 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
 .shelf-tab {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  height: 34px;
-  padding: 0 8px;
+  gap: 6px;
+  height: 40px;
+  padding: 0 12px;
   border-radius: 999px;
   border: 1px solid transparent;
   background: transparent;
   color: inherit;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .shelf-tab.is-on,
@@ -1601,7 +1606,7 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
 }
 
 .count-badge {
-  font-family: Outfit, "Avenir Next", "Segoe UI", sans-serif;
+  font-family: var(--font-serif);
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -1656,8 +1661,9 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   gap: 2px;
   background: var(--paper-raised);
   color: var(--ink);
-  border: 1px solid var(--line-strong);
-  border-radius: 12px;
+  font-family: var(--font-sans);
+  border: 1px solid var(--line);
+  border-radius: 16px;
   box-shadow: var(--shadow);
 }
 
@@ -1788,11 +1794,13 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   bottom: 16px;
   transform: translateX(-50%);
   max-width: min(92vw, 440px);
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 999px;
   background: var(--ink);
   color: var(--paper);
+  font-family: var(--font-sans);
   font-size: 14px;
+  font-weight: 500;
   box-shadow: var(--shadow);
   text-align: center;
 }
@@ -1817,9 +1825,10 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   max-height: min(86vh, 760px);
   overflow: auto;
   color: var(--ink);
-  border-radius: 18px;
-  border: 1px solid var(--line-strong);
-  padding: 16px 16px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(243, 234, 219, 0.12);
+  padding: 20px 20px 22px;
+  font-family: var(--font-sans);
 }
 
 .shortcuts {
@@ -1841,7 +1850,7 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
 .shortcuts th { width: 6.2rem; }
 
 kbd {
-  font-family: Outfit, "Avenir Next", sans-serif;
+  font-family: var(--font-sans);
   font-size: 12px;
   border: 1px solid var(--line-strong);
   border-bottom-width: 2px;
@@ -1859,11 +1868,31 @@ kbd {
   font-size: 13px;
 }
 
-.bg-photo { transition: opacity 0.18s ease; }
+.bg-photo { transition: opacity 240ms ease-out; }
 
-.is-flash { animation: moap-flash 0.7s ease; }
+button,
+.switch-btn,
+.shelf-tab,
+.menu-item,
+.recent-item,
+.card,
+.toast,
+.settings-pop,
+.library-menu,
+.recent-list,
+.dialog {
+  transition:
+    background-color 240ms ease-out,
+    color 240ms ease-out,
+    border-color 240ms ease-out,
+    box-shadow 240ms ease-out,
+    opacity 240ms ease-out,
+    transform 240ms ease-out;
+}
 
-.is-fail { animation: moap-fail 0.7s ease; }
+.is-flash { animation: moap-flash 280ms ease-out; }
+
+.is-fail { animation: moap-fail 280ms ease-out; }
 
 @keyframes moap-flash {
   0% { box-shadow: 0 0 0 3px #f0a090; }
