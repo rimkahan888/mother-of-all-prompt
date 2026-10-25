@@ -59,7 +59,7 @@ html[data-theme="dark"] {
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: auto; }
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
@@ -856,6 +856,30 @@ html[data-theme="dark"] .copied-badge {
 }
 
 .card.is-copied .copied-badge { display: inline-block; }
+
+.warn-chip {
+  display: inline-block;
+  max-width: 100%;
+  margin: 8px 0 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(196, 164, 132, 0.35);
+  color: var(--ink-soft);
+  font-family: Outfit, "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+
+html[data-theme="dark"] .warn-chip {
+  background: rgba(196, 164, 132, 0.22);
+  color: var(--paper);
+}
+
+.copy-neg-switch {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
 
 .compact .prompt {
   display: -webkit-box;

@@ -65,7 +65,7 @@ globalThis.MOAP_BANKS = {
     { group: "Space", label: "Moon ridge", text: "A ridge of grey moon rock cuts across a black sky." },
     { group: "Space", label: "Open dome", text: "An observatory dome stands open to a dense field of stars." },
     { group: "Space", label: "Ring shadow", text: "The shadow of a faint ring crosses a pale gas giant." },
-    { group: "Space", label: "Dry dawn", text: "Dawn light spills over a dry, wind-scoured planet." },
+    { group: "Space", label: "Dry dawn", text: "Dawn light spills over a dry, scoured planet." },
     { group: "Abstract", label: "Torn paper", text: "Torn pieces of warm paper overlap like a landscape remembered rather than mapped." },
     { group: "Abstract", label: "Pigment pools", text: "Pools of clay, olive, and ink bloom into one another on wet paper." },
     { group: "Abstract", label: "Woven light", text: "Bands of light and shadow cross like the weave of a cloth." },
@@ -451,7 +451,19 @@ globalThis.MOAP_BANKS = {
     { group: "City", label: "Boat wake", text: "A boat crosses far off and leaves a wake that fades." },
     { group: "Night", label: "Stars wheeling", text: "The stars are just bright enough that their slow drift can be felt." },
     { group: "Night", label: "Aurora", text: "A soft curtain of aurora shifts in the distance." },
-    { group: "Night", label: "Fireflies", text: "Fireflies wink on and off in the darker parts of the frame." }
+    { group: "Night", label: "Fireflies", text: "Fireflies wink on and off in the darker parts of the frame." },
+    { group: "Underwater", label: "Rising bubbles", text: "Bubbles rise in loose strings and vanish toward the light." },
+    { group: "Underwater", label: "Bubble curtain", text: "A curtain of small bubbles drifts across the view and thins." },
+    { group: "Underwater", label: "Caustic shimmer", text: "Caustic light ripples and shifts across the sand and stone." },
+    { group: "Underwater", label: "Drifting particulate", text: "Fine particles drift in the water and catch the light." },
+    { group: "Underwater", label: "Silt curtain", text: "A slow veil of silt drifts past and then clears." },
+    { group: "Underwater", label: "Kelp sway", text: "Kelp fronds lean and recover in a gentle current." },
+    { group: "Underwater", label: "Shaft wander", text: "A shaft of underwater light wanders as the surface moves above." },
+    { group: "Underwater", label: "Jelly pulse", text: "A pale jelly pulses once and glides a short distance." },
+    { group: "Space", label: "Dust plume", text: "A faint plume of dust drifts and thins against the black." },
+    { group: "Space", label: "Panel blink", text: "A few small instrument lights blink and hold." },
+    { group: "Space", label: "Ring shadow crawl", text: "A thin ring shadow crawls across the curve of the planet." },
+    { group: "Space", label: "Starfield drift", text: "The starfield drifts by a fraction, enough to feel the scale." }
   ],
 
   speeds: [

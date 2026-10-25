@@ -1,6 +1,7 @@
 /* The Prompt Folio — generator, library, and keyboard. Classic script, no build. */
 (function () {
   const BANKS = globalThis.MOAP_BANKS;
+  const FIT = globalThis.MOAP_FIT;
   const BG_KEYS = ["scene", "style", "lighting", "palette", "mood", "time", "composition", "aspect"];
   const ANIM_KEYS = ["camera", "motion", "speed", "duration", "film"];
   const BANK_OF = {
@@ -74,7 +75,7 @@
       fields[key] = { value: String(field.value), locked: !!field.locked };
     });
     return JSON.stringify({
-      v: 1,
+      v: 2,
       kind: kind,
       seed: settings.seed || "1847",
       clean: !!settings.clean,
@@ -87,41 +88,67 @@
     });
   }
 
+  function forcedMap(kind, settings) {
+    const map = {};
+    const keys = kind === "background" ? BG_KEYS : ANIM_KEYS;
+    keys.forEach(function (key) {
+      const field = (settings.fields && settings.fields[key]) || { value: "any", locked: false };
+      if (String(field.value) !== "any") map[key] = true;
+    });
+    if (kind === "animation" && String(settings.sceneText || "").trim()) map.sceneText = true;
+    return map;
+  }
+
   function resolveShared(kind, seedKey, settings) {
     const shared = {};
     const keys = kind === "background" ? BG_KEYS : ANIM_KEYS;
     keys.forEach(function (key) {
       const field = (settings.fields && settings.fields[key]) || { value: "any", locked: false };
-      const bank = bankFor(key);
       if (field.value !== "any") {
-        const item = bank[Number(field.value)];
+        const item = bankFor(key)[Number(field.value)];
         if (item) shared[key] = item;
-      } else if (field.locked) {
-        const rng = mulberry32(hashSeed(seedKey + "|lock|" + key));
-        shared[key] = pick(rng, bank);
       }
     });
     if (kind === "animation" && settings.sceneLocked && !String(settings.sceneText || "").trim()) {
       const rng = mulberry32(hashSeed(seedKey + "|lock|scene"));
-      shared.scene = pick(rng, BANKS.scenes);
+      const ctx = FIT.context({ shared: shared, settings: settings, partial: {} });
+      shared.scene = FIT.pick(rng, BANKS.scenes, "scene", ctx).item;
     }
+    const order = kind === "background"
+      ? ["scene", "time", "lighting", "mood", "style", "palette", "composition", "aspect"]
+      : ["motion", "camera", "film", "speed", "duration"];
+    order.forEach(function (key) {
+      if (shared[key]) return;
+      const field = (settings.fields && settings.fields[key]) || { value: "any", locked: false };
+      if (!field.locked) return;
+      const rng = mulberry32(hashSeed(seedKey + "|lock|" + key));
+      const ctx = FIT.context({ shared: shared, settings: settings, partial: {} });
+      shared[key] = FIT.pick(rng, bankFor(key), key, ctx).item;
+    });
     return shared;
   }
 
-  function take(rng, shared, key) {
-    if (shared[key]) return shared[key];
-    return pick(rng, bankFor(key));
+  function drawField(rng, shared, settings, partial, key) {
+    if (shared[key]) {
+      partial[key] = shared[key];
+      return shared[key];
+    }
+    const ctx = FIT.context({ shared: shared, settings: settings, partial: partial });
+    const picked = FIT.pick(rng, bankFor(key), key, ctx);
+    partial[key] = picked.item;
+    return picked.item;
   }
 
-  function makeBackground(rng, shared, settings) {
-    const scene = take(rng, shared, "scene");
-    const style = take(rng, shared, "style");
-    const lighting = take(rng, shared, "lighting");
-    const time = take(rng, shared, "time");
-    const palette = take(rng, shared, "palette");
-    const mood = take(rng, shared, "mood");
-    const composition = take(rng, shared, "composition");
-    const aspect = take(rng, shared, "aspect");
+  function makeBackground(rng, shared, settings, forced) {
+    const partial = {};
+    const scene = drawField(rng, shared, settings, partial, "scene");
+    const time = drawField(rng, shared, settings, partial, "time");
+    const lighting = drawField(rng, shared, settings, partial, "lighting");
+    const mood = drawField(rng, shared, settings, partial, "mood");
+    const style = drawField(rng, shared, settings, partial, "style");
+    const palette = drawField(rng, shared, settings, partial, "palette");
+    const composition = drawField(rng, shared, settings, partial, "composition");
+    const aspect = drawField(rng, shared, settings, partial, "aspect");
     const blocks = {
       scene: { key: "scene", label: "Scene", text: period(scene.text) },
       style: { key: "style", label: "Style", text: period(style.text) },
@@ -147,31 +174,52 @@
     ];
     const order = orders[Math.floor(rng() * orders.length)];
     const parts = order.map(function (key) { return blocks[key]; }).filter(Boolean);
+    const place = FIT.placeOf(scene);
+    const warnings = FIT.warnings({
+      place: place,
+      scene: scene,
+      time: time,
+      lighting: lighting,
+      mood: mood
+    }, forced);
     return {
       text: parts.map(function (part) { return part.text; }).join(" "),
       parts: parts,
       stamp: aspect.stamp || aspect.label,
-      stamp2: style.label
+      stamp2: style.label,
+      warnings: warnings,
+      meta: {
+        place: place,
+        time: time.label,
+        lighting: lighting.label,
+        mood: mood.label
+      }
     };
   }
 
-  function makeAnimation(rng, shared, settings) {
+  function makeAnimation(rng, shared, settings, forced) {
     const typed = String(settings.sceneText || "").trim();
+    const partial = {};
     let subject = "";
     let filledScene = "";
     if (typed) {
       subject = period(typed);
+      const known = FIT.matchScene(typed);
+      if (known) partial.scene = known;
     } else if (shared.scene) {
+      partial.scene = shared.scene;
       subject = period(shared.scene.text);
       filledScene = subject;
     } else {
-      subject = period(pick(rng, BANKS.scenes).text);
+      const ctx = FIT.context({ shared: shared, settings: settings, partial: partial });
+      partial.scene = FIT.pick(rng, BANKS.scenes, "scene", ctx).item;
+      subject = period(partial.scene.text);
     }
-    const motion = take(rng, shared, "motion");
-    const camera = take(rng, shared, "camera");
-    const film = take(rng, shared, "film");
-    const speed = take(rng, shared, "speed");
-    const duration = take(rng, shared, "duration");
+    const motion = drawField(rng, shared, settings, partial, "motion");
+    const camera = drawField(rng, shared, settings, partial, "camera");
+    const film = drawField(rng, shared, settings, partial, "film");
+    const speed = drawField(rng, shared, settings, partial, "speed");
+    const duration = drawField(rng, shared, settings, partial, "duration");
     const loopText = settings.loop
       ? "The clip is a seamless loop, with the ending made to match the beginning."
       : "The clip plays once, with a clear beginning and end.";
@@ -182,6 +230,14 @@
       { key: "style", label: "Style", text: period(film.text) },
       { key: "timing", label: "Timing", text: [period(speed.text), period(duration.text), loopText].join(" ") }
     ];
+    const view = FIT.context({ shared: shared, settings: settings, partial: partial });
+    const warnings = FIT.warnings({
+      place: view.place,
+      scene: partial.scene,
+      motion: motion,
+      camera: camera,
+      film: film
+    }, forced);
     return {
       text: parts.map(function (part) { return part.text; }).join(" "),
       parts: parts,
@@ -189,7 +245,14 @@
       stamp2: film.label,
       tip: camera.tip || "",
       cameraLabel: camera.label,
-      filledScene: filledScene
+      filledScene: filledScene,
+      warnings: warnings,
+      meta: {
+        place: view.place,
+        motion: motion.label,
+        camera: camera.label,
+        film: film.label
+      }
     };
   }
 
@@ -225,6 +288,7 @@
     const qty = [1, 10, 30].indexOf(settings.qty) >= 0 ? settings.qty : 1;
     const seedKey = seedKeyFor(kind, settings);
     const shared = resolveShared(kind, seedKey, settings);
+    const forced = forcedMap(kind, settings);
     const seen = new Set();
     const prompts = [];
     let filledScene = "";
@@ -233,8 +297,8 @@
       for (let salt = 0; salt < 8; salt += 1) {
         const rng = mulberry32(hashSeed(seedKey + "|i|" + i + "|s|" + salt));
         built = kind === "background"
-          ? makeBackground(rng, shared, settings)
-          : makeAnimation(rng, shared, settings);
+          ? makeBackground(rng, shared, settings, forced)
+          : makeAnimation(rng, shared, settings, forced);
         if (!seen.has(built.text)) break;
       }
       if (seen.has(built.text)) {
@@ -347,6 +411,9 @@
     const negative = entry.negative
       ? '<p class="negative"><span class="chip-k">Negative</span>' + esc(entry.negative) + "</p>"
       : "";
+    const warning = entry.warnings && entry.warnings.length
+      ? '<p class="warn-chip">' + esc(entry.warnings.join(" ")) + "</p>"
+      : "";
     const starred = !!entry.starred;
     return '<article class="card' + (library ? " compact" : "") + '" tabindex="0" data-id="' + esc(entry.id) + '" data-kind="' + esc(entry.kind) + '">'
       + '<span class="copied-badge">Copied</span>'
@@ -354,6 +421,7 @@
       + (entry.stamp ? '<span class="stamp">' + esc(entry.stamp) + "</span>" : "")
       + (entry.stamp2 ? '<span class="stamp">' + esc(entry.stamp2) + "</span>" : "")
       + "</header>"
+      + warning
       + '<p class="prompt' + (entry.kind === "animation" ? " prompt-lit" : "") + '">' + prompt + "</p>"
       + tip
       + negative
@@ -428,9 +496,20 @@
     return true;
   }
 
+  function copyNegativeOn() {
+    return storageGet("moap.copyNegative") === "1";
+  }
+
+  function entryCopyText(entry, includeNegative) {
+    if (!entry) return "";
+    if (!includeNegative || !entry.negative) return entry.text;
+    return entry.text + "\n\nNegative: " + entry.negative;
+  }
+
   function copyEntry(entry, card) {
     if (!entry) return;
-    copyText(entry.text, card, "Copied");
+    const withNegative = copyNegativeOn() && !!entry.negative;
+    copyText(entryCopyText(entry, withNegative), card, withNegative ? "Copied with negative prompt" : "Copied");
   }
 
   function setCurrent(card, opts) {
@@ -614,6 +693,7 @@
       stamp2: built.stamp2 || "",
       tip: built.tip || "",
       cameraLabel: built.cameraLabel || "",
+      warnings: built.warnings || [],
       created: new Date().toISOString(),
       starred: false
     };
@@ -753,7 +833,9 @@
   }
 
   function promptsText(entries) {
-    return entries.map(function (entry) { return entry.text; }).join("\n");
+    const includeNegative = copyNegativeOn() && entries.some(function (entry) { return !!entry.negative; });
+    const sep = includeNegative ? "\n\n" : "\n";
+    return entries.map(function (entry) { return entryCopyText(entry, includeNegative); }).join(sep);
   }
 
   function copyAll(kind) {
@@ -853,8 +935,11 @@
     const negative = entry.negative
       ? '<div class="neg-block"><span class="chip-k">Negative prompt</span><p>' + esc(entry.negative) + '</p><button type="button" class="btn" id="detail-copy-neg">Copy negative</button></div>'
       : "";
+    const warning = entry.warnings && entry.warnings.length
+      ? '<p class="warn-chip">' + esc(entry.warnings.join(" ")) + "</p>"
+      : "";
     const body = document.getElementById("detail-body");
-    body.innerHTML = '<p class="prompt' + (entry.kind === "animation" ? " prompt-lit" : "") + '">' + prompt + "</p>"
+    body.innerHTML = warning + '<p class="prompt' + (entry.kind === "animation" ? " prompt-lit" : "") + '">' + prompt + "</p>"
       + tip
       + '<ul class="chips">' + chips + "</ul>"
       + negative
@@ -909,13 +994,11 @@
     });
     if (options.scroll) {
       const el = document.getElementById(id);
+      if (!el) return;
       const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")) || 0;
       const top = Math.max(0, el.getBoundingClientRect().top + window.scrollY - navH - 6);
-      const root = document.documentElement;
-      const previous = root.style.scrollBehavior;
-      root.style.scrollBehavior = "auto";
-      window.scrollTo(0, top);
-      root.style.scrollBehavior = previous;
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
     }
   }
 
@@ -1000,6 +1083,24 @@
   function syncNeg() {
     const on = document.getElementById("bg-neg-on").checked;
     document.getElementById("bg-neg-wrap").classList.toggle("is-off", !on);
+  }
+
+  function syncCopyNeg(on) {
+    document.querySelectorAll(".copy-neg-toggle").forEach(function (box) {
+      box.checked = !!on;
+    });
+  }
+
+  function bindCopyNeg() {
+    syncCopyNeg(storageGet("moap.copyNegative") === "1");
+    document.querySelectorAll(".copy-neg-toggle").forEach(function (box) {
+      box.addEventListener("change", function () {
+        const next = !!box.checked;
+        storageSet("moap.copyNegative", next ? "1" : "0");
+        syncCopyNeg(next);
+        toast(next ? "Copy will include the negative prompt" : "Copy is the prompt only");
+      });
+    });
   }
 
   function toggleTheme() {
@@ -1260,6 +1361,7 @@
     bindQty("background");
     bindQty("animation");
     bindLocks();
+    bindCopyNeg();
 
     document.getElementById("bg-generate").addEventListener("click", function () { generate("background"); });
     document.getElementById("anim-generate").addEventListener("click", function () { generate("animation"); });

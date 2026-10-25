@@ -14,6 +14,8 @@ The same seed and the same settings rebuild the same batch. The dice only rolls 
 
 Text size and the detail-panel size are the two sliders in the top bar. They are remembered here too. On a wide screen the detail panel is the right half of the page. In a narrow window, including a side panel around 540px, it becomes a bottom sheet at half the height. Double-click any plate to copy its prompt.
 
+Place, weather, light, motion, and camera are chosen so they agree: a desert stays dry, underwater stays with the water, a walking figure is followed rather than orbited. If you pin a combination that disagrees, it is still generated, and the plate carries a small note. Copy and Copy all stay on the prompt alone unless **Include negative prompt** is on. That switch is remembered in this browser. Jumps between sections scroll smoothly, and they stay instant when the browser asks for reduced motion.
+
 ## Keyboard shortcuts
 
 Shortcuts pause while the cursor is in a text field, a menu, or a slider.
