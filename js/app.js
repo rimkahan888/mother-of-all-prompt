@@ -1103,6 +1103,40 @@
     });
   }
 
+  const GRADES = [
+    { id: "ink", name: "Ink & Clay" },
+    { id: "indigo", name: "Indigo Noren" },
+    { id: "moss", name: "Moss" },
+    { id: "lacquer", name: "Lacquer" },
+    { id: "flat", name: "Flat" }
+  ];
+
+  function gradeById(id) {
+    for (let i = 0; i < GRADES.length; i += 1) {
+      if (GRADES[i].id === id) return GRADES[i];
+    }
+    return GRADES[0];
+  }
+
+  function applyGrade(id, save) {
+    const grade = gradeById(id);
+    document.documentElement.setAttribute("data-grade", grade.id);
+    if (save) storageSet("moap.cardGrade", grade.id);
+    document.querySelectorAll(".grade-swatch").forEach(function (btn) {
+      const on = btn.getAttribute("data-grade") === grade.id;
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    return grade;
+  }
+
+  function cycleGrade() {
+    const current = document.documentElement.getAttribute("data-grade") || "ink";
+    const index = GRADES.findIndex(function (grade) { return grade.id === current; });
+    const next = GRADES[(index + 1) % GRADES.length];
+    applyGrade(next.id, true);
+    toast(next.name);
+  }
+
   function toggleTheme() {
     const dark = document.documentElement.getAttribute("data-theme") === "dark";
     if (dark) {
@@ -1264,6 +1298,7 @@
     const key = event.key;
     if (key === "?") { event.preventDefault(); openHelp(); return; }
     if (key === "t" || key === "T") { event.preventDefault(); toggleTheme(); return; }
+    if (key === "v" || key === "V") { event.preventDefault(); cycleGrade(); return; }
     if (key === "b" || key === "B") { event.preventDefault(); setActive("backgrounds", { scroll: true }); return; }
     if (key === "n" || key === "N") { event.preventDefault(); setActive("animation", { scroll: true }); return; }
     if (key === "f" || key === "F") { event.preventDefault(); setActive("favourites", { scroll: true }); return; }
@@ -1413,6 +1448,13 @@
     });
 
     document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+    applyGrade(document.documentElement.getAttribute("data-grade") || storageGet("moap.cardGrade") || "ink", false);
+    document.querySelectorAll(".grade-swatch").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const grade = applyGrade(btn.getAttribute("data-grade"), true);
+        toast(grade.name);
+      });
+    });
     document.getElementById("help-open").addEventListener("click", openHelp);
     document.getElementById("help-close").addEventListener("click", closeHelp);
     document.getElementById("help").addEventListener("click", function (event) {

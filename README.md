@@ -2,7 +2,7 @@
 
 A single tall page that writes still-image backgrounds and short animation prompts in full sentences. Open `index.html` in a browser. There is no build step and no server. The word banks live in `js/banks.js`, so the page also works when you open the file directly (`file://`).
 
-The look is an earthy editorial notebook: warm paper, terracotta and sage, a serif for the prompts, and a handwritten note for the small asides. Behind the page is a cream noren printed with sage bamboo, a calico cat in the doorway. The **Backdrop** slider (remembered here) fades that photograph from hidden to full; it opens near forty. A **Sol & Shadow** theme (charcoal and terracotta) keeps the same photograph, dimmed. The folio opens on the light parchment theme. The choice is remembered in this browser.
+The look is an earthy editorial notebook: warm paper, terracotta and sage, a serif for the prompts, and a handwritten note for the small asides. Behind the page is a cream noren printed with sage bamboo, a calico cat in the doorway. The **Backdrop** slider (remembered here) fades that photograph from hidden to full; it opens near forty. The plates, and the section panels a step lighter than the plates, are dyed a dark lacquer so the noren still ghosts through. Four dyes — Ink & Clay, Indigo Noren, Moss, and Lacquer — plus a flat charcoal sit as swatches in the top bar. That choice is remembered here, and `V` cycles it. A **Sol & Shadow** theme keeps the same photograph, dimmed, and the same dyes a shade deeper. The folio opens on the light parchment theme with Ink & Clay. The choice is remembered in this browser.
 
 ## Sections
 
@@ -34,6 +34,7 @@ Shortcuts pause while the cursor is in a text field, a menu, or a slider.
 | `N` | Jump to Animation |
 | `F` | Jump to Favourites |
 | `T` | Toggle parchment / Sol & Shadow |
+| `V` | Cycle the card dye: Ink & Clay, Indigo Noren, Moss, Lacquer, Flat |
 | `?` | Show or hide the shortcut list |
 
 ## Publish
@@ -42,7 +43,7 @@ The workflow in `.github/workflows/pages.yml` publishes the static files on `mai
 
 ## Privacy
 
-Favourites, history, theme, the backdrop slider, seeds, locks, and the other slider positions stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
+Favourites, history, theme, the card dye, the backdrop slider, seeds, locks, and the other slider positions stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
 
 ## License
 

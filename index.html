@@ -23,6 +23,9 @@
         if (!isFinite(photoN)) photoN = 40;
         photoN = Math.max(0, Math.min(100, photoN));
         document.documentElement.style.setProperty("--bg-photo", String(photoN));
+        var grade = localStorage.getItem("moap.cardGrade");
+        if (grade !== "indigo" && grade !== "moss" && grade !== "lacquer" && grade !== "flat") grade = "ink";
+        document.documentElement.setAttribute("data-grade", grade);
       } catch (err) {}
     })();
   </script>
@@ -111,6 +114,16 @@
       <div class="slider">
         <label for="bg-photo">Backdrop <span id="bg-photo-val">40</span></label>
         <input id="bg-photo" type="range" min="0" max="100" step="1" value="40" title="How strongly the noren photograph shows behind the page">
+      </div>
+      <div class="grade-picker">
+        <span id="grade-label">Dye</span>
+        <div class="grade-swatches" role="group" aria-labelledby="grade-label">
+          <button type="button" class="grade-swatch" data-grade="ink" aria-pressed="true" title="Ink &amp; Clay" aria-label="Ink and Clay"></button>
+          <button type="button" class="grade-swatch" data-grade="indigo" aria-pressed="false" title="Indigo Noren" aria-label="Indigo Noren"></button>
+          <button type="button" class="grade-swatch" data-grade="moss" aria-pressed="false" title="Moss" aria-label="Moss"></button>
+          <button type="button" class="grade-swatch" data-grade="lacquer" aria-pressed="false" title="Lacquer" aria-label="Lacquer"></button>
+          <button type="button" class="grade-swatch" data-grade="flat" aria-pressed="false" title="Flat" aria-label="Flat charcoal"></button>
+        </div>
       </div>
       <button type="button" class="theme-btn" id="theme-toggle" title="Toggle parchment and Sol &amp; Shadow">
         <svg class="icon icon-to-dark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-moon"></use></svg>
@@ -532,6 +545,7 @@
           <tr><th><kbd>N</kbd></th><td>Jump to Animation</td></tr>
           <tr><th><kbd>F</kbd></th><td>Jump to Favourites</td></tr>
           <tr><th><kbd>T</kbd></th><td>Toggle theme</td></tr>
+          <tr><th><kbd>V</kbd></th><td>Cycle the card dye: Ink &amp; Clay, Indigo Noren, Moss, Lacquer, Flat</td></tr>
           <tr><th><kbd>?</kbd></th><td>Show or hide this list</td></tr>
         </tbody>
       </table>
