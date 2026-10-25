@@ -12,7 +12,7 @@ The look is an earthy editorial notebook: warm paper, terracotta and sage, a ser
 
 Each Generate draws the next prompt from the seed. The same seed and the same step rebuild that prompt. The dice starts a new seed.
 
-Text size and the detail-panel size are the two sliders in the top bar. They are remembered here too. On a wide screen the detail panel is the right half of the page. In a narrow window, including a side panel around 540px, it becomes a bottom sheet at half the height. Double-click any plate to copy its prompt.
+The top bar is a slim row of icons: Backgrounds, Animation, Favourites, the backdrop slider, the dye swatches, Sol & Shadow, and the shortcut key. On a wide screen the detail panel is the right half of the page. In a narrow window, including a side panel around 540px, it becomes a bottom sheet at half the height. Double-click any plate to copy its prompt.
 
 Place, weather, light, motion, and camera are chosen so they agree: a desert stays dry, underwater stays with the water, a walking figure is followed rather than orbited. If you pin a combination that disagrees, it is still generated, and the plate carries a small note. Copy stays on the prompt alone unless **Include negative prompt** is on. That switch is remembered in this browser. Jumps between sections scroll smoothly, and they stay instant when the browser asks for reduced motion.
 
@@ -44,7 +44,7 @@ The workflow in `.github/workflows/pages.yml` publishes the static files on `mai
 
 ## Privacy
 
-Favourites, history, theme, the card dye, keywords and the last ten keyword lines, the backdrop slider, seeds, locks, and the other slider positions stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
+Favourites, history, theme, the card dye, keywords and the last ten keyword lines, the backdrop slider, seeds, and locks stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
 
 ## License
 

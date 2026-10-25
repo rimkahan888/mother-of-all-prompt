@@ -1332,7 +1332,7 @@
       const number = Number(raw);
       if (!Number.isFinite(number)) return;
       input.value = String(number);
-      label.textContent = String(number);
+      if (label) label.textContent = String(number);
       document.documentElement.style.setProperty(cssVar, map(number));
       if (save) storageSet(key, String(number));
     }
@@ -1964,8 +1964,6 @@
       toast("History cleared");
     });
 
-    bindSlider("text-size", "text-size-val", "moap.textScale", "--text-scale", function (n) { return String(n / 100); });
-    bindSlider("panel-size", "panel-size-val", "moap.panel", "--panel", function (n) { return String(n); });
     bindSlider("bg-photo", "bg-photo-val", "moap.bgPhoto", "--bg-photo", function (n) { return String(n); });
 
     const dark = document.documentElement.getAttribute("data-theme") === "dark";
