@@ -2,7 +2,7 @@
 
 A single tall page that writes still-image backgrounds and short animation prompts in full sentences. Open `index.html` in a browser. There is no build step and no server. The word banks live in `js/banks.js`, so the page also works when you open the file directly (`file://`).
 
-The look is an earthy editorial notebook: warm paper, terracotta and sage, a serif for the prompts, and a handwritten note for the small asides. Behind the page is a cream noren printed with sage bamboo, a calico cat in the doorway. The **Backdrop** slider, inside the gear menu, fades that photograph from hidden to full; it opens near forty. The plates, and the section panels a step lighter than the plates, are dyed a dark lacquer so the noren still ghosts through. Four dyes — Ink & Clay, Indigo Noren, Moss, and Lacquer — plus a flat charcoal sit as small swatches in the top bar. That choice is remembered here, and `V` cycles it. A **Sol & Shadow** theme keeps the same photograph, dimmed, and the same dyes a shade deeper. The folio opens on the light parchment theme with Ink & Clay. The choice is remembered in this browser.
+The look is an earthy editorial notebook: warm paper, terracotta and sage, a serif for the prompts, and a handwritten note for the small asides. Behind the page is a cream noren printed with sage bamboo, a calico cat in the doorway. The **Backdrop** slider, inside the gear menu, fades that photograph from hidden to full; it opens near forty. The plates, and the section panels a step lighter than the plates, are dyed so the noren still ghosts through. Three dyes — Clay, Indigo, and Moss — sit as small dots in the top bar. That choice is remembered here, and `V` cycles it. A saved Lacquer or Flat choice opens as Clay. A **Sol & Shadow** theme keeps the same photograph, dimmed, and the same dyes a shade deeper. The folio opens on the light parchment theme with Clay. The choice is remembered in this browser.
 
 ## Sections
 
@@ -35,7 +35,7 @@ Shortcuts pause while the cursor is in a text field, a menu, or a slider.
 | `N` | Jump to Animation |
 | `F` | Jump to Favourites |
 | `T` | Toggle parchment / Sol & Shadow |
-| `V` | Cycle the card dye: Ink & Clay, Indigo Noren, Moss, Lacquer, Flat |
+| `V` | Cycle the card dye: Clay, Indigo, Moss |
 | `?` | Show or hide the shortcut list |
 
 ## Publish

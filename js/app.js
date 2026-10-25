@@ -1332,11 +1332,9 @@
   }
 
   const GRADES = [
-    { id: "ink", name: "Ink & Clay" },
-    { id: "indigo", name: "Indigo Noren" },
-    { id: "moss", name: "Moss" },
-    { id: "lacquer", name: "Lacquer" },
-    { id: "flat", name: "Flat" }
+    { id: "clay", name: "Clay" },
+    { id: "indigo", name: "Indigo" },
+    { id: "moss", name: "Moss" }
   ];
 
   function gradeById(id) {
@@ -1349,7 +1347,8 @@
   function applyGrade(id, save) {
     const grade = gradeById(id);
     document.documentElement.setAttribute("data-grade", grade.id);
-    if (save) storageSet("moap.cardGrade", grade.id);
+    const stored = storageGet("moap.cardGrade");
+    if (save || (stored && stored !== grade.id)) storageSet("moap.cardGrade", grade.id);
     document.querySelectorAll(".grade-swatch").forEach(function (btn) {
       const on = btn.getAttribute("data-grade") === grade.id;
       btn.setAttribute("aria-pressed", on ? "true" : "false");
@@ -1358,7 +1357,7 @@
   }
 
   function cycleGrade() {
-    const current = document.documentElement.getAttribute("data-grade") || "ink";
+    const current = document.documentElement.getAttribute("data-grade") || "clay";
     const index = GRADES.findIndex(function (grade) { return grade.id === current; });
     const next = GRADES[(index + 1) % GRADES.length];
     applyGrade(next.id, true);
@@ -1974,7 +1973,7 @@
     });
 
     document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
-    applyGrade(document.documentElement.getAttribute("data-grade") || storageGet("moap.cardGrade") || "ink", false);
+    applyGrade(document.documentElement.getAttribute("data-grade") || storageGet("moap.cardGrade") || "clay", false);
     document.querySelectorAll(".grade-swatch").forEach(function (btn) {
       btn.addEventListener("click", function () {
         const grade = applyGrade(btn.getAttribute("data-grade"), true);

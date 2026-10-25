@@ -23,8 +23,12 @@
         if (!isFinite(photoN)) photoN = 40;
         photoN = Math.max(0, Math.min(100, photoN));
         document.documentElement.style.setProperty("--bg-photo", String(photoN));
-        var grade = localStorage.getItem("moap.cardGrade");
-        if (grade !== "indigo" && grade !== "moss" && grade !== "lacquer" && grade !== "flat") grade = "ink";
+        var stored = localStorage.getItem("moap.cardGrade");
+        var grade = stored;
+        if (grade !== "indigo" && grade !== "moss") grade = "clay";
+        if (stored && stored !== grade) {
+          try { localStorage.setItem("moap.cardGrade", grade); } catch (err) {}
+        }
         document.documentElement.setAttribute("data-grade", grade);
       } catch (err) {}
     })();
@@ -140,11 +144,9 @@
     </nav>
     <div class="nav-tools">
       <div class="grade-swatches" role="group" aria-label="Card dye">
-        <button type="button" class="grade-swatch" data-grade="ink" aria-pressed="true" title="Ink &amp; Clay" aria-label="Ink and Clay"></button>
-        <button type="button" class="grade-swatch" data-grade="indigo" aria-pressed="false" title="Indigo Noren" aria-label="Indigo Noren"></button>
+        <button type="button" class="grade-swatch" data-grade="clay" aria-pressed="true" title="Clay" aria-label="Clay"></button>
+        <button type="button" class="grade-swatch" data-grade="indigo" aria-pressed="false" title="Indigo" aria-label="Indigo"></button>
         <button type="button" class="grade-swatch" data-grade="moss" aria-pressed="false" title="Moss" aria-label="Moss"></button>
-        <button type="button" class="grade-swatch" data-grade="lacquer" aria-pressed="false" title="Lacquer" aria-label="Lacquer"></button>
-        <button type="button" class="grade-swatch" data-grade="flat" aria-pressed="false" title="Flat" aria-label="Flat charcoal"></button>
       </div>
       <button type="button" class="nav-btn" id="theme-toggle" title="Sol &amp; Shadow" aria-label="Sol and Shadow">
         <svg class="icon icon-to-dark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-moon"></use></svg>
@@ -516,7 +518,7 @@
           <tr><th><kbd>N</kbd></th><td>Jump to Animation</td></tr>
           <tr><th><kbd>F</kbd></th><td>Jump to Favourites</td></tr>
           <tr><th><kbd>T</kbd></th><td>Toggle theme</td></tr>
-          <tr><th><kbd>V</kbd></th><td>Cycle the card dye: Ink &amp; Clay, Indigo Noren, Moss, Lacquer, Flat</td></tr>
+          <tr><th><kbd>V</kbd></th><td>Cycle the card dye: Clay, Indigo, Moss</td></tr>
           <tr><th><kbd>?</kbd></th><td>Show or hide this list</td></tr>
         </tbody>
       </table>
