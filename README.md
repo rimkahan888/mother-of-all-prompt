@@ -7,10 +7,10 @@ The look is an earthy editorial notebook: warm paper, terracotta and sage, a ser
 ## Sections
 
 1. **Backgrounds** — type keywords if you want, press Generate, and one prompt replaces the plate. Earlier prompts stay in History. World is the keyword mode unless you change it in the gear menu. Several comma-separated keywords take turns, one per generation. The link icon keeps one keyword line for Animation too. Copy with the copy icon or a double-click, star it, or send a still to Animation.
-2. **Animation** — the same flow, for a moving picture. Locks, the starting scene, and the seed sit under Advanced, closed until you open them.
+2. **Animation** — the same flow, for a moving picture. Locks and the starting scene sit under Advanced, closed until you open them.
 3. **Favourites** — a star tab and a clock tab. Each shows a count. Search is the magnifier. Export, import, and clear sit in the ··· menu. Clear asks first.
 
-Each Generate draws the next prompt from the seed. The same seed and the same step rebuild that prompt. The dice, under Advanced, starts a new seed.
+Each Generate draws the next prompt from a seed kept in this browser. The same seed and the same step rebuild that prompt. Reuse sits under Seed in the gear menu, closed until you open it. The dice there starts a new seed.
 
 The gear holds keyword mode (World, Blend, Exact), “Describe instead of naming”, “Include negative prompt”, and the backdrop slider. The detail panel is the right half of a wide page. In a narrow window, including a side panel around 540px, it becomes a bottom sheet at half the height. Double-click any plate to copy its prompt.
 

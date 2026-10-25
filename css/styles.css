@@ -312,6 +312,25 @@ html:not([data-theme="dark"]) .icon-to-light { display: none; }
 
 .settings-pop .switch { font-size: 14px; }
 
+.seed-fold {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.seed-fold summary {
+  cursor: pointer;
+  width: fit-content;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  list-style: none;
+}
+
+.seed-fold summary::-webkit-details-marker { display: none; }
+
+.seed-fold .seed-line { margin-top: 8px; }
+
 .slider {
   display: flex;
   flex-direction: row;

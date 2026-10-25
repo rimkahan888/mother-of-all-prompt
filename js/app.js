@@ -929,6 +929,18 @@
     return fields;
   }
 
+  const seeds = { background: "1847", animation: "1847" };
+
+  function seedKind() {
+    return state.section === "animation" ? "animation" : "background";
+  }
+
+  function showSeed() {
+    const input = document.getElementById("seed");
+    if (!input) return;
+    input.value = seeds[seedKind()] || "1847";
+  }
+
   function turnKey(kind) {
     return kind === "background" ? "moap.bgTurn" : "moap.animTurn";
   }
@@ -946,7 +958,7 @@
   function readSettings(kind) {
     if (kind === "background") {
       return {
-        seed: document.getElementById("bg-seed").value.trim(),
+        seed: seeds.background || "1847",
         turn: storedTurn(kind),
         clean: document.getElementById("bg-clean").checked,
         negativeOn: document.getElementById("bg-neg-on").checked,
@@ -959,7 +971,7 @@
     }
     const animWords = keywordBox("anim");
     return {
-      seed: document.getElementById("anim-seed").value.trim(),
+      seed: seeds.animation || "1847",
       turn: storedTurn(kind),
       sceneText: document.getElementById("anim-scene").value.trim(),
       sceneLocked: keywordHold.animation.held
@@ -989,7 +1001,7 @@
     catch (err) { saved = null; }
     if (!saved) return;
     const prefix = kind === "background" ? "bg" : "anim";
-    if (saved.seed) document.getElementById(prefix + "-seed").value = saved.seed;
+    if (saved.seed) seeds[kind] = String(saved.seed);
     const keys = kind === "background" ? BG_KEYS : ANIM_KEYS;
     keys.forEach(function (key) {
       const field = saved.fields && saved.fields[key];
@@ -1019,10 +1031,10 @@
   function generate(kind, opts) {
     const options = opts || {};
     const settings = readSettings(kind);
-    const seedInput = document.getElementById(kind === "background" ? "bg-seed" : "anim-seed");
     if (!settings.seed) {
       settings.seed = "1847";
-      seedInput.value = "1847";
+      seeds[kind] = "1847";
+      showSeed();
       saveSettings(kind);
     }
     const previous = (kind === "background" ? state.bgBatch : state.animBatch)[0] || null;
@@ -1156,6 +1168,7 @@
       link.classList.toggle("is-active", on);
       link.setAttribute("aria-pressed", on ? "true" : "false");
     });
+    showSeed();
   }
 
   function setActive(id, opts) {
@@ -1344,13 +1357,13 @@
     confirmResolver = null;
   }
 
-  function rollSeed(input, kind) {
-    const next = String(1000 + Math.floor(Math.random() * 9000));
-    input.value = next;
+  function rollSeed(kind) {
+    seeds[kind] = String(1000 + Math.floor(Math.random() * 9000));
     setTurn(kind, 0);
-    flash(input);
+    showSeed();
+    flash(document.getElementById("seed-dice"));
     saveSettings(kind);
-    toast("New seed " + next + ". Generate to use it.");
+    toast("New seed. Generate to use it.");
   }
 
   function syncNeg() {
@@ -1953,6 +1966,7 @@
     ANIM_KEYS.forEach(function (key) { fillSelect(document.getElementById("anim-" + key), bankFor(key)); });
     restoreSettings("background");
     restoreSettings("animation");
+    showSeed();
     restoreKeywordMemory();
     bindKeywords();
     if (!storageGet("moap.bg")) syncNeg();
@@ -1966,8 +1980,15 @@
 
     document.getElementById("bg-generate").addEventListener("click", function () { generate("background"); });
     document.getElementById("anim-generate").addEventListener("click", function () { generate("animation"); });
-    document.getElementById("bg-dice").addEventListener("click", function () { rollSeed(document.getElementById("bg-seed"), "background"); });
-    document.getElementById("anim-dice").addEventListener("click", function () { rollSeed(document.getElementById("anim-seed"), "animation"); });
+    document.getElementById("seed").addEventListener("change", function () {
+      const kind = seedKind();
+      const next = this.value.trim() || "1847";
+      this.value = next;
+      seeds[kind] = next;
+      setTurn(kind, 0);
+      saveSettings(kind);
+    });
+    document.getElementById("seed-dice").addEventListener("click", function () { rollSeed(seedKind()); });
     document.getElementById("bg-clean").addEventListener("change", function () { saveSettings("background"); toast(this.checked ? "Clean background on" : "Clean background off"); });
     document.getElementById("bg-neg-on").addEventListener("change", function () {
       syncNeg();
@@ -2004,11 +2025,6 @@
       keys.forEach(function (key) {
         const select = document.getElementById(prefix + "-" + key);
         select.addEventListener("change", function () { saveSettings(prefix === "bg" ? "background" : "animation"); });
-      });
-      document.getElementById(prefix + "-seed").addEventListener("change", function () {
-        const kind = prefix === "bg" ? "background" : "animation";
-        setTurn(kind, 0);
-        saveSettings(kind);
       });
     });
 

@@ -148,6 +148,15 @@
       <input id="bg-photo" type="range" min="0" max="100" step="1" value="40" aria-label="Backdrop">
       <span id="bg-photo-val" class="visually-hidden">40</span>
     </label>
+    <details class="seed-fold">
+      <summary>Seed</summary>
+      <div class="seed-line">
+        <input id="seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" aria-label="Seed" title="Reuse this seed for the section you are writing">
+        <button type="button" class="icon-btn" id="seed-dice" aria-label="Roll a new seed" title="Roll a new seed">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
+        </button>
+      </div>
+    </details>
   </div>
 
   <div class="page bento" id="page">
@@ -230,17 +239,6 @@
       <h2 id="bg-title" class="visually-hidden">Backgrounds</h2>
       <details class="advanced">
         <summary>Advanced</summary>
-        <div class="genbar">
-          <div class="field field-seed">
-            <label class="field-label" for="bg-seed">Seed</label>
-            <div class="seed-line">
-              <input id="bg-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Each Generate draws the next prompt from this seed">
-              <button type="button" class="icon-btn" id="bg-dice" aria-label="Roll a new seed" title="Roll a new seed">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
-              </button>
-            </div>
-          </div>
-        </div>
       <div class="controls">
         <div class="control">
           <label for="bg-scene">Theme / scene</label>
@@ -347,17 +345,6 @@
       <h2 id="anim-title" class="visually-hidden">Animation</h2>
       <details class="advanced">
         <summary>Advanced</summary>
-        <div class="genbar">
-          <div class="field field-seed">
-            <label class="field-label" for="anim-seed">Seed</label>
-            <div class="seed-line">
-              <input id="anim-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Each Generate draws the next prompt from this seed">
-              <button type="button" class="icon-btn" id="anim-dice" aria-label="Roll a new seed" title="Roll a new seed">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
-              </button>
-            </div>
-          </div>
-        </div>
       <div class="controls">
         <div class="control control-wide">
           <label for="anim-scene">Starting scene</label>
