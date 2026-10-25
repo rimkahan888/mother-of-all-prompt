@@ -580,6 +580,10 @@
     return when ? kind + " · " + when : kind;
   }
 
+  function starButton(starred) {
+    return '<button type="button" class="icon-btn star' + (starred ? " is-on" : "") + '" data-act="star" aria-pressed="' + (starred ? "true" : "false") + '" aria-label="' + (starred ? "Remove from favourites" : "Add to favourites") + '" title="' + (starred ? "Remove from favourites" : "Add to favourites") + '">' + starIcons() + "</button>";
+  }
+
   function cardHTML(entry, opts) {
     const library = opts.library || "";
     const starred = !!entry.starred;
@@ -587,12 +591,26 @@
       ? '<button type="button" class="icon-btn" data-act="animate" aria-label="Animate this" title="Animate this">' + svgUse("i-play") + "</button>"
       : "";
     const del = '<button type="button" class="icon-btn" data-act="delete" data-where="' + esc(library || "plate") + '" aria-label="Delete" title="Delete">' + svgUse("i-trash") + "</button>";
-    return '<article class="card' + (library ? " compact" : "") + '" tabindex="0" data-id="' + esc(entry.id) + '" data-kind="' + esc(entry.kind) + '" title="' + esc(cardMetaTitle(entry)) + '">'
+    const copy = '<button type="button" class="icon-btn" data-act="copy" aria-label="Copy" title="Copy">' + svgUse("i-copy") + "</button>";
+    if (library) {
+      const motion = entry.kind === "animation";
+      const kindName = motion ? "Animation" : "Background";
+      return '<article class="card compact" tabindex="0" data-id="' + esc(entry.id) + '" data-kind="' + esc(entry.kind) + '" title="' + esc(cardMetaTitle(entry)) + '" aria-expanded="false">'
+        + '<span class="copied-badge">Copied</span>'
+        + '<div class="card-row">'
+        + '<span class="kind-mark" title="' + kindName + '" aria-label="' + kindName + '">' + svgUse(motion ? "i-film" : "i-leaf") + "</span>"
+        + '<div class="prompt-clip"><p class="prompt is-clamped">' + esc(entry.text) + "</p></div>"
+        + starButton(starred)
+        + '<span class="card-chevron" aria-hidden="true">' + svgUse("i-chevron") + "</span>"
+        + "</div>"
+        + '<div class="card-actions">' + copy + animate + del + "</div></article>";
+    }
+    return '<article class="card" tabindex="0" data-id="' + esc(entry.id) + '" data-kind="' + esc(entry.kind) + '" title="' + esc(cardMetaTitle(entry)) + '">'
       + '<span class="copied-badge">Copied</span>'
       + '<p class="prompt">' + esc(entry.text) + "</p>"
       + '<div class="card-actions">'
-      + '<button type="button" class="icon-btn" data-act="copy" aria-label="Copy" title="Copy">' + svgUse("i-copy") + "</button>"
-      + '<button type="button" class="icon-btn star' + (starred ? " is-on" : "") + '" data-act="star" aria-pressed="' + (starred ? "true" : "false") + '" aria-label="' + (starred ? "Remove from favourites" : "Add to favourites") + '" title="' + (starred ? "Remove from favourites" : "Add to favourites") + '">' + starIcons() + "</button>"
+      + copy
+      + starButton(starred)
       + animate
       + del
       + "</div></article>";
@@ -699,6 +717,99 @@
     card.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
 
+  function closedPromptHeight(card) {
+    const prompt = card.querySelector(".prompt");
+    if (!prompt) return 0;
+    const clamped = prompt.classList.contains("is-clamped");
+    prompt.classList.add("is-clamped");
+    const height = prompt.getBoundingClientRect().height;
+    if (!clamped) prompt.classList.remove("is-clamped");
+    return height;
+  }
+
+  function setCompactOpen(card, open) {
+    if (!card || !card.classList.contains("compact")) return;
+    const clip = card.querySelector(".prompt-clip");
+    const prompt = card.querySelector(".prompt");
+    if (!clip || !prompt) return;
+    if (clip._compactDone) {
+      clip.removeEventListener("transitionend", clip._compactDone);
+      clip._compactDone = null;
+    }
+    clearTimeout(clip._compactTimer);
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const closed = closedPromptHeight(card);
+    function settle(wantOpen) {
+      if (clip._compactDone) {
+        clip.removeEventListener("transitionend", clip._compactDone);
+        clip._compactDone = null;
+      }
+      if (wantOpen) {
+        if (!card.classList.contains("is-open")) return;
+        clip.style.height = "auto";
+        return;
+      }
+      if (card.classList.contains("is-open")) return;
+      prompt.classList.add("is-clamped");
+      clip.style.height = "";
+    }
+    if (open) {
+      card.classList.add("is-open");
+      card.setAttribute("aria-expanded", "true");
+      prompt.classList.remove("is-clamped");
+      const full = Math.max(prompt.scrollHeight, closed);
+      if (reduce || closed < 1 || full <= closed + 1) {
+        clip.style.height = "auto";
+        return;
+      }
+      clip.style.height = closed + "px";
+      void clip.offsetHeight;
+      clip.style.height = full + "px";
+      const done = function (event) {
+        if (event.propertyName !== "height") return;
+        settle(true);
+      };
+      clip._compactDone = done;
+      clip.addEventListener("transitionend", done);
+      clip._compactTimer = setTimeout(function () { settle(true); }, 400);
+      return;
+    }
+    card.classList.remove("is-open");
+    card.setAttribute("aria-expanded", "false");
+    const current = clip.getBoundingClientRect().height;
+    const full = Math.max(prompt.scrollHeight, current, closed);
+    if (reduce || closed < 1 || full <= closed + 1) {
+      prompt.classList.add("is-clamped");
+      clip.style.height = "";
+      return;
+    }
+    prompt.classList.remove("is-clamped");
+    clip.style.height = full + "px";
+    void clip.offsetHeight;
+    clip.style.height = closed + "px";
+    const done = function (event) {
+      if (event.propertyName !== "height") return;
+      settle(false);
+    };
+    clip._compactDone = done;
+    clip.addEventListener("transitionend", done);
+    clip._compactTimer = setTimeout(function () { settle(false); }, 400);
+  }
+
+  function toggleCompact(card) {
+    setCompactOpen(card, !card.classList.contains("is-open"));
+  }
+
+  function toggleAllCompact() {
+    const cards = shelfCards();
+    if (!cards.length) {
+      toast("No cards here yet.", true);
+      return;
+    }
+    const open = cards.some(function (card) { return !card.classList.contains("is-open"); });
+    cards.forEach(function (card) { setCompactOpen(card, open); });
+  }
+
   function bindCard(card) {
     let timer = null;
     card.addEventListener("click", function (event) {
@@ -706,10 +817,15 @@
       clearTimeout(timer);
       timer = setTimeout(function () {
         timer = null;
+        if (card.classList.contains("compact")) {
+          setCurrent(card, { focus: false });
+          toggleCompact(card);
+          return;
+        }
         const entry = findEntry(card.dataset.id);
         setCurrent(card);
         if (entry) openPanel(entry);
-      }, 220);
+      }, 280);
     });
     card.addEventListener("dblclick", function (event) {
       if (event.target.closest("button")) return;
@@ -1619,6 +1735,7 @@
     if (key === "b" || key === "B") { event.preventDefault(); setActive("backgrounds", { scroll: true }); return; }
     if (key === "n" || key === "N") { event.preventDefault(); setActive("animation", { scroll: true }); return; }
     if (key === "f" || key === "F") { event.preventDefault(); setActive("favourites", { scroll: true }); return; }
+    if (key === "e" || key === "E") { event.preventDefault(); toggleAllCompact(); return; }
     if (key === "g" || key === "G") {
       event.preventDefault();
       generate(state.section === "animation" ? "animation" : "background", { focusFirst: true });
@@ -1651,6 +1768,14 @@
       }
       setStar(entry.id, !entry.starred);
       return;
+    }
+    if (key === "Enter" || key === " ") {
+      const host = event.target && event.target.closest ? event.target.closest(".card.compact") : null;
+      if (host && event.target === host) {
+        event.preventDefault();
+        toggleCompact(host);
+        return;
+      }
     }
     if (key === "Enter") {
       if (event.target.closest && event.target.closest("button, a")) return;

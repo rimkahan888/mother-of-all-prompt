@@ -1298,6 +1298,7 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   gap: 12px;
   margin-top: 12px;
+  align-items: start;
 }
 
 .plate-well {
@@ -1476,11 +1477,81 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   color: var(--ink-soft);
 }
 
+.compact {
+  padding: 8px 10px;
+}
+
+.compact .card-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.compact .kind-mark {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  color: var(--ink-soft);
+}
+
+.compact .kind-mark .icon { width: 16px; height: 16px; }
+
+.compact .prompt-clip {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  transition: height 0.28s ease;
+}
+
 .compact .prompt {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.compact .prompt.is-clamped {
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.compact .card-row .icon-btn,
+.compact .card-chevron {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+}
+
+.compact .card-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  transition: transform 0.28s ease;
+}
+
+.compact.is-open .card-chevron { transform: rotate(180deg); }
+
+.compact .card-actions {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, max-height 0.2s ease, margin 0.2s ease;
+}
+
+.compact:hover .card-actions,
+.compact:focus-within .card-actions,
+.compact.is-open .card-actions {
+  max-height: 44px;
+  opacity: 1;
+  margin-top: 6px;
+  overflow: visible;
+  pointer-events: auto;
 }
 
 .empty {

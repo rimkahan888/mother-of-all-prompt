@@ -8,7 +8,7 @@ The look is an earthy editorial notebook: warm paper, terracotta and sage, a ser
 
 1. **Backgrounds** — type keywords if you want, press Generate, and one prompt replaces the plate. Earlier prompts stay in History. World is the keyword mode unless you change it in the gear menu. Several comma-separated keywords take turns, one per generation. The link icon keeps one keyword line for Animation too. Copy with the copy icon or a double-click, star it, or send a still to Animation.
 2. **Animation** — the same flow, for a moving picture. Locks and the starting scene sit under Advanced, closed until you open them.
-3. **Favourites** — a star tab and a clock tab. Each shows a count. Search is the magnifier. Export, import, and clear sit in the ··· menu. Clear asks first.
+3. **Favourites** — a star tab and a clock tab. Each shows a count. A plate starts as one or two lines, with a still or motion icon and its star. Click to open the full prompt. Search is the magnifier. Export, import, and clear sit in the ··· menu. Clear asks first.
 
 Each Generate draws the next prompt from a seed kept in this browser. The same seed and the same step rebuild that prompt. Reuse sits under Seed in the gear menu, closed until you open it. The dice there starts a new seed.
 
@@ -29,7 +29,9 @@ Shortcuts pause while the cursor is in a text field, a menu, or a slider.
 | `C` | Copy the focused plate |
 | `A` | In Favourites, copy the plates on screen |
 | `S` | Star the focused plate |
-| `Enter` | Open the detail panel |
+| `Enter` | Open the detail panel. On a library plate, expand or collapse it |
+| `Space` | Expand or collapse the focused library plate |
+| `E` | Expand or collapse every plate in Favourites or History |
 | `Esc` | Leave a field, or close search, menus, settings, the panel, or the shortcut list |
 | `B` | Jump to Backgrounds |
 | `N` | Jump to Animation |
