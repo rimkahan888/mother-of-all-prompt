@@ -579,7 +579,7 @@
       ? '<span class="kind-mark" title="' + (entry.kind === "animation" ? "Animation" : "Background") + '">' + svgUse(entry.kind === "animation" ? "i-film" : "i-leaf") + "</span>"
       : "";
     const animate = entry.kind === "background"
-      ? '<button type="button" class="icon-btn" data-act="animate" aria-label="Animate this" title="Animate this">' + svgUse("i-film") + "</button>"
+      ? '<button type="button" class="icon-btn" data-act="animate" aria-label="Animate this" title="Animate this">' + svgUse("i-play") + "</button>"
       : "";
     const del = library
       ? '<button type="button" class="icon-btn" data-act="delete" data-where="' + esc(library) + '" aria-label="Delete" title="Delete">' + svgUse("i-trash") + "</button>"
@@ -590,7 +590,7 @@
       + '<p class="prompt">' + esc(entry.text) + "</p>"
       + '<div class="card-actions">'
       + '<button type="button" class="icon-btn" data-act="copy" aria-label="Copy" title="Copy">' + svgUse("i-copy") + "</button>"
-      + '<button type="button" class="icon-btn star' + (starred ? " is-on" : "") + '" data-act="star" aria-pressed="' + (starred ? "true" : "false") + '" aria-label="' + (starred ? "Remove from favourites" : "Add to favourites") + '">' + starIcons() + "</button>"
+      + '<button type="button" class="icon-btn star' + (starred ? " is-on" : "") + '" data-act="star" aria-pressed="' + (starred ? "true" : "false") + '" aria-label="' + (starred ? "Remove from favourites" : "Add to favourites") + '" title="' + (starred ? "Remove from favourites" : "Add to favourites") + '">' + starIcons() + "</button>"
       + animate
       + del
       + "</div></article>";
@@ -613,9 +613,16 @@
 
   function flash(el) {
     if (!el) return;
-    el.classList.remove("is-flash");
+    el.classList.remove("is-flash", "is-fail");
     void el.offsetWidth;
     el.classList.add("is-flash");
+  }
+
+  function failFlash(el) {
+    if (!el) return;
+    el.classList.remove("is-flash", "is-fail");
+    void el.offsetWidth;
+    el.classList.add("is-fail");
   }
 
   async function writeClipboard(text) {
@@ -647,13 +654,15 @@
     }
   }
 
-  async function copyText(text, card, okMessage) {
+  async function copyText(text, card, okMessage, control) {
     const ok = await writeClipboard(text);
     if (!ok) {
+      failFlash(control);
       toast("Clipboard blocked. Select the prompt text and copy it manually.", true);
       return false;
     }
     showTick(card);
+    flash(control);
     toast(okMessage || "Copied");
     return true;
   }
@@ -668,10 +677,11 @@
     return entry.text + "\n\nNegative: " + entry.negative;
   }
 
-  function copyEntry(entry, card) {
+  function copyEntry(entry, card, control) {
     if (!entry) return;
     const withNegative = copyNegativeOn() && !!entry.negative;
-    copyText(entryCopyText(entry, withNegative), card, withNegative ? "Copied with negative prompt" : "Copied");
+    const button = control || (card && card.querySelector('[data-act="copy"]'));
+    copyText(entryCopyText(entry, withNegative), card, withNegative ? "Copied with negative prompt" : "Copied", button);
   }
 
   function setCurrent(card, opts) {
@@ -715,10 +725,10 @@
         const entry = findEntry(card.dataset.id);
         const act = btn.dataset.act;
         if (!entry && act !== "delete") return;
-        if (act === "copy") copyEntry(entry, card);
-        if (act === "star") setStar(card.dataset.id, btn.getAttribute("aria-pressed") !== "true");
-        if (act === "animate" && entry) sendToAnimation(entry);
-        if (act === "delete") deleteEntry(card.dataset.id, btn.dataset.where);
+        if (act === "copy") copyEntry(entry, card, btn);
+        if (act === "star") setStar(card.dataset.id, btn.getAttribute("aria-pressed") !== "true", btn);
+        if (act === "animate" && entry) sendToAnimation(entry, btn);
+        if (act === "delete") deleteEntry(card.dataset.id, btn.dataset.where, btn);
       });
     });
   }
@@ -770,13 +780,18 @@
     document.querySelectorAll('.card[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"] .star').forEach(function (btn) {
       btn.setAttribute("aria-pressed", on ? "true" : "false");
       btn.classList.toggle("is-on", on);
-      btn.setAttribute("aria-label", on ? "Remove from favourites" : "Add to favourites");
-      const label = btn.querySelector(".btn-label");
-      if (label) label.textContent = on ? "Starred" : "Star";
+      const name = on ? "Remove from favourites" : "Add to favourites";
+      btn.setAttribute("aria-label", name);
+      btn.setAttribute("title", name);
     });
   }
 
-  function setStar(id, on) {
+  function starButtons(id) {
+    const safe = window.CSS && CSS.escape ? CSS.escape(id) : id;
+    return document.querySelectorAll('.card[data-id="' + safe + '"] .star, #detail-star');
+  }
+
+  function setStar(id, on, control) {
     const lib = loadLibrary();
     lib.history.forEach(function (entry) {
       if (entry.id === id) entry.starred = on;
@@ -785,6 +800,7 @@
       if (!lib.favourites.some(function (entry) { return entry.id === id; })) {
         const source = lib.history.find(function (entry) { return entry.id === id; }) || findEntry(id);
         if (!source) {
+          failFlash(control);
           toast("Could not star that plate.", true);
           return;
         }
@@ -796,7 +812,10 @@
     } else {
       lib.favourites = lib.favourites.filter(function (entry) { return entry.id !== id; });
     }
-    if (!saveLibrary(lib)) return;
+    if (!saveLibrary(lib)) {
+      failFlash(control);
+      return;
+    }
     const live = state.bgBatch.concat(state.animBatch).find(function (entry) { return entry.id === id; });
     if (live) live.starred = on;
     syncStarDom(id, on);
@@ -812,10 +831,18 @@
       const fresh = findEntry(id);
       if (fresh) fillPanel(fresh);
     }
+    starButtons(id).forEach(flash);
+    if (control && control.isConnected) flash(control);
     toast(on ? "Saved to favourites" : "Removed from favourites");
   }
 
-  function deleteEntry(id, where) {
+  function deleteEntry(id, where, control) {
+    if (control && control.dataset.busy === "1") return;
+    if (control) {
+      control.dataset.busy = "1";
+      flash(control);
+    }
+    window.setTimeout(function () {
     const lib = loadLibrary();
     if (where === "fav") {
       lib.favourites = lib.favourites.filter(function (entry) { return entry.id !== id; });
@@ -828,11 +855,16 @@
     } else {
       lib.history = lib.history.filter(function (entry) { return entry.id !== id; });
     }
-    if (!saveLibrary(lib)) return;
+    if (!saveLibrary(lib)) {
+      if (control) delete control.dataset.busy;
+      failFlash(control);
+      return;
+    }
     renderLibrary();
     const still = findEntry(id);
     if (state.panelId === id && !still) closePanel();
     toast("Deleted");
+    }, 160);
   }
 
   function remember(entries) {
@@ -981,6 +1013,7 @@
     try {
       built = buildBatch(kind, settings);
     } catch (err) {
+      failFlash(document.getElementById(kind === "background" ? "bg-generate" : "anim-generate"));
       toast("Could not write that prompt.", true);
       return;
     }
@@ -1008,7 +1041,7 @@
     return entries.map(function (entry) { return entryCopyText(entry, includeNegative); }).join(sep);
   }
 
-  function downloadText(filename, text) {
+  function downloadText(filename, text, control) {
     try {
       const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
@@ -1019,20 +1052,28 @@
       link.click();
       link.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      flash(control);
       toast("Downloaded " + filename);
     } catch (err) {
+      failFlash(control);
       toast("Could not download that file.", true);
     }
   }
 
-  function sendToAnimation(entry) {
+  function sendToAnimation(entry, control) {
     const area = document.getElementById("anim-scene");
+    if (!entry || !entry.text || !area) {
+      failFlash(control);
+      toast("Could not send that prompt.", true);
+      return;
+    }
     area.value = entry.text;
     applyLockState(document.getElementById("lock-anim-scene"), true);
     saveSettings("animation");
     updateSceneHint();
     closePanel();
     setActive("animation", { scroll: true });
+    flash(control);
     flash(area);
     toast("Scene set.");
   }
@@ -1045,29 +1086,29 @@
     state.panelId = entry.id;
     document.getElementById("detail-kicker").textContent = entry.kind === "animation" ? "Motion" : "Still";
     const animate = entry.kind === "background"
-      ? '<button type="button" class="icon-btn" id="detail-animate" aria-label="Animate this" title="Animate this">' + svgUse("i-film") + "</button>"
+      ? '<button type="button" class="icon-btn" id="detail-animate" aria-label="Animate this" title="Animate this">' + svgUse("i-play") + "</button>"
       : "";
     const body = document.getElementById("detail-body");
     body.innerHTML = '<p class="prompt">' + esc(entry.text) + "</p>"
       + '<div class="detail-actions">'
       + '<button type="button" class="icon-btn" id="detail-copy" aria-label="Copy" title="Copy">' + svgUse("i-copy") + "</button>"
-      + '<button type="button" class="icon-btn star' + (entry.starred ? " is-on" : "") + '" id="detail-star" aria-pressed="' + (entry.starred ? "true" : "false") + '" aria-label="' + (entry.starred ? "Remove from favourites" : "Add to favourites") + '">' + starIcons() + "</button>"
+      + '<button type="button" class="icon-btn star' + (entry.starred ? " is-on" : "") + '" id="detail-star" aria-pressed="' + (entry.starred ? "true" : "false") + '" aria-label="' + (entry.starred ? "Remove from favourites" : "Add to favourites") + '" title="' + (entry.starred ? "Remove from favourites" : "Add to favourites") + '">' + starIcons() + "</button>"
       + animate
       + "</div>";
-    body.querySelector("#detail-copy").addEventListener("click", function () {
+    body.querySelector("#detail-copy").addEventListener("click", function (event) {
       const live = findEntry(entry.id) || entry;
       const card = document.querySelector('.card[data-id="' + (window.CSS && CSS.escape ? CSS.escape(entry.id) : entry.id) + '"]');
-      copyEntry(live, card);
+      copyEntry(live, card, event.currentTarget);
     });
-    body.querySelector("#detail-star").addEventListener("click", function () {
+    body.querySelector("#detail-star").addEventListener("click", function (event) {
       const live = findEntry(entry.id) || entry;
-      setStar(entry.id, !live.starred);
+      setStar(entry.id, !live.starred, event.currentTarget);
     });
     const animateButton = body.querySelector("#detail-animate");
     if (animateButton) {
-      animateButton.addEventListener("click", function () {
+      animateButton.addEventListener("click", function (event) {
         const live = findEntry(entry.id) || entry;
-        sendToAnimation(live);
+        sendToAnimation(live, event.currentTarget);
       });
     }
   }
@@ -1831,6 +1872,7 @@
       state.lastPinnedScene = "";
       saveSettings("animation");
       updateSceneHint();
+      flash(document.getElementById("anim-scene-clear"));
       flash(area);
       toast("Scene cleared.");
     });
@@ -1885,7 +1927,7 @@
         favourites: lib.favourites,
         history: lib.history
       };
-      downloadText("prompt-folio-library.json", JSON.stringify(payload, null, 2));
+      downloadText("prompt-folio-library.json", JSON.stringify(payload, null, 2), document.getElementById("export"));
     });
     document.getElementById("import-btn").addEventListener("click", function () {
       document.getElementById("import-file").click();
@@ -1895,13 +1937,18 @@
       event.target.value = "";
       if (!file) return;
       const reader = new FileReader();
-      reader.onerror = function () { toast("Could not read that file.", true); };
+      reader.onerror = function () {
+        failFlash(document.getElementById("import-btn"));
+        toast("Could not read that file.", true);
+      };
       reader.onload = function () {
         try {
           const result = mergeImport(JSON.parse(String(reader.result)));
           renderLibrary();
+          flash(document.getElementById("import-btn"));
           toast("Imported " + result.fav + " favourites and " + result.hist + " history notes.");
         } catch (err) {
+          failFlash(document.getElementById("import-btn"));
           toast("Import failed. Choose a JSON file exported from this folio.", true);
         }
       };
@@ -1915,12 +1962,16 @@
       const ids = lib.favourites.map(function (entry) { return entry.id; });
       lib.favourites = [];
       lib.history.forEach(function (entry) { entry.starred = false; });
-      if (!saveLibrary(lib)) return;
+      if (!saveLibrary(lib)) {
+        failFlash(document.getElementById("clear-fav"));
+        return;
+      }
       state.bgBatch.concat(state.animBatch).forEach(function (entry) {
         if (ids.indexOf(entry.id) >= 0) entry.starred = false;
       });
       ids.forEach(function (id) { syncStarDom(id, false); });
       renderLibrary();
+      flash(document.getElementById("clear-fav"));
       toast("Favourites cleared");
     });
     document.getElementById("clear-hist").addEventListener("click", async function () {
@@ -1928,8 +1979,12 @@
       if (!ok) { toast("History kept"); return; }
       const lib = loadLibrary();
       lib.history = [];
-      if (!saveLibrary(lib)) return;
+      if (!saveLibrary(lib)) {
+        failFlash(document.getElementById("clear-hist"));
+        return;
+      }
       renderLibrary();
+      flash(document.getElementById("clear-hist"));
       toast("History cleared");
     });
 

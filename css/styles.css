@@ -773,6 +773,25 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
   background: transparent;
 }
 
+.icon-btn:hover,
+.lock:hover,
+.nav-btn:hover,
+.nav a:hover,
+.recent-toggle:hover:not(:disabled) {
+  border-color: #f0a090;
+  background: color-mix(in srgb, #f0a090 28%, transparent);
+}
+
+.icon-btn:active,
+.lock:active,
+.nav-btn:active {
+  background: color-mix(in srgb, #f0a090 42%, transparent);
+}
+
+.icon-btn.star .icon {
+  grid-area: 1 / 1;
+}
+
 .control.is-from-keywords select:disabled,
 .control.is-from-keywords textarea:disabled {
   opacity: 1;
@@ -1490,8 +1509,15 @@ kbd {
 
 .is-flash { animation: moap-flash 0.7s ease; }
 
+.is-fail { animation: moap-fail 0.7s ease; }
+
 @keyframes moap-flash {
   0% { box-shadow: 0 0 0 3px #f0a090; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+@keyframes moap-fail {
+  0% { box-shadow: 0 0 0 3px #e15b5b; }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
 

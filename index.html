@@ -79,9 +79,14 @@
       <circle cx="12" cy="12" r="3"/>
       <path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/>
     </symbol>
-    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-      <rect x="8" y="8" width="11" height="12" rx="2"/>
-      <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6.5" y="5.5" width="11" height="14" rx="2"/>
+      <path d="M9.5 5.5V4.2h5v1.3"/>
+      <path d="M9.2 11h5.6M9.2 14.2h3.6"/>
+    </symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 6.2v11.6L16.2 12 7 6.2z"/>
+      <path d="M18.2 9.1a4.4 4.4 0 0 1 0 5.8"/>
     </symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
       <path d="M6 9.5l6 6 6-6"/>
@@ -354,7 +359,9 @@
               <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
             </button>
           </div>
-          <button type="button" class="btn" id="anim-scene-clear">Clear</button>
+          <button type="button" class="icon-btn" id="anim-scene-clear" aria-label="Clear scene" title="Clear scene">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x"></use></svg>
+          </button>
         </div>
         <div class="control">
           <label for="anim-camera">Camera movement</label>
@@ -491,7 +498,9 @@
         </tbody>
       </table>
       <div class="dialog-actions">
-        <button type="button" class="btn" id="help-close">Close</button>
+        <button type="button" class="icon-btn" id="help-close" aria-label="Close" title="Close">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x"></use></svg>
+        </button>
       </div>
     </div>
   </div>
