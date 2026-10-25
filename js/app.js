@@ -568,45 +568,39 @@
       + '<svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star-fill"></use></svg>';
   }
 
+  function svgUse(id) {
+    return '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#' + id + '"></use></svg>';
+  }
+
   function cardHTML(entry, opts) {
     const library = opts.library || "";
-    const plate = library ? formatWhen(entry.created) : "Plate";
-    const kindLabel = entry.kind === "animation" ? "Motion" : "Still";
-    const prompt = entry.kind === "animation" ? partsHTML(entry.parts) : esc(entry.text);
-    const tip = entry.tip
-      ? '<p class="hint cam-tip"><strong>' + esc(entry.cameraLabel || "Camera") + ".</strong> " + esc(entry.tip) + "</p>"
-      : "";
-    const negative = entry.negative
-      ? '<p class="negative"><span class="chip-k">Negative</span>' + esc(entry.negative) + "</p>"
-      : "";
-    const warning = entry.warnings && entry.warnings.length
-      ? '<p class="warn-chip">' + esc(entry.warnings.join(" ")) + "</p>"
-      : "";
     const starred = !!entry.starred;
+    const kindMark = library
+      ? '<span class="kind-mark" title="' + (entry.kind === "animation" ? "Animation" : "Background") + '">' + svgUse(entry.kind === "animation" ? "i-film" : "i-leaf") + "</span>"
+      : "";
+    const animate = entry.kind === "background"
+      ? '<button type="button" class="icon-btn" data-act="animate" aria-label="Animate this" title="Animate this">' + svgUse("i-film") + "</button>"
+      : "";
+    const del = library
+      ? '<button type="button" class="icon-btn" data-act="delete" data-where="' + esc(library) + '" aria-label="Delete" title="Delete">' + svgUse("i-trash") + "</button>"
+      : "";
     return '<article class="card' + (library ? " compact" : "") + '" tabindex="0" data-id="' + esc(entry.id) + '" data-kind="' + esc(entry.kind) + '">'
       + '<span class="copied-badge">Copied</span>'
-      + '<header class="card-top"><span class="plate">' + esc(plate) + '</span><span class="plate">' + kindLabel + "</span>"
-      + (entry.stamp ? '<span class="stamp">' + esc(entry.stamp) + "</span>" : "")
-      + (entry.stamp2 ? '<span class="stamp">' + esc(entry.stamp2) + "</span>" : "")
-      + "</header>"
-      + warning
-      + '<p class="prompt' + (entry.kind === "animation" ? " prompt-lit" : "") + '">' + prompt + "</p>"
-      + tip
-      + negative
+      + (kindMark ? '<header class="card-top">' + kindMark + "</header>" : "")
+      + '<p class="prompt">' + esc(entry.text) + "</p>"
       + '<div class="card-actions">'
-      + '<button type="button" class="btn" data-act="copy">Copy</button>'
-      + '<button type="button" class="btn star' + (starred ? " is-on" : "") + '" data-act="star" aria-pressed="' + (starred ? "true" : "false") + '" aria-label="' + (starred ? "Remove from favourites" : "Add to favourites") + '">' + starIcons() + '<span class="btn-label">' + (starred ? "Starred" : "Star") + "</span></button>"
-      + '<button type="button" class="btn" data-act="animate">Animate this</button>'
-      + (library ? '<button type="button" class="btn" data-act="delete" data-where="' + esc(library) + '">Delete</button>' : "")
+      + '<button type="button" class="icon-btn" data-act="copy" aria-label="Copy" title="Copy">' + svgUse("i-copy") + "</button>"
+      + '<button type="button" class="icon-btn star' + (starred ? " is-on" : "") + '" data-act="star" aria-pressed="' + (starred ? "true" : "false") + '" aria-label="' + (starred ? "Remove from favourites" : "Add to favourites") + '">' + starIcons() + "</button>"
+      + animate
+      + del
       + "</div></article>";
   }
 
   function emptyHTML(which) {
-    if (which === "background") return '<p class="empty">No prompt yet. <span class="margin-note">Press Generate, or the G key.</span></p>';
-    if (which === "animation") return '<p class="empty">No motion prompt yet. <span class="margin-note">Send a still across, or leave the scene empty.</span></p>';
-    if (which === "fav") return '<p class="empty">No starred prompts yet. <span class="margin-note">Star a plate and it will wait here.</span></p>';
-    if (which === "hist") return '<p class="empty">History is empty. <span class="margin-note">The last hundred generations gather here.</span></p>';
-    if (which === "search") return '<p class="empty">Nothing matches that search.</p>';
+    if (which === "background" || which === "animation") return '<p class="empty">Press Generate.</p>';
+    if (which === "fav") return '<p class="empty">No starred prompts.</p>';
+    if (which === "hist") return '<p class="empty">No history yet.</p>';
+    if (which === "search") return '<p class="empty">Nothing matches.</p>';
     return '<p class="empty">Nothing here yet.</p>';
   }
 
@@ -1031,18 +1025,6 @@
     }
   }
 
-  function downloadBatch(kind) {
-    const entries = kind === "background" ? state.bgBatch : state.animBatch;
-    if (!entries.length) {
-      toast("Nothing to download yet. Generate a prompt first.", true);
-      return;
-    }
-    const settings = readSettings(kind);
-    const name = (kind === "background" ? "folio-backgrounds-" : "folio-animation-") + (settings.seed || "1847") + ".txt";
-    downloadText(name, promptsText(entries) + "\n");
-    flash(document.getElementById(kind === "background" ? "bg-download" : "anim-download"));
-  }
-
   function sendToAnimation(entry) {
     const area = document.getElementById("anim-scene");
     area.value = entry.text;
@@ -1052,91 +1034,42 @@
     closePanel();
     setActive("animation", { scroll: true });
     flash(area);
-    toast("Starting scene is set. Choose a camera move if you like, then generate.");
+    toast("Scene set.");
   }
 
-  function updateSceneHint(pinned) {
-    const hint = document.getElementById("scene-hint");
-    if (keywordHold.animation.held) {
-      hint.textContent = "From keywords. Weather, motion, and camera follow that place.";
-      return;
-    }
-    const text = document.getElementById("anim-scene").value.trim();
-    const locked = document.getElementById("lock-anim-scene").getAttribute("aria-pressed") === "true";
-    if (text) {
-      hint.textContent = locked
-        ? "Pinned. The next prompt starts from this scene."
-        : "This text is the subject of the next prompt. Lock it to keep it while you experiment.";
-      return;
-    }
-    if (locked && pinned) {
-      hint.textContent = "Pinned place: " + pinned;
-      return;
-    }
-    if (locked) {
-      hint.textContent = "Locked while empty: the next prompt uses one seeded place. Generate to see which.";
-      return;
-    }
-    hint.textContent = "Leave this empty to invent a place, or send one across with Animate this.";
-  }
+  function updateSceneHint() {}
 
-  function updateCameraTip() {
-    const select = document.getElementById("anim-camera");
-    const tip = document.getElementById("camera-tip");
-    if (select.value === "any") {
-      tip.textContent = "Any chooses a move for the next prompt. Lock it to keep that move. The plate explains the move in plain words.";
-      return;
-    }
-    const item = BANKS.cameras[Number(select.value)];
-    tip.textContent = item && item.tip ? item.tip : "";
-  }
+  function updateCameraTip() {}
 
   function fillPanel(entry) {
     state.panelId = entry.id;
-    document.getElementById("detail-kicker").textContent = (entry.kind === "animation" ? "Motion" : "Still")
-      + (entry.stamp ? " · " + entry.stamp : "");
-    const prompt = entry.kind === "animation" ? partsHTML(entry.parts) : esc(entry.text);
-    const chips = (entry.parts || []).map(function (part) {
-      return "<li><span class=\"chip-k\">" + esc(part.label) + "</span>" + esc(part.text) + "</li>";
-    }).join("");
-    const tip = entry.tip
-      ? '<p class="hint"><strong>' + esc(entry.cameraLabel || "Camera") + ".</strong> " + esc(entry.tip) + "</p>"
-      : "";
-    const negative = entry.negative
-      ? '<div class="neg-block"><span class="chip-k">Negative prompt</span><p>' + esc(entry.negative) + '</p><button type="button" class="btn" id="detail-copy-neg">Copy negative</button></div>'
-      : "";
-    const warning = entry.warnings && entry.warnings.length
-      ? '<p class="warn-chip">' + esc(entry.warnings.join(" ")) + "</p>"
+    document.getElementById("detail-kicker").textContent = entry.kind === "animation" ? "Motion" : "Still";
+    const animate = entry.kind === "background"
+      ? '<button type="button" class="icon-btn" id="detail-animate" aria-label="Animate this" title="Animate this">' + svgUse("i-film") + "</button>"
       : "";
     const body = document.getElementById("detail-body");
-    body.innerHTML = warning + '<p class="prompt' + (entry.kind === "animation" ? " prompt-lit" : "") + '">' + prompt + "</p>"
-      + tip
-      + '<ul class="chips">' + chips + "</ul>"
-      + negative
+    body.innerHTML = '<p class="prompt">' + esc(entry.text) + "</p>"
       + '<div class="detail-actions">'
-      + '<button type="button" class="btn" id="detail-copy">Copy</button>'
-      + '<button type="button" class="btn star' + (entry.starred ? " is-on" : "") + '" id="detail-star" aria-pressed="' + (entry.starred ? "true" : "false") + '">' + (entry.starred ? "Starred" : "Star") + "</button>"
-      + '<button type="button" class="btn" id="detail-animate">Animate this</button>'
+      + '<button type="button" class="icon-btn" id="detail-copy" aria-label="Copy" title="Copy">' + svgUse("i-copy") + "</button>"
+      + '<button type="button" class="icon-btn star' + (entry.starred ? " is-on" : "") + '" id="detail-star" aria-pressed="' + (entry.starred ? "true" : "false") + '" aria-label="' + (entry.starred ? "Remove from favourites" : "Add to favourites") + '">' + starIcons() + "</button>"
+      + animate
       + "</div>";
     body.querySelector("#detail-copy").addEventListener("click", function () {
       const live = findEntry(entry.id) || entry;
       const card = document.querySelector('.card[data-id="' + (window.CSS && CSS.escape ? CSS.escape(entry.id) : entry.id) + '"]');
       copyEntry(live, card);
     });
-    const negButton = body.querySelector("#detail-copy-neg");
-    if (negButton) {
-      negButton.addEventListener("click", function () {
-        copyText(entry.negative, null, "Copied negative prompt");
-      });
-    }
     body.querySelector("#detail-star").addEventListener("click", function () {
       const live = findEntry(entry.id) || entry;
       setStar(entry.id, !live.starred);
     });
-    body.querySelector("#detail-animate").addEventListener("click", function () {
-      const live = findEntry(entry.id) || entry;
-      sendToAnimation(live);
-    });
+    const animateButton = body.querySelector("#detail-animate");
+    if (animateButton) {
+      animateButton.addEventListener("click", function () {
+        const live = findEntry(entry.id) || entry;
+        sendToAnimation(live);
+      });
+    }
   }
 
   function openPanel(entry) {
@@ -1211,7 +1144,29 @@
     });
   }
 
+  function settingsOpen() {
+    const pop = document.getElementById("settings-pop");
+    return !!(pop && !pop.hidden);
+  }
+
+  function openSettings() {
+    const pop = document.getElementById("settings-pop");
+    const button = document.getElementById("settings-open");
+    if (!pop) return;
+    pop.hidden = false;
+    if (button) button.setAttribute("aria-expanded", "true");
+  }
+
+  function closeSettings() {
+    const pop = document.getElementById("settings-pop");
+    const button = document.getElementById("settings-open");
+    if (!pop || pop.hidden) return;
+    pop.hidden = true;
+    if (button) button.setAttribute("aria-expanded", "false");
+  }
+
   function openHelp() {
+    closeSettings();
     document.getElementById("help").hidden = false;
     setModalInert(true);
     document.getElementById("help-close").focus();
@@ -1327,6 +1282,7 @@
 
   function bindSlider(id, valueId, key, cssVar, map) {
     const input = document.getElementById(id);
+    if (!input) return;
     const label = document.getElementById(valueId);
     function apply(raw, save) {
       const number = Number(raw);
@@ -1469,6 +1425,12 @@
         closeRecentMenus();
         return;
       }
+      const settings = document.getElementById("settings-pop");
+      if (settings && !settings.hidden) {
+        event.preventDefault();
+        closeSettings();
+        return;
+      }
       if (state.panelId) {
         event.preventDefault();
         closePanel();
@@ -1550,15 +1512,34 @@
     animation: { locked: false, held: false }
   };
 
-  function keywordBox(prefix) {
-    const input = document.getElementById(prefix + "-keyword");
-    const modeRoot = document.getElementById(prefix + "-keyword-mode");
+  function keywordModeState() {
+    const modeRoot = document.getElementById("keyword-mode");
     const pressed = modeRoot ? modeRoot.querySelector('button[aria-pressed="true"]') : null;
-    const describe = document.getElementById(prefix + "-keyword-describe");
+    const describe = document.getElementById("keyword-describe");
     return {
-      text: input ? input.value : "",
       mode: pressed && pressed.dataset.mode ? pressed.dataset.mode : "world",
       describe: !!(describe && describe.checked)
+    };
+  }
+
+  function setKeywordMode(mode, describe) {
+    const modeRoot = document.getElementById("keyword-mode");
+    if (modeRoot) {
+      modeRoot.querySelectorAll("button").forEach(function (button) {
+        button.setAttribute("aria-pressed", button.dataset.mode === mode ? "true" : "false");
+      });
+    }
+    const box = document.getElementById("keyword-describe");
+    if (box && typeof describe === "boolean") box.checked = describe;
+  }
+
+  function keywordBox(prefix) {
+    const input = document.getElementById(prefix + "-keyword");
+    const mode = keywordModeState();
+    return {
+      text: input ? input.value : "",
+      mode: mode.mode,
+      describe: mode.describe
     };
   }
 
@@ -1575,15 +1556,8 @@
 
   function applyKeywordBox(prefix, box, quiet) {
     const input = document.getElementById(prefix + "-keyword");
-    const describe = document.getElementById(prefix + "-keyword-describe");
-    const modeRoot = document.getElementById(prefix + "-keyword-mode");
     if (input && input.value !== box.text) input.value = box.text;
-    if (describe) describe.checked = !!box.describe;
-    if (modeRoot) {
-      modeRoot.querySelectorAll("button").forEach(function (button) {
-        button.setAttribute("aria-pressed", button.dataset.mode === box.mode ? "true" : "false");
-      });
-    }
+    if (!quiet) setKeywordMode(box.mode || "world", !!box.describe);
     if (!quiet && keywordShared()) {
       const other = prefix === "bg" ? "anim" : "bg";
       applyKeywordBox(other, box, true);
@@ -1623,7 +1597,7 @@
       const open = toggle.getAttribute("aria-expanded") === "true" && list.length > 0;
       menu.replaceChildren();
       toggle.disabled = list.length === 0;
-      toggle.textContent = list.length ? "Recent" : "No recent keywords";
+      toggle.setAttribute("aria-label", list.length ? "Recent keywords" : "No recent keywords");
       list.forEach(function (item) {
         const li = document.createElement("li");
         li.setAttribute("role", "presentation");
@@ -1713,7 +1687,6 @@
       lock.disabled = true;
       applyLockState(lock, true);
       control.classList.add("is-from-keywords");
-      document.getElementById("scene-hint").textContent = "From keywords. Weather, motion, and camera follow that place.";
       return;
     }
     if (!keywordHold.animation.held) return;
@@ -1736,17 +1709,12 @@
     const share = !saved || saved.share !== false;
     const bg = saved && saved.bg ? saved.bg : { text: "", mode: "world", describe: false };
     const anim = share ? bg : (saved && saved.anim ? saved.anim : { text: "", mode: "world", describe: false });
+    const mode = (bg && bg.mode) || (anim && anim.mode) || "world";
+    const describe = !!(bg && bg.describe);
     setSharePressed(share);
-    applyKeywordBox("bg", {
-      text: String(bg.text || ""),
-      mode: bg.mode || "world",
-      describe: !!bg.describe
-    }, true);
-    applyKeywordBox("anim", {
-      text: String(anim.text || ""),
-      mode: anim.mode || "world",
-      describe: !!anim.describe
-    }, true);
+    setKeywordMode(mode, describe);
+    applyKeywordBox("bg", { text: String(bg.text || ""), mode: mode, describe: describe }, true);
+    applyKeywordBox("anim", { text: String(anim.text || ""), mode: mode, describe: describe }, true);
     renderRecentKeywords();
     refreshKeywordLocks();
   }
@@ -1771,25 +1739,6 @@
         saveKeywordMemory();
         refreshKeywordLocks();
       });
-      document.getElementById(prefix + "-keyword-describe").addEventListener("change", function () {
-        if (keywordShared()) {
-          document.getElementById(prefix === "bg" ? "anim-keyword-describe" : "bg-keyword-describe").checked = this.checked;
-        }
-        saveKeywordMemory();
-        toast(this.checked ? "Brand names will be described" : "Keywords stay as written");
-      });
-      document.getElementById(prefix + "-keyword-mode").addEventListener("click", function (event) {
-        const button = event.target.closest("button");
-        if (!button || !button.dataset.mode) return;
-        applyKeywordBox(prefix, {
-          text: input.value,
-          mode: button.dataset.mode,
-          describe: document.getElementById(prefix + "-keyword-describe").checked
-        });
-        saveKeywordMemory();
-        const names = { world: "World", blend: "Blend", exact: "Exact" };
-        toast(names[button.dataset.mode] || "World");
-      });
       const recent = document.getElementById(prefix + "-keyword-recent");
       recent.addEventListener("click", function () {
         const open = recent.getAttribute("aria-expanded") === "true";
@@ -1799,9 +1748,27 @@
         document.getElementById(prefix + "-keyword-recent-list").hidden = false;
       });
     });
+    const describeBox = document.getElementById("keyword-describe");
+    if (describeBox) {
+      describeBox.addEventListener("change", function () {
+        saveKeywordMemory();
+        toast(this.checked ? "Brand names will be described" : "Keywords stay as written");
+      });
+    }
+    const modeRoot = document.getElementById("keyword-mode");
+    if (modeRoot) {
+      modeRoot.addEventListener("click", function (event) {
+        const button = event.target.closest("button");
+        if (!button || !button.dataset.mode) return;
+        setKeywordMode(button.dataset.mode, !!(describeBox && describeBox.checked));
+        saveKeywordMemory();
+        const names = { world: "World", blend: "Blend", exact: "Exact" };
+        toast(names[button.dataset.mode] || "World");
+      });
+    }
     document.addEventListener("click", function (event) {
-      if (event.target.closest(".recent-menu")) return;
-      closeRecentMenus();
+      if (!event.target.closest(".recent-menu")) closeRecentMenus();
+      if (!event.target.closest("#settings-pop, #settings-open")) closeSettings();
     });
     document.querySelectorAll(".keyword-share").forEach(function (button) {
       button.addEventListener("click", function () {
@@ -1840,8 +1807,6 @@
 
     document.getElementById("bg-generate").addEventListener("click", function () { generate("background"); });
     document.getElementById("anim-generate").addEventListener("click", function () { generate("animation"); });
-    document.getElementById("bg-download").addEventListener("click", function () { downloadBatch("background"); });
-    document.getElementById("anim-download").addEventListener("click", function () { downloadBatch("animation"); });
     document.getElementById("bg-dice").addEventListener("click", function () { rollSeed(document.getElementById("bg-seed"), "background"); });
     document.getElementById("anim-dice").addEventListener("click", function () { rollSeed(document.getElementById("anim-seed"), "animation"); });
     document.getElementById("bg-clean").addEventListener("change", function () { saveSettings("background"); toast(this.checked ? "Clean background on" : "Clean background off"); });
@@ -1867,7 +1832,7 @@
       saveSettings("animation");
       updateSceneHint();
       flash(area);
-      toast("Scene cleared. The next prompt can invent a place.");
+      toast("Scene cleared.");
     });
     document.getElementById("anim-camera").addEventListener("change", function () {
       updateCameraTip();
@@ -1894,6 +1859,10 @@
         const grade = applyGrade(btn.getAttribute("data-grade"), true);
         toast(grade.name);
       });
+    });
+    document.getElementById("settings-open").addEventListener("click", function () {
+      if (settingsOpen()) closeSettings();
+      else openSettings();
     });
     document.getElementById("help-open").addEventListener("click", openHelp);
     document.getElementById("help-close").addEventListener("click", closeHelp);
@@ -1964,6 +1933,8 @@
       toast("History cleared");
     });
 
+    bindSlider("text-size", "text-size-val", "moap.textScale", "--text-scale", function (n) { return String(n / 100); });
+    bindSlider("panel-size", "panel-size-val", "moap.panel", "--panel", function (n) { return String(n); });
     bindSlider("bg-photo", "bg-photo-val", "moap.bgPhoto", "--bg-photo", function (n) { return String(n); });
 
     const dark = document.documentElement.getAttribute("data-theme") === "dark";

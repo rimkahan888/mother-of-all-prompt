@@ -75,6 +75,27 @@
       <circle cx="9" cy="10" r="1.3" fill="currentColor" stroke="none"/>
       <path d="M4.5 16.5l4.2-3.4 2.8 2.2 3.1-2.6L19.5 16.5"/>
     </symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/>
+    </symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+      <rect x="8" y="8" width="11" height="12" rx="2"/>
+      <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>
+    </symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9.5l6 6 6-6"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13"/>
+    </symbol>
+    <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 13a4.5 4.5 0 0 0 6.4.2l1.8-1.8a4.5 4.5 0 0 0-6.4-6.4L10.6 6"/>
+      <path d="M14 11a4.5 4.5 0 0 0-6.4-.2l-1.8 1.8a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/>
+    </symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+      <path d="M6 6l12 12M18 6L6 18"/>
+    </symbol>
     <symbol id="i-bamboo" viewBox="0 0 24 24">
       <path d="M8 22V3M16 22V6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       <path d="M8 8h2.2M8 14h2.2M16 11h2M16 17h2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
@@ -100,11 +121,6 @@
       </a>
     </nav>
     <div class="nav-tools">
-      <div class="slider">
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-photo"></use></svg>
-        <input id="bg-photo" type="range" min="0" max="100" step="1" value="40" aria-label="Backdrop" title="How strongly the noren photograph shows">
-        <span id="bg-photo-val" class="visually-hidden">40</span>
-      </div>
       <div class="grade-swatches" role="group" aria-label="Card dye">
         <button type="button" class="grade-swatch" data-grade="ink" aria-pressed="true" title="Ink &amp; Clay" aria-label="Ink and Clay"></button>
         <button type="button" class="grade-swatch" data-grade="indigo" aria-pressed="false" title="Indigo Noren" aria-label="Indigo Noren"></button>
@@ -116,81 +132,82 @@
         <svg class="icon icon-to-dark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-moon"></use></svg>
         <svg class="icon icon-to-light" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sun"></use></svg>
       </button>
+      <button type="button" class="nav-btn" id="settings-open" aria-label="Settings" title="Settings" aria-expanded="false" aria-controls="settings-pop">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-gear"></use></svg>
+      </button>
       <button type="button" class="nav-btn" id="help-open" aria-label="Keyboard shortcuts" title="Keyboard shortcuts">
         <span class="qmark">?</span>
       </button>
     </div>
   </header>
 
+  <div id="settings-pop" class="settings-pop" hidden role="dialog" aria-label="Settings">
+    <div class="segmented" id="keyword-mode" role="radiogroup" aria-label="Keyword mode">
+      <button type="button" data-mode="world" aria-pressed="true">World</button>
+      <button type="button" data-mode="blend" aria-pressed="false">Blend</button>
+      <button type="button" data-mode="exact" aria-pressed="false">Exact</button>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="keyword-describe">
+      <span>Describe instead of naming</span>
+    </label>
+    <label class="switch" title="Off copies the prompt only. On also appends the negative line.">
+      <input type="checkbox" class="copy-neg-toggle">
+      <span>Include negative prompt</span>
+    </label>
+    <label class="settings-row">
+      <span>Text</span>
+      <input id="text-size" type="range" min="85" max="135" step="1" value="100" aria-label="Text size">
+      <span id="text-size-val" class="visually-hidden">100</span>
+    </label>
+    <label class="settings-row">
+      <span>Panel</span>
+      <input id="panel-size" type="range" min="32" max="68" step="1" value="50" aria-label="Detail panel size">
+      <span id="panel-size-val" class="visually-hidden">50</span>
+    </label>
+    <label class="settings-row">
+      <span>Backdrop</span>
+      <input id="bg-photo" type="range" min="0" max="100" step="1" value="40" aria-label="Backdrop">
+      <span id="bg-photo-val" class="visually-hidden">40</span>
+    </label>
+  </div>
+
   <div class="page" id="page">
     <h1 class="visually-hidden">The Prompt Folio</h1>
     <section class="issue" id="backgrounds" aria-labelledby="bg-title">
-      <span class="ghost-num" aria-hidden="true">01</span>
-      <div class="issue-head">
-        <p class="issue-line">
-          <svg class="bamboo-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bamboo"></use></svg>
-          <span class="kicker">Field notes for stills</span>
-          <span class="rule" aria-hidden="true"></span>
-          <span class="margin-note">image generators</span>
-        </p>
-        <h2 id="bg-title">Backgrounds <span class="h-issue">Issue No. 01</span></h2>
-        <p class="lede">Scenes for a still image, written as full sentences. Lock a control when the next prompt should keep it.</p>
+      <h2 id="bg-title" class="visually-hidden">Backgrounds</h2>
+      <div class="flow">
+        <div class="keyword-field">
+          <input id="bg-keyword" class="keyword-input" type="text" maxlength="240" autocomplete="off" spellcheck="false" placeholder="keywords" aria-label="Keywords" title="Comma-separated keywords are welcome">
+          <div class="recent-menu">
+            <button type="button" class="recent-toggle" id="bg-keyword-recent" aria-label="Recent keywords" aria-haspopup="listbox" aria-expanded="false" aria-controls="bg-keyword-recent-list" title="Recent keywords. Double-click one to copy it." disabled>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron"></use></svg>
+            </button>
+            <ul class="recent-list" id="bg-keyword-recent-list" role="listbox" hidden></ul>
+          </div>
+        </div>
+        <button type="button" class="icon-btn keyword-share" id="bg-keyword-share" aria-pressed="true" aria-label="Use for both sections" title="Use for both sections">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-link"></use></svg>
+        </button>
+        <button type="button" class="btn-go" id="bg-generate" title="Generate (G)">Generate</button>
+      </div>
+      <div class="cards plate-well" id="bg-output">
+        <p class="empty">Press Generate.</p>
       </div>
 
-      <div class="keyword-box">
-        <div class="keyword-head">
-          <label class="field-label" for="bg-keyword">Your keywords</label>
-          <button type="button" class="keyword-share" id="bg-keyword-share" aria-pressed="true" title="On keeps one keyword line for Backgrounds and Animation">Use for both sections</button>
-        </div>
-        <div class="keyword-line">
-          <input id="bg-keyword" class="keyword-input" type="text" maxlength="240" autocomplete="off" spellcheck="false" placeholder="pokemon world, rainy night" title="Comma-separated keywords are welcome">
-          <div class="segmented keyword-modes" id="bg-keyword-mode" role="radiogroup" aria-label="Keyword mode">
-            <button type="button" data-mode="world" aria-pressed="true">World</button>
-            <button type="button" data-mode="blend" aria-pressed="false">Blend</button>
-            <button type="button" data-mode="exact" aria-pressed="false">Exact</button>
-          </div>
-          <div class="recent-label">
-            <span class="field-label" id="bg-recent-label">Recent</span>
-            <div class="recent-menu">
-              <button type="button" class="recent-toggle" id="bg-keyword-recent" aria-labelledby="bg-recent-label" aria-haspopup="listbox" aria-expanded="false" aria-controls="bg-keyword-recent-list" title="Recent keywords. Double-click one to copy it." disabled>No recent keywords</button>
-              <ul class="recent-list" id="bg-keyword-recent-list" role="listbox" hidden></ul>
+      <details class="advanced">
+        <summary>Advanced</summary>
+        <div class="genbar">
+          <div class="field field-seed">
+            <label class="field-label" for="bg-seed">Seed</label>
+            <div class="seed-line">
+              <input id="bg-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Each Generate draws the next prompt from this seed">
+              <button type="button" class="icon-btn" id="bg-dice" aria-label="Roll a new seed" title="Roll a new seed">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
+              </button>
             </div>
           </div>
         </div>
-        <p class="hint">Tip: some image apps block brand or character names. If yours does, describe it instead, e.g. "a colourful world of cute pocket monsters".</p>
-        <label class="switch keyword-describe">
-          <input type="checkbox" id="bg-keyword-describe">
-          <span>Describe instead of naming</span>
-        </label>
-      </div>
-
-      <div class="genbar">
-        <div class="field field-seed">
-          <label class="field-label" for="bg-seed">Seed</label>
-          <div class="seed-line">
-            <input id="bg-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Each Generate draws the next prompt from this seed">
-            <button type="button" class="icon-btn" id="bg-dice" aria-label="Roll a new seed" title="Roll a new seed">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
-            </button>
-          </div>
-        </div>
-        <button type="button" class="btn-go" id="bg-generate" title="Generate (G)">Generate</button>
-      </div>
-      <p class="hint">Generate replaces this plate with the next prompt. History keeps the earlier ones. The dice starts a new seed.</p>
-
-      <div class="toolbar">
-        <div class="toolbar-actions">
-          <label class="switch copy-neg-switch" title="Off copies the prompt only. On also appends the negative line.">
-            <input type="checkbox" class="copy-neg-toggle">
-            <span>Include negative prompt</span>
-          </label>
-          <button type="button" class="btn" id="bg-download">Download .txt</button>
-        </div>
-      </div>
-      <div class="cards plate-well" id="bg-output">
-        <p class="empty">No prompt yet. <span class="margin-note">Press Generate, or the G key.</span></p>
-      </div>
-
       <div class="controls">
         <div class="control">
           <label for="bg-scene">Theme / scene</label>
@@ -280,7 +297,6 @@
             <input type="checkbox" id="bg-clean" checked>
             <span>Clean background</span>
           </label>
-          <p class="hint">No people, no text, no logos. Useful when you want a place, not a poster.</p>
         </div>
         <div class="toggle-block" id="bg-neg-wrap">
           <label class="switch">
@@ -288,110 +304,46 @@
             <span>Negative prompt</span>
           </label>
           <input id="bg-neg" type="text" value="people, faces, hands, text, letters, logos, watermark, signature, blurry, low quality, distorted anatomy, extra limbs" title="Words for the negative box in your image app">
-          <p class="hint">Kept beside the prompt, not inside it. Paste it into the negative box if your app has one.</p>
         </div>
       </div>
+      </details>
 
     </section>
 
     <section class="issue" id="animation" aria-labelledby="anim-title">
-      <span class="ghost-num" aria-hidden="true">02</span>
-      <div class="issue-head">
-        <p class="issue-line">
-          <svg class="bamboo-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bamboo"></use></svg>
-          <span class="kicker">A short lesson in motion</span>
-          <span class="rule" aria-hidden="true"></span>
-          <span class="margin-note">for the moving picture</span>
-        </p>
-        <h2 id="anim-title">Animation <span class="h-issue">Issue No. 02</span></h2>
-        <p class="lede">Motion prompts for Runway, Kling, Pika, Luma, and similar tools. You do not need the jargon. The colour in each sentence shows which part is which.</p>
-        <p class="tickets" aria-label="Example tools">
-          <span class="stamp">Runway</span>
-          <span class="stamp">Kling</span>
-          <span class="stamp">Pika</span>
-          <span class="stamp">Luma</span>
-          <span class="stamp">Sora-like</span>
-        </p>
+      <h2 id="anim-title" class="visually-hidden">Animation</h2>
+      <div class="flow">
+        <div class="keyword-field">
+          <input id="anim-keyword" class="keyword-input" type="text" maxlength="240" autocomplete="off" spellcheck="false" placeholder="keywords" aria-label="Keywords" title="Comma-separated keywords are welcome">
+          <div class="recent-menu">
+            <button type="button" class="recent-toggle" id="anim-keyword-recent" aria-label="Recent keywords" aria-haspopup="listbox" aria-expanded="false" aria-controls="anim-keyword-recent-list" title="Recent keywords. Double-click one to copy it." disabled>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron"></use></svg>
+            </button>
+            <ul class="recent-list" id="anim-keyword-recent-list" role="listbox" hidden></ul>
+          </div>
+        </div>
+        <button type="button" class="icon-btn keyword-share" id="anim-keyword-share" aria-pressed="true" aria-label="Use for both sections" title="Use for both sections">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-link"></use></svg>
+        </button>
+        <button type="button" class="btn-go" id="anim-generate" title="Generate (G)">Generate</button>
+      </div>
+      <div class="cards plate-well" id="anim-output">
+        <p class="empty">Press Generate.</p>
       </div>
 
-      <div class="keyword-box">
-        <div class="keyword-head">
-          <label class="field-label" for="anim-keyword">Your keywords</label>
-          <button type="button" class="keyword-share" id="anim-keyword-share" aria-pressed="true" title="On keeps one keyword line for Backgrounds and Animation">Use for both sections</button>
-        </div>
-        <div class="keyword-line">
-          <input id="anim-keyword" class="keyword-input" type="text" maxlength="240" autocomplete="off" spellcheck="false" placeholder="studio ghibli forest" title="Comma-separated keywords are welcome">
-          <div class="segmented keyword-modes" id="anim-keyword-mode" role="radiogroup" aria-label="Keyword mode">
-            <button type="button" data-mode="world" aria-pressed="true">World</button>
-            <button type="button" data-mode="blend" aria-pressed="false">Blend</button>
-            <button type="button" data-mode="exact" aria-pressed="false">Exact</button>
-          </div>
-          <div class="recent-label">
-            <span class="field-label" id="anim-recent-label">Recent</span>
-            <div class="recent-menu">
-              <button type="button" class="recent-toggle" id="anim-keyword-recent" aria-labelledby="anim-recent-label" aria-haspopup="listbox" aria-expanded="false" aria-controls="anim-keyword-recent-list" title="Recent keywords. Double-click one to copy it." disabled>No recent keywords</button>
-              <ul class="recent-list" id="anim-keyword-recent-list" role="listbox" hidden></ul>
+      <details class="advanced">
+        <summary>Advanced</summary>
+        <div class="genbar">
+          <div class="field field-seed">
+            <label class="field-label" for="anim-seed">Seed</label>
+            <div class="seed-line">
+              <input id="anim-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Each Generate draws the next prompt from this seed">
+              <button type="button" class="icon-btn" id="anim-dice" aria-label="Roll a new seed" title="Roll a new seed">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
+              </button>
             </div>
           </div>
         </div>
-        <p class="hint">Tip: some image apps block brand or character names. If yours does, describe it instead, e.g. "a colourful world of cute pocket monsters".</p>
-        <label class="switch keyword-describe">
-          <input type="checkbox" id="anim-keyword-describe">
-          <span>Describe instead of naming</span>
-        </label>
-      </div>
-
-      <div class="anatomy" id="anatomy">
-        <p class="kicker">Prompt anatomy</p>
-        <p class="formula" aria-label="subject plus motion plus camera plus style plus timing">
-          <span class="part part-subject">subject</span>
-          <span class="plus">+</span>
-          <span class="part part-motion">motion</span>
-          <span class="plus">+</span>
-          <span class="part part-camera">camera</span>
-          <span class="plus">+</span>
-          <span class="part part-style">style</span>
-          <span class="plus">+</span>
-          <span class="part part-timing">timing</span>
-        </p>
-        <p class="prompt prompt-lit anatomy-example">
-          <span class="part part-subject">A quiet cedar forest stands beside a still lake.</span>
-          <span class="part part-motion">Thin clouds drift and the grass tips sway.</span>
-          <span class="part part-camera">The camera slowly pushes in, easing closer as if to notice a detail.</span>
-          <span class="part part-style">The footage looks like a cinematic film at 24 frames per second, with fine grain and natural motion.</span>
-          <span class="part part-timing">What moves in the scene does so gently. The shot lasts 5 seconds. The clip plays once, with a clear beginning and end.</span>
-        </p>
-        <ul class="legend">
-          <li><span class="swatch part-subject"></span> Subject — what the picture is of.</li>
-          <li><span class="swatch part-motion"></span> Motion — what moves inside the scene.</li>
-          <li><span class="swatch part-camera"></span> Camera — how the frame itself travels.</li>
-          <li><span class="swatch part-style"></span> Style — the film look.</li>
-          <li><span class="swatch part-timing"></span> Timing — pace, length, and whether it loops.</li>
-        </ul>
-      </div>
-
-      <div class="genbar">
-        <div class="field field-seed">
-          <label class="field-label" for="anim-seed">Seed</label>
-          <div class="seed-line">
-            <input id="anim-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Each Generate draws the next prompt from this seed">
-            <button type="button" class="icon-btn" id="anim-dice" aria-label="Roll a new seed" title="Roll a new seed">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
-            </button>
-          </div>
-        </div>
-        <button type="button" class="btn-go" id="anim-generate" title="Generate (G)">Generate</button>
-      </div>
-      <p class="hint">Generate replaces this plate with the next prompt. History keeps the earlier ones. The dice starts a new seed.</p>
-      <div class="toolbar">
-        <div class="toolbar-actions">
-          <button type="button" class="btn" id="anim-download">Download .txt</button>
-        </div>
-      </div>
-      <div class="cards plate-well" id="anim-output">
-        <p class="empty">No motion prompt yet. <span class="margin-note">Send a still across, or leave the scene empty.</span></p>
-      </div>
-
       <div class="controls">
         <div class="control control-wide">
           <label for="anim-scene">Starting scene</label>
@@ -402,8 +354,7 @@
               <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
             </button>
           </div>
-          <p class="hint" id="scene-hint">Leave this empty to invent a place, or send one across with Animate this.</p>
-          <button type="button" class="btn" id="anim-scene-clear">Clear scene</button>
+          <button type="button" class="btn" id="anim-scene-clear">Clear</button>
         </div>
         <div class="control">
           <label for="anim-camera">Camera movement</label>
@@ -414,7 +365,6 @@
               <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
             </button>
           </div>
-          <p class="hint" id="camera-tip">Any chooses a move for each prompt. Lock it when every card should share one move.</p>
         </div>
         <div class="control">
           <label for="anim-motion">Scene motion</label>
@@ -463,63 +413,55 @@
             <input type="checkbox" id="anim-loop">
             <span>Seamless loop</span>
           </label>
-          <p class="hint">On, the clip is written so the end can meet the beginning. Off, it plays once.</p>
         </div>
       </div>
+      </details>
 
     </section>
 
     <section class="issue" id="favourites" aria-labelledby="fav-title">
-      <span class="ghost-num" aria-hidden="true">03</span>
-      <div class="issue-head">
-        <p class="issue-line">
-          <svg class="bamboo-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bamboo"></use></svg>
-          <span class="kicker">Kept in this browser</span>
-          <span class="rule" aria-hidden="true"></span>
-          <span class="margin-note">stars &amp; the last hundred</span>
-        </p>
-        <h2 id="fav-title">Favourites <span class="h-issue">Issue No. 03</span></h2>
-        <p class="lede">Stars stay here even after history moves on. The shelf below remembers about a hundred generations. Export them if you want a copy outside this browser.</p>
-      </div>
+      <h2 id="fav-title" class="visually-hidden">Favourites</h2>
       <div class="library-tools">
-        <label class="switch copy-neg-switch" title="Off copies the prompt only. On also appends the negative line.">
-          <input type="checkbox" class="copy-neg-toggle">
-          <span>Include negative prompt</span>
-        </label>
-        <input id="search" type="search" placeholder="Search plates and history" aria-label="Search favourites and history">
-        <button type="button" class="btn" id="export">Export JSON</button>
-        <button type="button" class="btn" id="import-btn">Import JSON</button>
+        <input id="search" type="search" placeholder="Search" aria-label="Search favourites and history">
+        <button type="button" class="icon-btn" id="export" aria-label="Export JSON" title="Export JSON">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10M8 10l4 4 4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="icon-btn" id="import-btn" aria-label="Import JSON" title="Import JSON">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V6M8 10l4-4 4 4M5 19h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <input id="import-file" type="file" accept="application/json,.json" hidden>
       </div>
       <div class="library-block">
         <div class="toolbar">
-          <h3>Starred <span class="h-issue" id="fav-count">0</span></h3>
-          <button type="button" class="btn" id="clear-fav">Clear</button>
+          <h3><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star"></use></svg> <span id="fav-count">0</span></h3>
+          <button type="button" class="icon-btn" id="clear-fav" aria-label="Clear favourites" title="Clear favourites">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-trash"></use></svg>
+          </button>
         </div>
         <div class="cards" id="fav-list">
-          <p class="empty">No starred prompts yet. <span class="margin-note">Star a plate and it will wait here.</span></p>
+          <p class="empty">No starred prompts.</p>
         </div>
       </div>
       <div class="library-block">
         <div class="toolbar">
-          <h3>History <span class="h-issue" id="hist-count">0</span></h3>
-          <button type="button" class="btn" id="clear-hist">Clear</button>
+          <h3>History <span id="hist-count">0</span></h3>
+          <button type="button" class="icon-btn" id="clear-hist" aria-label="Clear history" title="Clear history">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-trash"></use></svg>
+          </button>
         </div>
         <div class="cards" id="hist-list">
-          <p class="empty">History is empty. <span class="margin-note">The last hundred generations gather here.</span></p>
+          <p class="empty">No history yet.</p>
         </div>
       </div>
     </section>
-
-    <footer class="colophon">
-      <p>The Prompt Folio · first draft. Prompts stay in this browser until you export them. Double-click a plate to copy it. Click a plate to open it.</p>
-    </footer>
   </div>
 
   <aside class="detail" id="detail" hidden tabindex="-1" aria-labelledby="detail-kicker">
     <div class="detail-bar">
       <p class="kicker" id="detail-kicker">Plate</p>
-      <button type="button" class="btn" id="detail-close">Close</button>
+      <button type="button" class="icon-btn" id="detail-close" aria-label="Close" title="Close">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x"></use></svg>
+      </button>
     </div>
     <div class="detail-body" id="detail-body"></div>
   </aside>
@@ -528,20 +470,18 @@
 
   <div id="help" class="overlay" hidden>
     <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="help-title">
-      <p class="kicker">The keys</p>
-      <h2 id="help-title">Shortcut overlay</h2>
-      <p class="hint">These rest while you are typing in a field.</p>
+      <h2 id="help-title">Shortcuts</h2>
       <table class="shortcuts">
         <tbody>
           <tr><th><kbd>G</kbd></th><td>Replace the plate in the section you are reading</td></tr>
           <tr><th><kbd>J</kbd></th><td>Next plate in Favourites or History</td></tr>
           <tr><th><kbd>Shift</kbd> <kbd>J</kbd></th><td>Previous plate in Favourites or History</td></tr>
-          <tr><th><kbd>K</kbd></th><td>Focus Your keywords</td></tr>
+          <tr><th><kbd>K</kbd></th><td>Focus the keyword field</td></tr>
           <tr><th><kbd>C</kbd></th><td>Copy the focused plate</td></tr>
           <tr><th><kbd>A</kbd></th><td>In Favourites, copy the plates on screen</td></tr>
           <tr><th><kbd>S</kbd></th><td>Star the focused plate</td></tr>
           <tr><th><kbd>Enter</kbd></th><td>Open the detail panel</td></tr>
-          <tr><th><kbd>Esc</kbd></th><td>Leave the keyword field, or close the panel or this help</td></tr>
+          <tr><th><kbd>Esc</kbd></th><td>Leave the keyword field, or close recent keywords, settings, the panel, or this list</td></tr>
           <tr><th><kbd>B</kbd></th><td>Jump to Backgrounds</td></tr>
           <tr><th><kbd>N</kbd></th><td>Jump to Animation</td></tr>
           <tr><th><kbd>F</kbd></th><td>Jump to Favourites</td></tr>

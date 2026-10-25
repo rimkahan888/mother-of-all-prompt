@@ -283,6 +283,44 @@ html:not([data-theme="dark"]) .icon-to-light { display: none; }
   line-height: 1;
 }
 
+.settings-pop {
+  position: fixed;
+  z-index: 55;
+  top: calc(var(--nav-h) + 8px);
+  right: 10px;
+  max-height: calc(100vh - var(--nav-h) - 16px);
+  overflow: auto;
+  width: min(22rem, calc(100vw - 1.5rem));
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 12px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.settings-pop .segmented { align-self: flex-start; }
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-row span {
+  flex: 0 0 4.6rem;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.settings-pop .switch { font-size: 14px; }
+
 .slider {
   display: flex;
   flex-direction: row;
@@ -508,8 +546,8 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
 
 .issue {
   position: relative;
-  margin-top: 10px;
-  padding: 12px 14px 12px;
+  margin-top: 8px;
+  padding: 10px 12px 12px;
   scroll-margin-top: calc(var(--nav-h) + 12px);
   border: 1px solid var(--line);
   border-radius: 18px;
@@ -589,83 +627,58 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
 .tickets .stamp:nth-child(odd) { transform: rotate(-1.5deg); }
 .tickets .stamp:nth-child(even) { transform: rotate(1.2deg); }
 
-.keyword-box {
-  margin-top: 14px;
-  padding: 12px 12px 10px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background-image: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--g-a) 55%, transparent),
-    color-mix(in srgb, var(--g-b) 42%, transparent)
-  );
-}
-
-.keyword-head {
+.flow {
+  position: relative;
+  z-index: 3;
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 6px 12px;
+  align-items: center;
+  gap: 8px;
 }
 
-.keyword-share {
-  background: none;
-  border: 0;
-  padding: 0;
+.keyword-field {
+  position: relative;
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.keyword-field .keyword-input {
+  width: 100%;
+  padding-right: 36px;
+  scroll-margin-top: calc(var(--nav-h) + 12px);
+}
+
+.keyword-share[aria-pressed="true"] {
   color: var(--terracotta-deep);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  font-size: 13px;
-  letter-spacing: 0.01em;
+  border-color: var(--terracotta);
 }
 
 .keyword-share[aria-pressed="false"] {
-  text-decoration: none;
   color: var(--ink-soft);
 }
 
-.keyword-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: flex-end;
-  margin-top: 8px;
+.recent-menu {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
 }
-
-.keyword-line .keyword-input {
-  flex: 1 1 220px;
-  min-width: min(100%, 180px);
-}
-
-.keyword-modes { flex: 0 1 auto; }
-
-.keyword-modes button { padding: 8px 12px; }
-
-.recent-label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 0 1 11rem;
-  min-width: min(100%, 9rem);
-}
-
-.recent-menu { position: relative; }
 
 .recent-toggle {
-  width: 100%;
-  text-align: left;
-  background-color: var(--paper-raised);
-  border: 1px solid var(--line-strong);
-  border-radius: 10px;
-  padding: 8px 10px;
-  font-size: 14px;
-  line-height: 1.35;
-  color: var(--ink);
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
 }
 
 .recent-toggle:disabled {
-  opacity: 0.72;
+  opacity: 0.45;
   cursor: default;
 }
 
@@ -707,7 +720,58 @@ html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
   background: color-mix(in srgb, var(--terracotta) 28%, transparent);
 }
 
-.keyword-describe { margin-top: 8px; }
+.advanced {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.advanced summary {
+  cursor: pointer;
+  width: fit-content;
+  font-family: Outfit, "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  list-style: none;
+}
+
+.advanced summary::-webkit-details-marker { display: none; }
+
+.advanced summary::before {
+  content: "";
+  display: inline-block;
+  width: 0.45em;
+  height: 0.45em;
+  margin-right: 0.45em;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg) translateY(-0.1em);
+}
+
+.advanced[open] summary::before {
+  transform: rotate(45deg) translateY(-0.1em);
+}
+
+.advanced[open] summary { margin-bottom: 8px; }
+
+.library-block h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.25rem;
+}
+
+.kind-mark {
+  display: inline-flex;
+  color: var(--ink-soft);
+}
+
+.card-actions .icon-btn,
+.detail-actions .icon-btn {
+  background: transparent;
+}
 
 .control.is-from-keywords select:disabled,
 .control.is-from-keywords textarea:disabled {
