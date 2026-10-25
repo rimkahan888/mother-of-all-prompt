@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Prompt Folio</title>
+  <meta name="description" content="An earthy editorial notebook that writes still-image backgrounds and short animation prompts.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3ecdf'/%3E%3Cpath d='M16 27V8' stroke='%235c6b4a' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3Cpath d='M16 20c3.2-.6 5.4-2.6 6.4-5.2-2.6.3-4.6 1.5-6.4 5.2z' fill='%237f9474'/%3E%3Cpath d='M16 18c-3-.6-5-2.4-6-4.8 2.4.4 4.2 1.4 6 4.8z' fill='%23a67c52'/%3E%3Cpath d='M16 13c2.4-.3 4-1.5 4.8-3.2-1.8.2-3.2.8-4.8 3.2z' fill='%23c15f45'/%3E%3Cpath d='M16 12c-2.2-.3-3.6-1.3-4.3-2.8 1.6.2 2.8.8 4.3 2.8z' fill='%235c6b4a'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem("moap.theme");
+        if (theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+        var scale = localStorage.getItem("moap.textScale");
+        var panel = localStorage.getItem("moap.panel");
+        if (scale) document.documentElement.style.setProperty("--text-scale", String(Number(scale) / 100));
+        if (panel) document.documentElement.style.setProperty("--panel", panel);
+      } catch (err) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" class="sprite" aria-hidden="true">
+    <symbol id="i-leaf" viewBox="0 0 24 24">
+      <path d="M12 21V9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M12 16c3.2-.5 5.4-2.4 6.4-5-2.6.3-4.5 1.4-6.4 5z" fill="currentColor"/>
+      <path d="M12 14.2c-3-.5-5-2.2-5.8-4.6 2.4.4 4 1.3 5.8 4.6z" fill="currentColor"/>
+      <path d="M12 11c2.2-.2 3.7-1.3 4.4-3-1.7.2-3 .8-4.4 3z" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-film" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <rect x="3" y="5" width="18" height="14" rx="2"/>
+      <path d="M8 5v14M16 5v14M3 9h5M3 15h5M16 9h5M16 15h5"/>
+    </symbol>
+    <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+      <path d="M12 3.6l2.2 4.6 5 .7-3.6 3.5.9 5.1L12 15.8 7.5 17.5l.9-5.1L4.8 8.9l5-.7L12 3.6z"/>
+    </symbol>
+    <symbol id="i-star-fill" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 3.2l2.4 5 5.4.8-3.9 3.8.9 5.4L12 16.2 7.2 18.2l.9-5.4L4.2 9l5.4-.8L12 3.2z"/>
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+      <rect x="6" y="11" width="12" height="9" rx="2"/>
+      <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+    </symbol>
+    <symbol id="i-unlock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+      <rect x="6" y="11" width="12" height="9" rx="2"/>
+      <path d="M8 11V8a4 4 0 0 1 7.4-2"/>
+    </symbol>
+    <symbol id="i-dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <rect x="4" y="4" width="16" height="16" rx="3"/>
+      <circle cx="9" cy="9" r="1" fill="currentColor" stroke="none"/>
+      <circle cx="15" cy="15" r="1" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 3.5A8 8 0 1 0 20.5 14 6.5 6.5 0 0 1 16 3.5z"/>
+    </symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+      <circle cx="12" cy="12" r="3.4"/>
+      <path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M18.6 5.4l-1.5 1.5M6.9 17.1l-1.5 1.5"/>
+    </symbol>
+  </svg>
+
+  <a class="skip" href="#backgrounds">Skip to backgrounds</a>
+  <header class="nav" id="nav">
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#backgrounds" data-jump="backgrounds">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-leaf"></use></svg>
+        Backgrounds
+      </a>
+      <a href="#animation" data-jump="animation">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-film"></use></svg>
+        Animation
+      </a>
+      <a href="#favourites" data-jump="favourites">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star"></use></svg>
+        Favourites
+      </a>
+    </nav>
+    <div class="nav-tools">
+      <div class="slider">
+        <label for="text-size">Text <span id="text-size-val">100</span></label>
+        <input id="text-size" type="range" min="85" max="135" step="1" value="100" title="Card text size">
+      </div>
+      <div class="slider">
+        <label for="panel-size">Panel <span id="panel-size-val">50</span></label>
+        <input id="panel-size" type="range" min="32" max="68" step="1" value="50" title="Detail panel size">
+      </div>
+      <button type="button" class="theme-btn" id="theme-toggle" title="Toggle parchment and Sol &amp; Shadow">
+        <svg class="icon icon-to-dark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-moon"></use></svg>
+        <svg class="icon icon-to-light" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sun"></use></svg>
+        Theme
+      </button>
+      <button type="button" class="text-btn" id="help-open" aria-label="Keyboard shortcuts">
+        <span class="qmark">?</span>
+        <span>Keys</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="page" id="page">
+    <header class="mast">
+      <div class="mast-top">
+        <p class="kicker">The Prompt Folio</p>
+        <span class="rule" aria-hidden="true"></span>
+        <p class="kicker">Vol. I · Stills &amp; motion</p>
+      </div>
+      <h1>Sentences for pictures that stay, and pictures that move.</h1>
+      <p class="margin-note">Paste a line into your image or video tool. Press ? for the keys.</p>
+      <svg class="sprig" viewBox="0 0 140 36" aria-hidden="true">
+        <path d="M6 22h128" fill="none" stroke="currentColor" stroke-width="0.6"/>
+        <path d="M70 30c0-12 0-18 0-24" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M70 22c10-1 16-7 18-14-9 1-14 4.5-18 14z" fill="currentColor"/>
+        <path d="M70 20c-10-1-16-7-18-14 9 1 14 4.5 18 14z" fill="currentColor"/>
+        <path d="M70 14c7 0 11-3.2 13-7.5-7 .2-11 2.4-13 7.5z" fill="currentColor"/>
+        <path d="M70 13c-7 0-11-3-13-7 7 .3 11 2.2 13 7z" fill="currentColor"/>
+      </svg>
+    </header>
+
+    <section class="issue" id="backgrounds" aria-labelledby="bg-title">
+      <span class="ghost-num" aria-hidden="true">01</span>
+      <div class="issue-head">
+        <p class="issue-line">
+          <span class="kicker">Field notes for stills</span>
+          <span class="rule" aria-hidden="true"></span>
+          <span class="margin-note">image generators</span>
+        </p>
+        <h2 id="bg-title">Backgrounds <span class="h-issue">Issue No. 01</span></h2>
+        <p class="lede">Scenes for a still image, written as full sentences rather than a pile of keywords. Any setting is shuffled per plate. Lock one when the whole batch should share it.</p>
+      </div>
+
+      <div class="genbar">
+        <div class="field field-seed">
+          <label class="field-label" for="bg-seed">Seed</label>
+          <div class="seed-line">
+            <input id="bg-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Same seed and the same settings rebuild the same batch">
+            <button type="button" class="icon-btn" id="bg-dice" aria-label="Roll a new seed" title="Roll a new seed">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label" id="bg-qty-label">Quantity</span>
+          <div class="segmented" id="bg-qty" role="radiogroup" aria-labelledby="bg-qty-label">
+            <button type="button" data-qty="1" aria-pressed="true">1</button>
+            <button type="button" data-qty="10" aria-pressed="false">10</button>
+            <button type="button" data-qty="30" aria-pressed="false">30</button>
+          </div>
+        </div>
+        <button type="button" class="btn-go" id="bg-generate" title="Generate (G)">Generate</button>
+      </div>
+      <p class="hint">Same seed and the same settings always rebuild the same batch. The dice only changes the seed.</p>
+
+      <div class="controls">
+        <div class="control">
+          <label for="bg-scene">Theme / scene</label>
+          <div class="control-line">
+            <select id="bg-scene" title="Where the picture takes place"></select>
+            <button type="button" class="lock" id="lock-bg-scene" data-kind="background" data-name="Theme / scene" aria-pressed="false" aria-label="Lock theme / scene" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="bg-style">Art style</label>
+          <div class="control-line">
+            <select id="bg-style" title="The medium, from a photograph to pixel art"></select>
+            <button type="button" class="lock" id="lock-bg-style" data-kind="background" data-name="Art style" aria-pressed="false" aria-label="Lock art style" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="bg-lighting">Lighting</label>
+          <div class="control-line">
+            <select id="bg-lighting" title="How the scene is lit"></select>
+            <button type="button" class="lock" id="lock-bg-lighting" data-kind="background" data-name="Lighting" aria-pressed="false" aria-label="Lock lighting" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="bg-palette">Colour palette</label>
+          <div class="control-line">
+            <select id="bg-palette" title="The colours the picture should stay inside"></select>
+            <button type="button" class="lock" id="lock-bg-palette" data-kind="background" data-name="Colour palette" aria-pressed="false" aria-label="Lock colour palette" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="bg-mood">Mood</label>
+          <div class="control-line">
+            <select id="bg-mood" title="The feeling of the picture"></select>
+            <button type="button" class="lock" id="lock-bg-mood" data-kind="background" data-name="Mood" aria-pressed="false" aria-label="Lock mood" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="bg-time">Time &amp; weather</label>
+          <div class="control-line">
+            <select id="bg-time" title="Hour and weather"></select>
+            <button type="button" class="lock" id="lock-bg-time" data-kind="background" data-name="Time and weather" aria-pressed="false" aria-label="Lock time and weather" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="bg-composition">Composition / camera</label>
+          <div class="control-line">
+            <select id="bg-composition" title="How the still picture is framed"></select>
+            <button type="button" class="lock" id="lock-bg-composition" data-kind="background" data-name="Composition" aria-pressed="false" aria-label="Lock composition" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="bg-aspect">Aspect ratio</label>
+          <div class="control-line">
+            <select id="bg-aspect" title="Appended to the prompt as a framing sentence"></select>
+            <button type="button" class="lock" id="lock-bg-aspect" data-kind="background" data-name="Aspect ratio" aria-pressed="false" aria-label="Lock aspect ratio" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggles">
+        <div class="toggle-block">
+          <label class="switch">
+            <input type="checkbox" id="bg-clean" checked>
+            <span>Clean background</span>
+          </label>
+          <p class="hint">No people, no text, no logos. Useful when you want a place, not a poster.</p>
+        </div>
+        <div class="toggle-block" id="bg-neg-wrap">
+          <label class="switch">
+            <input type="checkbox" id="bg-neg-on" checked>
+            <span>Negative prompt</span>
+          </label>
+          <input id="bg-neg" type="text" value="people, faces, hands, text, letters, logos, watermark, signature, blurry, low quality, distorted anatomy, extra limbs" title="Words for the negative box in your image app">
+          <p class="hint">Kept beside the prompt, not inside it. Paste it into the negative box if your app has one.</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <p class="count" id="bg-count">No plates yet</p>
+        <div class="toolbar-actions">
+          <button type="button" class="btn" id="bg-copy-all" title="Copy all, one prompt per line (A)">Copy all</button>
+          <button type="button" class="btn" id="bg-download">Download .txt</button>
+        </div>
+      </div>
+      <div class="cards" id="bg-output">
+        <p class="empty">No plates in this issue yet. <span class="margin-note">Press Generate, or the G key.</span></p>
+      </div>
+    </section>
+
+    <section class="issue" id="animation" aria-labelledby="anim-title">
+      <span class="ghost-num" aria-hidden="true">02</span>
+      <div class="issue-head">
+        <p class="issue-line">
+          <span class="kicker">A short lesson in motion</span>
+          <span class="rule" aria-hidden="true"></span>
+          <span class="margin-note">for the moving picture</span>
+        </p>
+        <h2 id="anim-title">Animation <span class="h-issue">Issue No. 02</span></h2>
+        <p class="lede">Motion prompts for Runway, Kling, Pika, Luma, and similar tools. You do not need the jargon. The colour in each sentence shows which part is which.</p>
+        <p class="tickets" aria-label="Example tools">
+          <span class="stamp">Runway</span>
+          <span class="stamp">Kling</span>
+          <span class="stamp">Pika</span>
+          <span class="stamp">Luma</span>
+          <span class="stamp">Sora-like</span>
+        </p>
+      </div>
+
+      <div class="anatomy" id="anatomy">
+        <p class="kicker">Prompt anatomy</p>
+        <p class="formula" aria-label="subject plus motion plus camera plus style plus timing">
+          <span class="part part-subject">subject</span>
+          <span class="plus">+</span>
+          <span class="part part-motion">motion</span>
+          <span class="plus">+</span>
+          <span class="part part-camera">camera</span>
+          <span class="plus">+</span>
+          <span class="part part-style">style</span>
+          <span class="plus">+</span>
+          <span class="part part-timing">timing</span>
+        </p>
+        <p class="prompt prompt-lit anatomy-example">
+          <span class="part part-subject">A quiet cedar forest stands beside a still lake.</span>
+          <span class="part part-motion">Thin clouds drift and the grass tips sway.</span>
+          <span class="part part-camera">The camera slowly pushes in, easing closer as if to notice a detail.</span>
+          <span class="part part-style">The footage looks like a cinematic film at 24 frames per second, with fine grain and natural motion.</span>
+          <span class="part part-timing">What moves in the scene does so gently. The shot lasts 5 seconds. The clip plays once, with a clear beginning and end.</span>
+        </p>
+        <ul class="legend">
+          <li><span class="swatch part-subject"></span> Subject — what the picture is of.</li>
+          <li><span class="swatch part-motion"></span> Motion — what moves inside the scene.</li>
+          <li><span class="swatch part-camera"></span> Camera — how the frame itself travels.</li>
+          <li><span class="swatch part-style"></span> Style — the film look.</li>
+          <li><span class="swatch part-timing"></span> Timing — pace, length, and whether it loops.</li>
+        </ul>
+      </div>
+
+      <div class="genbar">
+        <div class="field field-seed">
+          <label class="field-label" for="anim-seed">Seed</label>
+          <div class="seed-line">
+            <input id="anim-seed" type="text" value="1847" maxlength="40" autocomplete="off" spellcheck="false" title="Same seed and the same settings rebuild the same batch">
+            <button type="button" class="icon-btn" id="anim-dice" aria-label="Roll a new seed" title="Roll a new seed">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dice"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label" id="anim-qty-label">Quantity</span>
+          <div class="segmented" id="anim-qty" role="radiogroup" aria-labelledby="anim-qty-label">
+            <button type="button" data-qty="1" aria-pressed="true">1</button>
+            <button type="button" data-qty="10" aria-pressed="false">10</button>
+            <button type="button" data-qty="30" aria-pressed="false">30</button>
+          </div>
+        </div>
+        <button type="button" class="btn-go" id="anim-generate" title="Generate (G)">Generate</button>
+      </div>
+
+      <div class="controls">
+        <div class="control control-wide">
+          <label for="anim-scene">Starting scene</label>
+          <div class="control-line">
+            <textarea id="anim-scene" placeholder="Leave this empty to invent a place, or send one from Backgrounds with Animate this."></textarea>
+            <button type="button" class="lock" id="lock-anim-scene" data-kind="animation" data-name="Starting scene" aria-pressed="false" aria-label="Lock starting scene" title="Pin this scene">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+          <p class="hint" id="scene-hint">Leave this empty for a different place on each card, or send one across with Animate this.</p>
+          <button type="button" class="btn" id="anim-scene-clear">Clear scene</button>
+        </div>
+        <div class="control">
+          <label for="anim-camera">Camera movement</label>
+          <div class="control-line">
+            <select id="anim-camera" title="How the frame travels"></select>
+            <button type="button" class="lock" id="lock-anim-camera" data-kind="animation" data-name="Camera movement" aria-pressed="false" aria-label="Lock camera movement" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+          <p class="hint" id="camera-tip">Any chooses a move for each prompt. Lock it when every card should share one move.</p>
+        </div>
+        <div class="control">
+          <label for="anim-motion">Scene motion</label>
+          <div class="control-line">
+            <select id="anim-motion" title="What moves inside the picture. Speed is separate, and does not change the camera."></select>
+            <button type="button" class="lock" id="lock-anim-motion" data-kind="animation" data-name="Scene motion" aria-pressed="false" aria-label="Lock scene motion" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="anim-speed">Speed</label>
+          <div class="control-line">
+            <select id="anim-speed" title="How fast things inside the scene move. The camera move has its own pace."></select>
+            <button type="button" class="lock" id="lock-anim-speed" data-kind="animation" data-name="Speed" aria-pressed="false" aria-label="Lock speed" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="anim-duration">Duration</label>
+          <div class="control-line">
+            <select id="anim-duration" title="Most web video tools are happiest between 3 and 10 seconds"></select>
+            <button type="button" class="lock" id="lock-anim-duration" data-kind="animation" data-name="Duration" aria-pressed="false" aria-label="Lock duration" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="anim-film">Film look</label>
+          <div class="control-line">
+            <select id="anim-film" title="The texture of the footage"></select>
+            <button type="button" class="lock" id="lock-anim-film" data-kind="animation" data-name="Film look" aria-pressed="false" aria-label="Lock film look" title="Pin this choice">
+              <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-unlock"></use></svg>
+              <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-lock"></use></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="toggles">
+        <div class="toggle-block">
+          <label class="switch">
+            <input type="checkbox" id="anim-loop">
+            <span>Seamless loop</span>
+          </label>
+          <p class="hint">On, the clip is written so the end can meet the beginning. Off, it plays once.</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <p class="count" id="anim-count">No plates yet</p>
+        <div class="toolbar-actions">
+          <button type="button" class="btn" id="anim-copy-all" title="Copy all, one prompt per line (A)">Copy all</button>
+          <button type="button" class="btn" id="anim-download">Download .txt</button>
+        </div>
+      </div>
+      <div class="cards" id="anim-output">
+        <p class="empty">No motion plates yet. <span class="margin-note">Send a still across, or leave the scene empty.</span></p>
+      </div>
+    </section>
+
+    <section class="issue" id="favourites" aria-labelledby="fav-title">
+      <span class="ghost-num" aria-hidden="true">03</span>
+      <div class="issue-head">
+        <p class="issue-line">
+          <span class="kicker">Kept in this browser</span>
+          <span class="rule" aria-hidden="true"></span>
+          <span class="margin-note">stars &amp; the last hundred</span>
+        </p>
+        <h2 id="fav-title">Favourites <span class="h-issue">Issue No. 03</span></h2>
+        <p class="lede">Stars stay here even after history moves on. The shelf below remembers about a hundred generations. Export them if you want a copy outside this browser.</p>
+      </div>
+      <div class="library-tools">
+        <input id="search" type="search" placeholder="Search plates and history" aria-label="Search favourites and history">
+        <button type="button" class="btn" id="export">Export JSON</button>
+        <button type="button" class="btn" id="import-btn">Import JSON</button>
+        <input id="import-file" type="file" accept="application/json,.json" hidden>
+      </div>
+      <div class="library-block">
+        <div class="toolbar">
+          <h3>Starred <span class="h-issue" id="fav-count">0</span></h3>
+          <button type="button" class="btn" id="clear-fav">Clear</button>
+        </div>
+        <div class="cards" id="fav-list">
+          <p class="empty">No starred prompts yet. <span class="margin-note">Star a plate and it will wait here.</span></p>
+        </div>
+      </div>
+      <div class="library-block">
+        <div class="toolbar">
+          <h3>History <span class="h-issue" id="hist-count">0</span></h3>
+          <button type="button" class="btn" id="clear-hist">Clear</button>
+        </div>
+        <div class="cards" id="hist-list">
+          <p class="empty">History is empty. <span class="margin-note">The last hundred generations gather here.</span></p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="colophon">
+      <p>The Prompt Folio · first draft. Prompts stay in this browser until you export them. Double-click a plate to copy it. Click a plate to open it.</p>
+    </footer>
+  </div>
+
+  <aside class="detail" id="detail" hidden tabindex="-1" aria-labelledby="detail-kicker">
+    <div class="detail-bar">
+      <p class="kicker" id="detail-kicker">Plate</p>
+      <button type="button" class="btn" id="detail-close">Close</button>
+    </div>
+    <div class="detail-body" id="detail-body"></div>
+  </aside>
+
+  <div id="toast" class="toast" hidden role="status"></div>
+
+  <div id="help" class="overlay" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <p class="kicker">The keys</p>
+      <h2 id="help-title">Shortcut overlay</h2>
+      <p class="hint">These rest while you are typing in a field.</p>
+      <table class="shortcuts">
+        <tbody>
+          <tr><th><kbd>G</kbd></th><td>Generate in the section you are reading</td></tr>
+          <tr><th><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></th><td>Quantity 1, 10, or 30</td></tr>
+          <tr><th><kbd>J</kbd> <kbd>K</kbd></th><td>Next or previous card</td></tr>
+          <tr><th><kbd>C</kbd></th><td>Copy the focused card</td></tr>
+          <tr><th><kbd>A</kbd></th><td>Copy all in this section, one per line</td></tr>
+          <tr><th><kbd>S</kbd></th><td>Star the focused card</td></tr>
+          <tr><th><kbd>Enter</kbd></th><td>Open the detail panel</td></tr>
+          <tr><th><kbd>Esc</kbd></th><td>Close the panel or this help</td></tr>
+          <tr><th><kbd>B</kbd></th><td>Jump to Backgrounds</td></tr>
+          <tr><th><kbd>N</kbd></th><td>Jump to Animation</td></tr>
+          <tr><th><kbd>F</kbd></th><td>Jump to Favourites</td></tr>
+          <tr><th><kbd>T</kbd></th><td>Toggle theme</td></tr>
+          <tr><th><kbd>?</kbd></th><td>Show or hide this list</td></tr>
+        </tbody>
+      </table>
+      <div class="dialog-actions">
+        <button type="button" class="btn" id="help-close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirm" class="overlay" hidden>
+    <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+      <h2 id="confirm-title">Are you sure?</h2>
+      <p id="confirm-text"></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-danger" id="confirm-yes">Clear</button>
+        <button type="button" class="btn" id="confirm-no">Keep</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/banks.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
