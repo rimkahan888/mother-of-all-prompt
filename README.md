@@ -38,7 +38,7 @@ Shortcuts pause while the cursor is in a text field, a menu, or a slider.
 
 ## Publish
 
-The workflow in `.github/workflows/pages.yml` publishes the static files on `main`. In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. After that, a push to `main` updates the site.
+The workflow in `.github/workflows/pages.yml` publishes the static files on `main`. Pages is set to build from GitHub Actions. The live folio is at <https://rimkahan888.github.io/mother-of-all-prompt/>.
 
 ## Privacy
 
