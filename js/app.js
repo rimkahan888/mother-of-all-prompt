@@ -586,9 +586,7 @@
     const animate = entry.kind === "background"
       ? '<button type="button" class="icon-btn" data-act="animate" aria-label="Animate this" title="Animate this">' + svgUse("i-play") + "</button>"
       : "";
-    const del = library
-      ? '<button type="button" class="icon-btn" data-act="delete" data-where="' + esc(library) + '" aria-label="Delete" title="Delete">' + svgUse("i-trash") + "</button>"
-      : "";
+    const del = '<button type="button" class="icon-btn" data-act="delete" data-where="' + esc(library || "plate") + '" aria-label="Delete" title="Delete">' + svgUse("i-trash") + "</button>";
     return '<article class="card' + (library ? " compact" : "") + '" tabindex="0" data-id="' + esc(entry.id) + '" data-kind="' + esc(entry.kind) + '" title="' + esc(cardMetaTitle(entry)) + '">'
       + '<span class="copied-badge">Copied</span>'
       + '<p class="prompt">' + esc(entry.text) + "</p>"
@@ -870,6 +868,16 @@
       if (control) delete control.dataset.busy;
       failFlash(control);
       return;
+    }
+    if (where !== "fav") {
+      if (state.bgBatch.some(function (entry) { return entry.id === id; })) {
+        state.bgBatch = state.bgBatch.filter(function (entry) { return entry.id !== id; });
+        renderBatch("background");
+      }
+      if (state.animBatch.some(function (entry) { return entry.id === id; })) {
+        state.animBatch = state.animBatch.filter(function (entry) { return entry.id !== id; });
+        renderBatch("animation");
+      }
     }
     renderLibrary();
     const still = findEntry(id);
