@@ -572,21 +572,23 @@
     return '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#' + id + '"></use></svg>';
   }
 
+  function cardMetaTitle(entry) {
+    const kind = entry.kind === "animation" ? "Animation" : "Background";
+    const when = entry.created ? formatWhen(entry.created) : "";
+    return when ? kind + " · " + when : kind;
+  }
+
   function cardHTML(entry, opts) {
     const library = opts.library || "";
     const starred = !!entry.starred;
-    const kindMark = library
-      ? '<span class="kind-mark" title="' + (entry.kind === "animation" ? "Animation" : "Background") + '">' + svgUse(entry.kind === "animation" ? "i-film" : "i-leaf") + "</span>"
-      : "";
     const animate = entry.kind === "background"
       ? '<button type="button" class="icon-btn" data-act="animate" aria-label="Animate this" title="Animate this">' + svgUse("i-play") + "</button>"
       : "";
     const del = library
       ? '<button type="button" class="icon-btn" data-act="delete" data-where="' + esc(library) + '" aria-label="Delete" title="Delete">' + svgUse("i-trash") + "</button>"
       : "";
-    return '<article class="card' + (library ? " compact" : "") + '" tabindex="0" data-id="' + esc(entry.id) + '" data-kind="' + esc(entry.kind) + '">'
+    return '<article class="card' + (library ? " compact" : "") + '" tabindex="0" data-id="' + esc(entry.id) + '" data-kind="' + esc(entry.kind) + '" title="' + esc(cardMetaTitle(entry)) + '">'
       + '<span class="copied-badge">Copied</span>'
-      + (kindMark ? '<header class="card-top">' + kindMark + "</header>" : "")
       + '<p class="prompt">' + esc(entry.text) + "</p>"
       + '<div class="card-actions">'
       + '<button type="button" class="icon-btn" data-act="copy" aria-label="Copy" title="Copy">' + svgUse("i-copy") + "</button>"
@@ -771,8 +773,14 @@
     else renderCards(favList, fav, { library: "fav", empty: "fav" });
     if (query && !hist.length) renderCards(histList, [], { empty: "search" });
     else renderCards(histList, hist, { library: "hist", empty: "hist" });
-    document.getElementById("fav-count").textContent = String(lib.favourites.length);
-    document.getElementById("hist-count").textContent = String(lib.history.length);
+    const favLabel = document.getElementById("fav-label");
+    const histLabel = document.getElementById("hist-label");
+    if (favLabel) {
+      const note = lib.favourites.length + (lib.favourites.length === 1 ? " favourite" : " favourites");
+      favLabel.title = note;
+      favLabel.setAttribute("aria-label", note);
+    }
+    if (histLabel) histLabel.title = lib.history.length + (lib.history.length === 1 ? " earlier prompt" : " earlier prompts");
     if (state.currentCard && !state.currentCard.isConnected) state.currentCard = null;
   }
 
@@ -1084,7 +1092,9 @@
 
   function fillPanel(entry) {
     state.panelId = entry.id;
-    document.getElementById("detail-kicker").textContent = entry.kind === "animation" ? "Motion" : "Still";
+    const meta = cardMetaTitle(entry);
+    document.getElementById("detail-kicker").textContent = meta;
+    document.getElementById("detail").title = meta;
     const animate = entry.kind === "background"
       ? '<button type="button" class="icon-btn" id="detail-animate" aria-label="Animate this" title="Animate this">' + svgUse("i-play") + "</button>"
       : "";

@@ -440,7 +440,7 @@
       </div>
       <div class="library-block">
         <div class="toolbar">
-          <h3><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star"></use></svg> <span id="fav-count">0</span></h3>
+          <h3 id="fav-label" aria-label="Favourites" title="Favourites"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star"></use></svg></h3>
           <button type="button" class="icon-btn" id="clear-fav" aria-label="Clear favourites" title="Clear favourites">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-trash"></use></svg>
           </button>
@@ -451,7 +451,7 @@
       </div>
       <div class="library-block">
         <div class="toolbar">
-          <h3>History <span id="hist-count">0</span></h3>
+          <h3 id="hist-label" title="History">History</h3>
           <button type="button" class="icon-btn" id="clear-hist" aria-label="Clear history" title="Clear history">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-trash"></use></svg>
           </button>
@@ -465,7 +465,7 @@
 
   <aside class="detail" id="detail" hidden tabindex="-1" aria-labelledby="detail-kicker">
     <div class="detail-bar">
-      <p class="kicker" id="detail-kicker">Plate</p>
+      <p class="kicker visually-hidden" id="detail-kicker">Plate</p>
       <button type="button" class="icon-btn" id="detail-close" aria-label="Close" title="Close">
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x"></use></svg>
       </button>
