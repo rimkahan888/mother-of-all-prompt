@@ -4,7 +4,8 @@
   --paper: #f3ecdf;
   --paper-deep: #e6d9c6;
   --paper-raised: #fbf7ef;
-  --card: rgba(255, 251, 245, 0.74);
+  --card: rgba(255, 252, 247, 0.94);
+  --veil: rgba(251, 247, 239, 0.9);
   --ink: #2a2622;
   --ink-soft: #5e564c;
   --terracotta: #c15f45;
@@ -35,7 +36,8 @@ html[data-theme="dark"] {
   --paper: #1b1714;
   --paper-deep: #120f0d;
   --paper-raised: #26211c;
-  --card: rgba(38, 32, 28, 0.78);
+  --card: rgba(40, 34, 29, 0.94);
+  --veil: rgba(23, 19, 16, 0.9);
   --ink: #f4eadc;
   --ink-soft: #cbbba6;
   --terracotta: #e07a5f;
@@ -70,16 +72,60 @@ body {
   font-weight: 400;
   line-height: 1.5;
   background-color: var(--paper);
-  background-image:
-    radial-gradient(1100px 620px at 0% -8%, rgba(255, 252, 247, 0.85), transparent 55%),
-    radial-gradient(800px 480px at 110% 0%, rgba(193, 95, 69, 0.07), transparent 48%),
-    radial-gradient(700px 500px at 50% 120%, rgba(127, 148, 116, 0.09), transparent 42%);
 }
 
-html[data-theme="dark"] body {
+.bg-photo,
+.bg-wash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-photo {
+  background-image: url("../assets/bg/noren-bamboo-cat.jpg");
+  background-image: image-set(
+    url("../assets/bg/noren-bamboo-cat.webp") type("image/webp"),
+    url("../assets/bg/noren-bamboo-cat.jpg") type("image/jpeg")
+  );
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center bottom;
+  opacity: calc(var(--bg-photo, 40) / 100);
+}
+
+html[data-theme="dark"] .bg-photo {
   background-image:
-    radial-gradient(900px 500px at 0% -10%, rgba(224, 122, 95, 0.08), transparent 50%),
-    radial-gradient(700px 420px at 100% 0%, rgba(194, 180, 122, 0.05), transparent 46%);
+    linear-gradient(rgba(46, 32, 24, 0.76), rgba(46, 32, 24, 0.76)),
+    url("../assets/bg/noren-bamboo-cat.jpg");
+  background-image:
+    linear-gradient(rgba(46, 32, 24, 0.76), rgba(46, 32, 24, 0.76)),
+    image-set(
+      url("../assets/bg/noren-bamboo-cat.webp") type("image/webp"),
+      url("../assets/bg/noren-bamboo-cat.jpg") type("image/jpeg")
+    );
+  background-repeat: no-repeat, no-repeat;
+  background-size: cover, cover;
+  background-position: center bottom, center bottom;
+}
+
+.bg-wash {
+  background: linear-gradient(
+    to bottom,
+    rgba(243, 236, 223, 0.92) 0%,
+    rgba(243, 236, 223, 0.5) 12%,
+    rgba(243, 236, 223, 0.14) 32%,
+    rgba(243, 236, 223, 0) 50%
+  );
+}
+
+html[data-theme="dark"] .bg-wash {
+  background: linear-gradient(
+    to bottom,
+    rgba(18, 14, 12, 0.78) 0%,
+    rgba(28, 20, 16, 0.28) 30%,
+    rgba(28, 20, 16, 0) 62%
+  );
 }
 
 body::before {
@@ -87,8 +133,8 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
-  opacity: 0.2;
+  z-index: 1;
+  opacity: 0.16;
   mix-blend-mode: multiply;
   background-image: var(--grain);
   background-size: 220px 220px;
@@ -141,10 +187,25 @@ button { cursor: pointer; }
   align-items: center;
   gap: 8px 12px;
   padding: 8px 12px;
-  background: var(--paper);
-  background: color-mix(in srgb, var(--paper) 90%, transparent);
-  backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line-strong);
+}
+
+.noren-half {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 4px 6px;
+  background: color-mix(in srgb, var(--paper-raised) 84%, var(--sage) 16%);
+  border-radius: 0 0 12px 12px;
+  box-shadow: inset 0 2px 0 #8d6a45;
+}
+
+.noren-gap {
+  width: 8px;
+  align-self: stretch;
 }
 
 .nav-links, .nav-tools {
@@ -268,17 +329,28 @@ input[type="range"]::-moz-range-thumb {
 
 .page {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: min(1120px, 100%);
   margin: 0 auto;
   padding: 18px 16px 80px;
 }
 
+.mast,
+.issue,
+.anatomy,
+.dialog {
+  background-color: var(--veil);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
 .mast {
-  padding-bottom: 14px;
+  padding: 16px 16px 14px;
   margin-bottom: 6px;
+  border: 1px solid var(--line);
   border-bottom: 1px solid var(--ink);
-  box-shadow: 0 4px 0 var(--paper), 0 5px 0 var(--ink);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
 }
 
 .mast-top, .issue-line {
@@ -351,16 +423,29 @@ h3 {
 
 .sprig {
   width: 132px;
-  height: 34px;
+  height: 44px;
   color: var(--sage);
   display: block;
   margin: 8px 0 2px;
 }
 
+.bamboo-mark {
+  width: 18px;
+  height: 18px;
+  color: var(--sage-deep);
+  flex: 0 0 auto;
+}
+
+html[data-theme="dark"] .bamboo-mark { color: var(--sage); }
+
 .issue {
   position: relative;
-  padding: 18px 0 8px;
+  margin-top: 18px;
+  padding: 16px 14px 12px;
   scroll-margin-top: calc(var(--nav-h) + 12px);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
 }
 
 .issue-head { margin-bottom: 4px; }
@@ -677,7 +762,6 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   padding: 14px 14px 12px;
   border: 1px solid var(--line-strong);
   border-radius: 16px;
-  background-color: var(--paper-raised);
 }
 
 .formula {
@@ -759,6 +843,8 @@ html[data-theme="dark"] .switch input:checked::after { background: #1b1714; }
   position: relative;
   min-width: 0;
   background-color: var(--card);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 12px 12px 10px;
@@ -904,7 +990,9 @@ html[data-theme="dark"] .warn-chip {
   z-index: 60;
   display: flex;
   flex-direction: column;
-  background-color: var(--paper-raised);
+  background-color: color-mix(in srgb, var(--paper-raised) 96%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   color: var(--ink);
   box-shadow: var(--shadow);
   min-width: 0;
@@ -1081,11 +1169,17 @@ kbd {
 
 .colophon {
   margin-top: 28px;
-  padding-top: 12px;
+  padding: 12px 14px;
   border-top: 1px solid var(--ink);
+  border-radius: 14px;
+  background-color: var(--veil);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: var(--ink-soft);
   font-size: 13px;
 }
+
+.bg-photo { transition: opacity 0.18s ease; }
 
 .is-flash { animation: moap-flash 0.7s ease; }
 

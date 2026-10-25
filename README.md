@@ -2,7 +2,7 @@
 
 A single tall page that writes still-image backgrounds and short animation prompts in full sentences. Open `index.html` in a browser. There is no build step and no server. The word banks live in `js/banks.js`, so the page also works when you open the file directly (`file://`).
 
-The look is an earthy editorial notebook: warm paper, terracotta and sage, a serif for the prompts, and a handwritten note for the small asides. A **Sol & Shadow** theme (charcoal and terracotta) is available from the top bar. The folio opens on the light parchment theme. The choice is remembered in this browser.
+The look is an earthy editorial notebook: warm paper, terracotta and sage, a serif for the prompts, and a handwritten note for the small asides. Behind the page is a cream noren printed with sage bamboo, a calico cat in the doorway. The **Backdrop** slider (remembered here) fades that photograph from hidden to full; it opens near forty. A **Sol & Shadow** theme (charcoal and terracotta) keeps the same photograph, dimmed. The folio opens on the light parchment theme. The choice is remembered in this browser.
 
 ## Sections
 
@@ -42,7 +42,7 @@ The workflow in `.github/workflows/pages.yml` publishes the static files on `mai
 
 ## Privacy
 
-Favourites, history, theme, seeds, locks, and slider positions stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
+Favourites, history, theme, the backdrop slider, seeds, locks, and the other slider positions stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
 
 ## License
 
