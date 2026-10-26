@@ -1186,6 +1186,47 @@ html.has-scene[data-theme="dark"] .scene-panorama::after {
   resize: vertical;
 }
 
+.negative-plain {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 2px 2px 5px;
+  border: none;
+  border-bottom: 1px dotted transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  resize: none;
+  overflow: hidden;
+  scrollbar-width: none;
+  outline: none;
+  appearance: none;
+  color: var(--dye-text-muted);
+  caret-color: var(--dye-text);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.45;
+  overflow-wrap: break-word;
+  cursor: text;
+}
+
+.negative-plain::-webkit-scrollbar {
+  display: none;
+}
+
+.negative-plain::placeholder {
+  color: var(--dye-text-faint);
+  font-weight: 500;
+}
+
+.negative-plain:hover,
+.negative-plain:focus {
+  border-bottom-color: rgba(252, 249, 242, 0.55);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--dye-text);
+}
+
 /* --------------------------------------------------------------------------
    Detail Panel (Always Half the Page)
    -------------------------------------------------------------------------- */

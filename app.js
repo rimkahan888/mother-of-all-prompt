@@ -1701,12 +1701,23 @@
       .join('');
   }
 
+  function fitNegativeField(el) {
+    const field = el || document.getElementById('txt-bg-neg');
+    if (!field || field.offsetParent === null) return;
+    const empty = field.value.length === 0;
+    if (empty) field.value = field.placeholder || '';
+    field.style.height = 'auto';
+    field.style.height = field.scrollHeight + 'px';
+    if (empty) field.value = '';
+  }
+
   function renderAdvancedOptions() {
     const isBg = State.section === 'bg';
     const bgContainer = document.getElementById('advanced-bg-controls');
     const animContainer = document.getElementById('advanced-anim-controls');
     if (bgContainer) bgContainer.style.display = isBg ? 'flex' : 'none';
     if (animContainer) animContainer.style.display = isBg ? 'none' : 'flex';
+    if (isBg) fitNegativeField();
   }
 
   function renderRecentKeywordsDropdown() {
@@ -2508,7 +2519,9 @@
     const txtNeg = document.getElementById('txt-bg-neg');
     if (chkNeg && txtNeg) {
       chkNeg.checked = State.bg.negToggle !== false;
-      txtNeg.value = State.bg.negText || DEFAULT_NEG;
+      txtNeg.placeholder = DEFAULT_NEG;
+      txtNeg.value = typeof State.bg.negText === 'string' ? State.bg.negText : '';
+      fitNegativeField(txtNeg);
 
       chkNeg.addEventListener('change', (e) => {
         State.bg.negToggle = e.target.checked;
@@ -2518,7 +2531,10 @@
       txtNeg.addEventListener('input', (e) => {
         State.bg.negText = e.target.value;
         Storage.set('moap.bg', State.bg);
+        fitNegativeField(txtNeg);
       });
+
+      window.addEventListener('resize', () => fitNegativeField(txtNeg));
     }
 
     // Animation Advanced Fields

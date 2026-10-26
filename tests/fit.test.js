@@ -39,6 +39,7 @@ assert(app.includes("normalizeControls") && app.includes("data.fields"), "legacy
 assert(app.includes("showHeroError") && css.includes(".prompt-text-hero.is-error"), "a failed generate shows in the card");
 assert(html.includes('id="chk-bg-image"') && app.includes("moap.bgImage"), "the gear menu can turn the scene off");
 assert(html.includes('class="advanced-title"') && !html.includes('id="advanced-fold"'), "advanced stays open");
+assert(html.includes('class="negative-plain"') && css.includes("overflow: hidden") && app.includes("fitNegativeField"), "the negative prompt grows as plain text");
 assert(!html.includes("btn-lock") && !app.includes(".locks") && !css.includes(".btn-lock"), "lock controls are gone");
 assert(css.includes("background-size: cover") && css.includes("height: 50vh") && css.includes("bottom: 0"), "the terrace covers the bottom half of the viewport");
 assert(css.includes("background-position: 35% center") && css.includes("background-position: 32% center"), "the figure stays in frame, including at 540");
