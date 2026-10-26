@@ -4,21 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>The Prompt Folio</title>
-  <meta name="description" content="A calm notebook that writes still-image backgrounds and short animation prompts.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3ecdf'/%3E%3Cpath d='M16 27V8' stroke='%235c6b4a' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3Cpath d='M16 20c3.2-.6 5.4-2.6 6.4-5.2-2.6.3-4.6 1.5-6.4 5.2z' fill='%237f9474'/%3E%3Cpath d='M16 18c-3-.6-5-2.4-6-4.8 2.4.4 4.2 1.4 6 4.8z' fill='%23a67c52'/%3E%3Cpath d='M16 13c2.4-.3 4-1.5 4.8-3.2-1.8.2-3.2.8-4.8 3.2z' fill='%23c15f45'/%3E%3Cpath d='M16 12c-2.2-.3-3.6-1.3-4.3-2.8 1.6.2 2.8.8 4.3 2.8z' fill='%235c6b4a'/%3E%3C/svg%3E">
+  <meta name="description" content="A dark editorial folio that writes one still-image or animation prompt at a time.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0a0a'/%3E%3Ctext x='5' y='27' font-family='Impact,Anton,sans-serif' font-size='26' fill='%23f2ede4'%3E03%3C/text%3E%3Crect x='3' y='3' width='26' height='3' fill='%23e0532a'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Raleway:wght@400;500;600;700;800&family=Anton&display=swap" rel="stylesheet">
   <script>
     (function () {
       try {
         var theme = localStorage.getItem("moap.theme");
-        if (theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+        if (theme === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.setAttribute("data-theme", "dark");
         localStorage.removeItem("moap.textScale");
         localStorage.removeItem("moap.panel");
         var photo = localStorage.getItem("moap.bgPhoto");
-        var photoN = photo == null || photo === "" ? 40 : Number(photo);
-        if (!isFinite(photoN)) photoN = 40;
+        var photoN = photo == null || photo === "" ? 0 : Number(photo);
+        if (!isFinite(photoN)) photoN = 0;
         photoN = Math.max(0, Math.min(100, photoN));
         document.documentElement.style.setProperty("--bg-photo", String(photoN));
         var stored = localStorage.getItem("moap.cardGrade");
@@ -116,16 +117,16 @@
       <circle cx="12" cy="12" r="1.15"/>
       <circle cx="18" cy="12" r="1.15"/>
     </symbol>
-    <symbol id="i-bamboo" viewBox="0 0 24 24">
-      <path d="M8 22V3M16 22V6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M8 8h2.2M8 14h2.2M16 11h2M16 17h2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M8 13c3.2-.4 5.2-2.6 6.2-5.4-2.6.4-4.4 1.6-6.2 5.4z" fill="currentColor"/>
-      <path d="M16 15c-3 .5-5 2.4-6 5 2.4-.3 4.2-1.4 6-5z" fill="currentColor"/>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12.5l4.2 4.2L19 7"/>
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3.5l1.7 5.2 5.3 1.8-5.3 1.8L12 17.5l-1.7-5.2L5 10.5l5.3-1.8z"/>
+      <path d="M18.5 16.5l.6 1.8 1.9.7-1.9.6-.6 1.9-.7-1.9-1.8-.6 1.8-.7z"/>
     </symbol>
   </svg>
 
   <div class="bg-photo" aria-hidden="true"></div>
-  <div class="bg-wash" aria-hidden="true"></div>
 
   <a class="skip" href="#hero">Skip to the prompt</a>
 
@@ -144,9 +145,9 @@
       <span>Include negative prompt</span>
     </label>
     <label class="settings-row">
-      <span>Backdrop</span>
-      <input id="bg-photo" type="range" min="0" max="100" step="1" value="40" aria-label="Backdrop">
-      <span id="bg-photo-val" class="visually-hidden">40</span>
+      <span>Noren</span>
+      <input id="bg-photo" type="range" min="0" max="100" step="1" value="0" aria-label="Noren">
+      <span id="bg-photo-val">0</span>
     </label>
     <details class="seed-fold">
       <summary>Seed</summary>
@@ -159,70 +160,21 @@
     </details>
   </div>
 
-  <div class="page bento" id="page">
+  <div class="page" id="page">
     <h1 class="visually-hidden">The Prompt Folio</h1>
 
-    <section class="tile tile-hero" id="hero" aria-label="Prompt">
-      <div class="cards plate-well for-bg" id="bg-output">
-        <p class="empty">Press Generate.</p>
-      </div>
-      <div class="cards plate-well for-anim" id="anim-output" hidden>
-        <p class="empty">Press Generate.</p>
-      </div>
-      <button type="button" class="btn-go for-bg" id="bg-generate" title="Generate (G)">Generate</button>
-      <button type="button" class="btn-go for-anim" id="anim-generate" title="Generate (G)" hidden>Generate</button>
-    </section>
-
-    <section class="tile tile-keywords" aria-label="Keywords">
-      <div class="flow for-bg">
-        <div class="keyword-field">
-          <input id="bg-keyword" class="keyword-input" type="text" maxlength="240" autocomplete="off" spellcheck="false" placeholder="keywords" aria-label="Keywords" title="Comma-separated keywords are welcome">
-          <div class="recent-menu">
-            <button type="button" class="recent-toggle" id="bg-keyword-recent" aria-label="Recent keywords" aria-haspopup="listbox" aria-expanded="false" aria-controls="bg-keyword-recent-list" title="Recent keywords. Double-click one to copy it." disabled>
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron"></use></svg>
-            </button>
-            <ul class="recent-list" id="bg-keyword-recent-list" role="listbox" hidden></ul>
-          </div>
-        </div>
-        <button type="button" class="icon-btn keyword-share" id="bg-keyword-share" aria-pressed="true" aria-label="Use for both sections" title="Use for both sections">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-link"></use></svg>
-        </button>
-      </div>
-      <div class="flow for-anim" hidden>
-        <div class="keyword-field">
-          <input id="anim-keyword" class="keyword-input" type="text" maxlength="240" autocomplete="off" spellcheck="false" placeholder="keywords" aria-label="Keywords" title="Comma-separated keywords are welcome">
-          <div class="recent-menu">
-            <button type="button" class="recent-toggle" id="anim-keyword-recent" aria-label="Recent keywords" aria-haspopup="listbox" aria-expanded="false" aria-controls="anim-keyword-recent-list" title="Recent keywords. Double-click one to copy it." disabled>
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron"></use></svg>
-            </button>
-            <ul class="recent-list" id="anim-keyword-recent-list" role="listbox" hidden></ul>
-          </div>
-        </div>
-        <button type="button" class="icon-btn keyword-share" id="anim-keyword-share" aria-pressed="true" aria-label="Use for both sections" title="Use for both sections">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-link"></use></svg>
-        </button>
-      </div>
-    </section>
-
-    <section class="tile tile-switch" aria-label="Section">
-      <div class="section-switch" role="group" aria-label="Backgrounds or Animation">
+    <header class="bar">
+      <div class="idx"><i aria-hidden="true"></i><b>Folio</b><span>Vol. II</span></div>
+      <nav class="bar-mid" aria-label="Section">
         <button type="button" class="switch-btn is-active" data-jump="backgrounds" aria-pressed="true" aria-label="Backgrounds" title="Backgrounds">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-leaf"></use></svg>
         </button>
         <button type="button" class="switch-btn" data-jump="animation" aria-pressed="false" aria-label="Animation" title="Animation">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-film"></use></svg>
         </button>
-      </div>
-    </section>
-
-    <section class="tile tile-tools" aria-label="Appearance">
-      <div class="grade-swatches" role="group" aria-label="Card dye">
-        <button type="button" class="grade-swatch" data-grade="clay" aria-pressed="true" title="Clay" aria-label="Clay"></button>
-        <button type="button" class="grade-swatch" data-grade="indigo" aria-pressed="false" title="Indigo" aria-label="Indigo"></button>
-        <button type="button" class="grade-swatch" data-grade="moss" aria-pressed="false" title="Moss" aria-label="Moss"></button>
-      </div>
-      <div class="tool-icons">
-        <button type="button" class="nav-btn" id="theme-toggle" title="Sol &amp; Shadow" aria-label="Sol and Shadow">
+      </nav>
+      <div class="bar-end">
+        <button type="button" class="nav-btn" id="theme-toggle" title="Theme" aria-label="Theme">
           <svg class="icon icon-to-dark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-moon"></use></svg>
           <svg class="icon icon-to-light" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sun"></use></svg>
         </button>
@@ -233,9 +185,76 @@
           <span class="qmark">?</span>
         </button>
       </div>
+    </header>
+
+    <section class="grid feature" id="hero" aria-label="Prompt">
+      <div class="block">
+        <div class="block-top"><span>No.</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-spark"></use></svg></div>
+        <div class="no"><small>Issue</small><span id="issue-no">01</span></div>
+        <div class="kindrow">
+          <svg class="icon for-bg" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-leaf"></use></svg>
+          <svg class="icon for-anim" viewBox="0 0 24 24" aria-hidden="true" hidden><use href="#i-film"></use></svg>
+          <span id="kind-label">Background</span>
+        </div>
+      </div>
+      <div class="story">
+        <div class="qm" aria-hidden="true">&ldquo;</div>
+        <div class="hero-stage">
+          <div class="hero-well for-bg" id="bg-output">
+            <p class="empty">Press Generate.</p>
+          </div>
+          <div class="hero-well for-anim" id="anim-output" hidden>
+            <p class="empty">Press Generate.</p>
+          </div>
+        </div>
+        <div class="deck">
+          <button type="button" class="btn-go for-bg" id="bg-generate" title="Generate (G)"><span>Generate</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron"></use></svg></button>
+          <button type="button" class="btn-go for-anim" id="anim-generate" title="Generate (G)" hidden><span>Generate</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron"></use></svg></button>
+        </div>
+      </div>
     </section>
 
-    <section class="issue tile tile-advanced for-bg" id="backgrounds" aria-labelledby="bg-title">
+    <section class="grid strip" aria-label="Keywords and dye">
+      <div class="kwblock">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-spark"></use></svg>
+        <div class="flow for-bg">
+          <div class="keyword-field">
+            <input id="bg-keyword" class="keyword-input" type="text" maxlength="240" autocomplete="off" spellcheck="false" placeholder="keywords" aria-label="Keywords" title="Comma-separated keywords are welcome">
+            <div class="recent-menu">
+              <button type="button" class="recent-toggle" id="bg-keyword-recent" aria-label="Recent keywords" aria-haspopup="listbox" aria-expanded="false" aria-controls="bg-keyword-recent-list" title="Recent keywords. Double-click one to copy it." disabled>
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron"></use></svg>
+              </button>
+              <ul class="recent-list" id="bg-keyword-recent-list" role="listbox" hidden></ul>
+            </div>
+          </div>
+          <button type="button" class="icon-btn keyword-share" id="bg-keyword-share" aria-pressed="true" aria-label="Use for both sections" title="Use for both sections">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-link"></use></svg>
+          </button>
+        </div>
+        <div class="flow for-anim" hidden>
+          <div class="keyword-field">
+            <input id="anim-keyword" class="keyword-input" type="text" maxlength="240" autocomplete="off" spellcheck="false" placeholder="keywords" aria-label="Keywords" title="Comma-separated keywords are welcome">
+            <div class="recent-menu">
+              <button type="button" class="recent-toggle" id="anim-keyword-recent" aria-label="Recent keywords" aria-haspopup="listbox" aria-expanded="false" aria-controls="anim-keyword-recent-list" title="Recent keywords. Double-click one to copy it." disabled>
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron"></use></svg>
+              </button>
+              <ul class="recent-list" id="anim-keyword-recent-list" role="listbox" hidden></ul>
+            </div>
+          </div>
+          <button type="button" class="icon-btn keyword-share" id="anim-keyword-share" aria-pressed="true" aria-label="Use for both sections" title="Use for both sections">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-link"></use></svg>
+          </button>
+        </div>
+      </div>
+      <div class="dyes" role="group" aria-label="Card dye">
+        <button type="button" class="grade-swatch" data-grade="clay" aria-pressed="true" title="Clay" aria-label="Clay"></button>
+        <button type="button" class="grade-swatch" data-grade="indigo" aria-pressed="false" title="Indigo" aria-label="Indigo"></button>
+        <button type="button" class="grade-swatch" data-grade="moss" aria-pressed="false" title="Moss" aria-label="Moss"></button>
+      </div>
+    </section>
+
+    <div class="folio-advanced">
+    <section class="for-bg" id="backgrounds" aria-labelledby="bg-title">
       <h2 id="bg-title" class="visually-hidden">Backgrounds</h2>
       <details class="advanced">
         <summary>Advanced</summary>
@@ -338,10 +357,9 @@
         </div>
       </div>
       </details>
-
     </section>
 
-    <section class="issue tile tile-advanced for-anim" id="animation" aria-labelledby="anim-title" hidden>
+    <section class="for-anim" id="animation" aria-labelledby="anim-title" hidden>
       <h2 id="anim-title" class="visually-hidden">Animation</h2>
       <details class="advanced">
         <summary>Advanced</summary>
@@ -419,23 +437,13 @@
         </div>
       </div>
       </details>
-
     </section>
+    </div>
 
-    <section class="issue tile tile-library" id="favourites" aria-labelledby="fav-title">
-      <h2 id="fav-title" class="visually-hidden">Favourites</h2>
-      <div class="shelf-bar">
-        <div class="shelf-tabs" role="tablist" aria-label="Library">
-          <button type="button" class="shelf-tab is-on" id="tab-fav" role="tab" aria-selected="true" aria-controls="fav-list" title="Favourites" aria-label="Favourites">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star"></use></svg>
-            <span class="count-badge" id="fav-count">0</span>
-          </button>
-          <button type="button" class="shelf-tab" id="tab-hist" role="tab" aria-selected="false" aria-controls="hist-list" title="History" aria-label="History">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-clock"></use></svg>
-            <span class="count-badge" id="hist-count">0</span>
-          </button>
-        </div>
-        <div class="shelf-tools">
+    <section class="grid contents" id="favourites" aria-labelledby="fav-title">
+      <div class="c-head">
+        <h2 class="c-title" id="fav-title">Contents <i>In this folio</i></h2>
+        <div class="c-tools">
           <div class="search-pop" id="search-pop">
             <button type="button" class="icon-btn" id="search-open" aria-label="Search" title="Search" aria-expanded="false" aria-controls="search">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search"></use></svg>
@@ -461,10 +469,21 @@
               </button>
             </div>
           </div>
+          <div class="tabs" role="tablist" aria-label="Library">
+            <button type="button" class="shelf-tab is-on" id="tab-fav" role="tab" aria-selected="true" aria-controls="fav-list" title="Favourites" aria-label="Favourites">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star"></use></svg>
+              <span class="count-badge" id="fav-count">0</span>
+            </button>
+            <button type="button" class="shelf-tab" id="tab-hist" role="tab" aria-selected="false" aria-controls="hist-list" title="History" aria-label="History">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-clock"></use></svg>
+              <span class="count-badge" id="hist-count">0</span>
+            </button>
+          </div>
         </div>
       </div>
-      <div class="cards" id="fav-list" role="tabpanel" aria-labelledby="tab-fav"></div>
-      <div class="cards" id="hist-list" role="tabpanel" aria-labelledby="tab-hist" hidden></div>
+      <div class="list" id="fav-list" role="tabpanel" aria-labelledby="tab-fav"></div>
+      <div class="list" id="hist-list" role="tabpanel" aria-labelledby="tab-hist" hidden></div>
+      <p class="colophon">Folio</p>
       <input id="import-file" type="file" accept="application/json,.json" hidden>
     </section>
   </div>
@@ -501,7 +520,7 @@
           <tr><th><kbd>N</kbd></th><td>Jump to Animation</td></tr>
           <tr><th><kbd>F</kbd></th><td>Jump to Favourites</td></tr>
           <tr><th><kbd>T</kbd></th><td>Toggle theme</td></tr>
-          <tr><th><kbd>V</kbd></th><td>Cycle the card dye: Clay, Indigo, Moss</td></tr>
+          <tr><th><kbd>V</kbd></th><td>Cycle the dye: Clay, Indigo, Moss</td></tr>
           <tr><th><kbd>?</kbd></th><td>Show or hide this list</td></tr>
         </tbody>
       </table>

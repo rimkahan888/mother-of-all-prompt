@@ -592,21 +592,23 @@
       : "";
     const del = '<button type="button" class="icon-btn" data-act="delete" data-where="' + esc(library || "plate") + '" aria-label="Delete" title="Delete">' + svgUse("i-trash") + "</button>";
     const copy = '<button type="button" class="icon-btn" data-act="copy" aria-label="Copy" title="Copy">' + svgUse("i-copy") + "</button>";
+    const badge = '<span class="copied-badge" aria-hidden="true">Copied</span>';
     if (library) {
       const motion = entry.kind === "animation";
       const kindName = motion ? "Animation" : "Background";
+      const n = opts.index || 1;
+      const num = (n < 10 ? "0" : "") + n;
       return '<article class="card compact" tabindex="0" data-id="' + esc(entry.id) + '" data-kind="' + esc(entry.kind) + '" title="' + esc(cardMetaTitle(entry)) + '" aria-expanded="false">'
-        + '<span class="copied-badge">Copied</span>'
-        + '<div class="card-row">'
+        + badge
+        + '<span class="row-num">' + num + "</span>"
         + '<span class="kind-mark" title="' + kindName + '" aria-label="' + kindName + '">' + svgUse(motion ? "i-film" : "i-leaf") + "</span>"
         + '<div class="prompt-clip"><p class="prompt is-clamped">' + esc(entry.text) + "</p></div>"
-        + starButton(starred)
+        + '<div class="card-actions">' + copy + starButton(starred) + animate + del + "</div>"
         + '<span class="card-chevron" aria-hidden="true">' + svgUse("i-chevron") + "</span>"
-        + "</div>"
-        + '<div class="card-actions">' + copy + animate + del + "</div></article>";
+        + "</article>";
     }
     return '<article class="card" tabindex="0" data-id="' + esc(entry.id) + '" data-kind="' + esc(entry.kind) + '" title="' + esc(cardMetaTitle(entry)) + '">'
-      + '<span class="copied-badge">Copied</span>'
+      + badge
       + '<p class="prompt">' + esc(entry.text) + "</p>"
       + '<div class="card-actions">'
       + copy
@@ -810,8 +812,16 @@
     cards.forEach(function (card) { setCompactOpen(card, open); });
   }
 
+  function clearTextSelection() {
+    const sel = window.getSelection && window.getSelection();
+    if (sel && sel.removeAllRanges) sel.removeAllRanges();
+  }
+
   function bindCard(card) {
     let timer = null;
+    card.addEventListener("mousedown", function (event) {
+      if (event.detail > 1) event.preventDefault();
+    }, true);
     card.addEventListener("click", function (event) {
       if (event.target.closest("button")) return;
       clearTimeout(timer);
@@ -831,6 +841,7 @@
       if (event.target.closest("button")) return;
       clearTimeout(timer);
       timer = null;
+      clearTextSelection();
       const entry = findEntry(card.dataset.id);
       if (entry) copyEntry(entry, card);
     });
@@ -1177,6 +1188,7 @@
     renderLibrary();
     const arrived = document.querySelector("#" + (kind === "background" ? "bg-output" : "anim-output") + " .prompt");
     if (arrived) arrived.classList.add("is-arriving");
+    bumpIssue();
     toast("Prompt ready");
     flash(document.getElementById(kind === "background" ? "bg-generate" : "anim-generate"));
     const card = document.querySelector("#" + (kind === "background" ? "bg-output" : "anim-output") + " .card");
@@ -1277,10 +1289,30 @@
     state.panelId = null;
   }
 
+  function issueNumber() {
+    const n = Number(storageGet("moap.issue"));
+    return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
+  }
+
+  function paintIssue() {
+    const el = document.getElementById("issue-no");
+    if (!el) return;
+    const n = issueNumber();
+    el.textContent = (n < 10 ? "0" : "") + n;
+  }
+
+  function bumpIssue() {
+    const n = issueNumber() + 1;
+    storageSet("moap.issue", String(n));
+    paintIssue();
+  }
+
   function applySection() {
     const anim = state.section === "animation";
     document.querySelectorAll(".for-bg").forEach(function (el) { el.hidden = anim; });
     document.querySelectorAll(".for-anim").forEach(function (el) { el.hidden = !anim; });
+    const kindLabel = document.getElementById("kind-label");
+    if (kindLabel) kindLabel.textContent = anim ? "Animation" : "Background";
     document.querySelectorAll("[data-jump]").forEach(function (link) {
       const on = link.dataset.jump === state.section;
       link.classList.toggle("is-active", on);
@@ -1543,7 +1575,7 @@
   function toggleTheme() {
     const dark = document.documentElement.getAttribute("data-theme") === "dark";
     if (dark) {
-      document.documentElement.removeAttribute("data-theme");
+      document.documentElement.setAttribute("data-theme", "light");
       storageSet("moap.theme", "light");
       toast("Parchment");
     } else {
@@ -2263,6 +2295,7 @@
     themeBtn.setAttribute("aria-label", dark ? "Switch to parchment theme" : "Switch to Sol and Shadow");
 
     applySection();
+    paintIssue();
     document.addEventListener("keydown", onKey);
     measureNav();
     window.addEventListener("resize", function () {
