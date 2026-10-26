@@ -53,7 +53,7 @@ components:
 
 ## Overview
 
-The Prompt Folio is a glass bento. A first visit opens with the whole terrace panorama across the top, fading into parchment `#f3ecdf`. The lower page stays that cream ground, with a faint linen weave and a soft edge. Turning Background image off in the gear menu removes the panorama. Dark `#151311` is the other theme. Tiles are frosted dye gradients with a 22px radius, a gentle shadow, and a 16px backdrop blur. Lora sets the prompt. Raleway sets everything you touch.
+The Prompt Folio is a glass bento. A first visit opens on parchment `#f3ecdf` with a faint linen weave and a soft edge. A terrace painting is fixed to the bottom half of the window and fades into that ground. Turning Background image off in the gear menu removes it. Dark `#151311` is the other theme. Tiles are frosted dye gradients with a 22px radius, a gentle shadow, and a 16px backdrop blur. Lora sets the prompt. Raleway sets everything you touch.
 
 Clay, Indigo, and Moss recolour every tile. `V` cycles them. A stored dye other than Indigo or Moss opens as Clay. `data-theme` is `dark` or `light`. `data-dye` is `clay`, `indigo`, or `moss`.
 

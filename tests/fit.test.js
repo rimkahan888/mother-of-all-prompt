@@ -38,8 +38,8 @@ assert(app.includes("if (State.currentHeroEntry)") && app.includes("generateProm
 assert(app.includes("normalizeControls") && app.includes("data.fields"), "legacy field settings are read");
 assert(app.includes("showHeroError") && css.includes(".prompt-text-hero.is-error"), "a failed generate shows in the card");
 assert(html.includes('id="chk-bg-image"') && app.includes("moap.bgImage"), "the gear menu can turn the scene off");
-assert(css.includes("background-size: contain") && css.includes("aspect-ratio: 1672 / 941"), "the terrace shows whole, at its natural height");
-assert(!css.includes("background-size: cover") && !css.includes("background-attachment: fixed"), "the terrace is not a cropped fixed cover");
+assert(css.includes("background-size: cover") && css.includes("height: 50vh") && css.includes("bottom: 0"), "the terrace covers the bottom half of the viewport");
+assert(css.includes("background-position: 35% center") && css.includes("background-position: 32% center"), "the figure stays in frame, including at 540");
 assert(css.includes("./assets/terrace.webp") && css.includes("./assets/terrace.jpg"), "webp is used with a jpg fallback");
 const webpSize = fs.statSync(path.join(root, "assets/terrace.webp")).size;
 const jpgSize = fs.statSync(path.join(root, "assets/terrace.jpg")).size;
