@@ -1494,8 +1494,8 @@
     if (!textElem || !plateElem) return;
 
     if (!State.currentHeroEntry) {
-      textElem.className = 'prompt-text-placeholder';
-      textElem.textContent = 'Press Generate.';
+      textElem.className = 'prompt-text-hero';
+      textElem.textContent = '';
       return;
     }
 
@@ -2783,8 +2783,12 @@
     setupEventListeners();
 
     switchSection(State.section);
-    renderHeroPlate(false);
-    renderLibrary();
+    if (State.currentHeroEntry) {
+      renderHeroPlate(false);
+      renderLibrary();
+    } else {
+      generatePrompt();
+    }
     renderRecentKeywordsDropdown();
   }
 

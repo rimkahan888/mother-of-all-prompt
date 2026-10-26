@@ -99,7 +99,7 @@ Tiles are 22px. Icon buttons are 12px and 44px square. Generate is a pill. Icons
 
 **Gear.** Keyword mode, describe-instead, include-negative, and a closed Seed row. No backdrop control and no text-size or panel-size sliders.
 
-**Empty.** A faint icon in the library. The hero reads “Press Generate.”
+**Empty.** A faint icon in the library. The hero shows the newest prompt, in Lora italic between 16px and 20px. A long prompt scrolls inside the card.
 
 ## Do's and Don'ts
 

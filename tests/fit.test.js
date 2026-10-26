@@ -32,6 +32,9 @@ assert(!html.includes('type="range"'), "no size or backdrop sliders");
 assert(app.includes("e.detail > 1") && app.includes("clearSelection"), "double-click does not leave a selection");
 assert(css.includes(".copied-badge.error"), "failed copy can show on the card");
 assert(!app.includes("title=\"${escapeHTML(entry.created)}\""), "plates do not title themselves with a timestamp");
+assert(!html.includes("Press Generate") && !app.includes("Press Generate"), "the hero does not show a placeholder");
+assert(css.includes("clamp(1rem, 0.9rem + 0.42vw, 1.25rem)") && css.includes("font-style: italic"), "the prompt is italic and moderately sized");
+assert(app.includes("if (State.currentHeroEntry)") && app.includes("generatePrompt();"), "an empty history writes one prompt on load");
 
 if (failed) {
   console.error(failed + " check(s) failed");

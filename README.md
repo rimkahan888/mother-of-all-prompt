@@ -2,7 +2,7 @@
 
 A single tall page that writes still-image backgrounds and short animation prompts in full sentences. Open `index.html` in a browser. There is no build step and no server. The page, the stylesheet, and the script sit together at the root (`index.html`, `style.css`, `app.js`), so the folio also works when you open the file directly (`file://`) and when GitHub Pages serves the project.
 
-The look is a calm glass bento on cream parchment. Tiles are frosted and rounded, dyed Clay, Indigo, or Moss, with cream type and a white Generate pill. Lora carries the prompt, including the italic “Press Generate.” placeholder. Raleway carries the controls. The page opens light. Dark is the other theme, switched with the moon and sun icon or `T`, and that choice is remembered. The ground is plain cream with a faint linen texture. `V` cycles the three dyes, and each one tints every card. A saved dye other than Indigo or Moss opens as Clay.
+The look is a calm glass bento on cream parchment. Tiles are frosted and rounded, dyed Clay, Indigo, or Moss, with cream type and a white Generate pill. Lora italic carries the prompt at a reading size. The card opens on the newest history prompt, or writes one when history is empty. Raleway carries the controls. The page opens light. Dark is the other theme, switched with the moon and sun icon or `T`, and that choice is remembered. The ground is plain cream with a faint linen texture. `V` cycles the three dyes, and each one tints every card. A saved dye other than Indigo or Moss opens as Clay.
 
 ## Sections
 
