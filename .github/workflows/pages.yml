@@ -26,8 +26,9 @@ jobs:
 
       - name: Gather the static site
         run: |
-          mkdir -p _site
+          mkdir -p _site/assets
           cp index.html style.css app.js _site/
+          cp assets/terrace.webp assets/terrace.jpg _site/assets/
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

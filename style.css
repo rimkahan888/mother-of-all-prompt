@@ -196,6 +196,51 @@ body::before {
   background: radial-gradient(circle at center, rgba(0, 0, 0, 0.35) 20%, rgba(0, 0, 0, 0.72) 100%);
 }
 
+/* Terrace scene. Fixed cover behind the glass. Off returns to the cream ground. */
+html.has-scene {
+  background-color: #6d8a58;
+}
+
+html.has-scene[data-theme="dark"] {
+  background-color: #141c12;
+}
+
+html.has-scene body {
+  background-color: transparent;
+  background-image: url("./assets/terrace.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+}
+
+@supports (background-image: image-set(url("./assets/terrace.webp") type("image/webp"))) {
+  html.has-scene body {
+    background-image: image-set(
+      url("./assets/terrace.webp") type("image/webp"),
+      url("./assets/terrace.jpg") type("image/jpeg")
+    );
+  }
+}
+
+@media (max-width: 600px), (max-aspect-ratio: 4/5) {
+  html.has-scene body {
+    background-position: 32% center;
+  }
+}
+
+html.has-scene body::before {
+  opacity: 0;
+}
+
+html.has-scene .bg-vignette {
+  background: rgba(243, 236, 223, 0.14);
+}
+
+html.has-scene[data-theme="dark"] .bg-vignette {
+  background: rgba(8, 6, 5, 0.38);
+}
+
 /* --------------------------------------------------------------------------
    Bento Grid Layout
    -------------------------------------------------------------------------- */

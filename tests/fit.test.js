@@ -37,6 +37,12 @@ assert(css.includes("clamp(1rem, 0.9rem + 0.42vw, 1.25rem)") && css.includes("fo
 assert(app.includes("if (State.currentHeroEntry)") && app.includes("generatePrompt();"), "an empty history writes one prompt on load");
 assert(app.includes("normalizeControls") && app.includes("data.fields"), "legacy field settings are read");
 assert(app.includes("showHeroError") && css.includes(".prompt-text-hero.is-error"), "a failed generate shows in the card");
+assert(html.includes('id="chk-bg-image"') && app.includes("moap.bgImage"), "the gear menu can turn the scene off");
+assert(css.includes("background-size: cover") && css.includes("32% center"), "the scene covers the page and shifts on a tall frame");
+assert(css.includes("./assets/terrace.webp") && css.includes("./assets/terrace.jpg"), "webp is used with a jpg fallback");
+const webpSize = fs.statSync(path.join(root, "assets/terrace.webp")).size;
+const jpgSize = fs.statSync(path.join(root, "assets/terrace.jpg")).size;
+assert(webpSize > 0 && webpSize < 400 * 1024 && jpgSize > 0 && jpgSize < 400 * 1024, "scene files stay under a few hundred KB");
 
 if (failed) {
   console.error(failed + " check(s) failed");

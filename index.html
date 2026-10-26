@@ -29,6 +29,9 @@
           if (dye !== 'indigo' && dye !== 'moss') dye = 'clay';
           document.documentElement.setAttribute('data-theme', theme);
           document.documentElement.setAttribute('data-dye', dye);
+          if (localStorage.getItem('moap.bgImage') !== '0') {
+            document.documentElement.classList.add('has-scene');
+          }
         } catch (e) {
           document.documentElement.setAttribute('data-theme', 'light');
           document.documentElement.setAttribute('data-dye', 'clay');
@@ -530,6 +533,11 @@
       <label class="toggle-row">
         <span class="field-label" style="text-transform:none;font-size:0.86rem;">Include negative prompt</span>
         <input type="checkbox" id="chk-copy-negative" class="custom-checkbox" />
+      </label>
+
+      <label class="toggle-row">
+        <span class="field-label" style="text-transform:none;font-size:0.86rem;">Background image</span>
+        <input type="checkbox" id="chk-bg-image" class="custom-checkbox" checked />
       </label>
 
       <details class="seed-details">

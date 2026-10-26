@@ -53,7 +53,7 @@ components:
 
 ## Overview
 
-The Prompt Folio is a glass bento. A first visit opens on parchment `#f3ecdf` with a faint linen weave and a soft edge. Dark `#151311` is the other theme. Tiles are frosted dye gradients with a 22px radius, a gentle shadow, and a 16px backdrop blur. Lora sets the prompt. Raleway sets everything you touch.
+The Prompt Folio is a glass bento. A first visit opens on a fixed terrace scene, with a light scrim so the glass stays readable. Turning Background image off in the gear menu returns to parchment `#f3ecdf` with a faint linen weave and a soft edge. Dark `#151311` is the other theme. Tiles are frosted dye gradients with a 22px radius, a gentle shadow, and a 16px backdrop blur. Lora sets the prompt. Raleway sets everything you touch.
 
 Clay, Indigo, and Moss recolour every tile. `V` cycles them. A stored dye other than Indigo or Moss opens as Clay. `data-theme` is `dark` or `light`. `data-dye` is `clay`, `indigo`, or `moss`.
 
@@ -97,7 +97,7 @@ Tiles are 22px. Icon buttons are 12px and 44px square. Generate is a pill. Icons
 
 **Library.** Favourites and History start collapsed to two lines. Click waits so a double-click can copy without expanding and without leaving a word selected. A tick and a toast confirm the copy. A failed copy turns the badge red and shows a red toast. Enter or Space toggles the focused row. `E` expands or collapses the visible shelf. Copy, animate, and delete appear on hover, focus, or when the row is open. The star stays visible.
 
-**Gear.** Keyword mode, describe-instead, include-negative, and a closed Seed row. No backdrop control and no text-size or panel-size sliders.
+**Gear.** Keyword mode, describe-instead, include-negative, a Background image switch, and a closed Seed row. No backdrop slider and no text-size or panel-size sliders.
 
 **Empty.** A faint icon in the library. The hero shows the newest prompt, in Lora italic between 16px and 20px. A long prompt scrolls inside the card.
 

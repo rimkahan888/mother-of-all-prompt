@@ -852,6 +852,7 @@
       return stored === 'indigo' || stored === 'moss' ? stored : 'clay';
     })(),
     copyNegative: Storage.getString('moap.copyNegative', '0') === '1',
+    sceneImage: Storage.getString('moap.bgImage', '1') !== '0',
 
     keywords: Storage.get('moap.keywords', {
       share: true,
@@ -1579,6 +1580,13 @@
     }
   }
 
+  function applySceneImage(on) {
+    State.sceneImage = !!on;
+    document.documentElement.classList.toggle('has-scene', State.sceneImage);
+    const chk = document.getElementById('chk-bg-image');
+    if (chk) chk.checked = State.sceneImage;
+  }
+
   function applyDye(dye) {
     State.dye = dye;
     document.documentElement.setAttribute('data-dye', dye);
@@ -2103,10 +2111,14 @@
     if (btnGear && gearPopover) {
       btnGear.addEventListener('click', (e) => {
         e.stopPropagation();
-        const rect = btnGear.getBoundingClientRect();
-        gearPopover.style.top = Math.min(window.innerHeight - 280, rect.bottom + 8) + 'px';
-        gearPopover.style.right = Math.max(16, window.innerWidth - rect.right) + 'px';
+        const willOpen = !gearPopover.classList.contains('open');
         gearPopover.classList.toggle('open');
+        if (!willOpen) return;
+        const rect = btnGear.getBoundingClientRect();
+        const popH = gearPopover.offsetHeight;
+        const top = Math.max(8, Math.min(rect.bottom + 8, window.innerHeight - popH - 8));
+        gearPopover.style.top = top + 'px';
+        gearPopover.style.right = Math.max(16, window.innerWidth - rect.right) + 'px';
       });
 
       // Keyword mode segmented
@@ -2129,6 +2141,15 @@
           if (State.section === 'bg') State.keywords.bg.describe = e.target.checked;
           else State.keywords.anim.describe = e.target.checked;
           Storage.set('moap.keywords', State.keywords);
+        });
+      }
+
+      const chkScene = document.getElementById('chk-bg-image');
+      if (chkScene) {
+        chkScene.checked = State.sceneImage;
+        chkScene.addEventListener('change', (e) => {
+          applySceneImage(e.target.checked);
+          Storage.setString('moap.bgImage', State.sceneImage ? '1' : '0');
         });
       }
 
@@ -2917,6 +2938,7 @@
     try { localStorage.removeItem('moap.bgPhoto'); } catch (e) {}
     applyTheme(State.theme);
     applyDye(State.dye);
+    applySceneImage(State.sceneImage);
 
     try { populateSelectOptions(); } catch (err) { console.error(err); }
     try { setupEventListeners(); } catch (err) { console.error(err); }
