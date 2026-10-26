@@ -678,19 +678,20 @@
   }
 
   function getActiveKeyword(keywordLine, seed, turn) {
-    if (!keywordLine || !keywordLine.trim()) return '';
-    const tokens = keywordLine.split(',').map((s) => s.trim()).filter(Boolean);
+    const line = typeof keywordLine === 'string' ? keywordLine : '';
+    if (!line.trim()) return '';
+    const tokens = line.split(',').map((s) => s.trim()).filter(Boolean);
     if (tokens.length === 0) return '';
     if (tokens.length === 1) return tokens[0];
 
-    const rng = mulberry32(fnv1a(seed + ':keywords'));
+    const rng = mulberry32(fnv1a(String(seed) + ':keywords'));
     const shuffled = [...tokens];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(rng() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    const index = Math.abs(turn) % shuffled.length;
-    return shuffled[index];
+    const index = Math.abs(Number(turn) || 0) % shuffled.length;
+    return shuffled[index] || shuffled[0];
   }
 
   function isProperPlaceName(s) {
@@ -698,7 +699,8 @@
   }
 
   function formatWorldKeyword(keyword, rng) {
-    const kw = keyword.trim();
+    const kw = String(keyword || '').trim();
+    if (!kw) return '';
     const lower = kw.toLowerCase();
     let noun = kw;
 
@@ -891,7 +893,109 @@
     focusedPlateId: null,
   };
 
-  // Restore current hero entry from latest history if available
+  function asObject(value) {
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  }
+
+  function normalizeKeywordBox(raw) {
+    if (typeof raw === 'string') return { text: raw, mode: 'world', describe: false };
+    const box = asObject(raw);
+    const mode = box.mode === 'blend' || box.mode === 'exact' ? box.mode : 'world';
+    return {
+      text: typeof box.text === 'string' ? box.text : '',
+      mode,
+      describe: !!box.describe,
+    };
+  }
+
+  function labelOrAny(raw) {
+    if (raw && typeof raw === 'object') raw = raw.value;
+    if (typeof raw !== 'string') return 'Any';
+    const trimmed = raw.trim();
+    if (!trimmed || trimmed.toLowerCase() === 'any' || trimmed === 'keywords' || trimmed === '__from_keywords__') return 'Any';
+    return trimmed;
+  }
+
+  function normalizeControls(saved, keys) {
+    const data = asObject(saved);
+    const values = {};
+    const locks = {};
+    keys.forEach((key) => {
+      const fromValues = data.values ? data.values[key] : undefined;
+      const fromFields = data.fields ? data.fields[key] : undefined;
+      values[key] = labelOrAny(fromValues != null ? fromValues : fromFields);
+      const field = fromFields && typeof fromFields === 'object' ? fromFields : null;
+      if ((data.locks && data.locks[key]) || (field && field.locked)) locks[key] = true;
+    });
+    return { data, values, locks };
+  }
+
+  function normalizeEntry(entry) {
+    if (!entry || typeof entry !== 'object') return null;
+    const text = entry.text || entry.prompt || entry.body || '';
+    if (typeof text !== 'string' || !text.trim()) return null;
+    return Object.assign({}, entry, { text: text.trim() });
+  }
+
+  const BG_KEYS = ['scene', 'style', 'lighting', 'time', 'palette', 'mood', 'composition', 'aspect'];
+  const ANIM_KEYS = ['camera', 'motion', 'speed', 'duration', 'film'];
+
+  State.keywords = (function () {
+    if (typeof State.keywords === 'string') {
+      const box = normalizeKeywordBox(State.keywords);
+      return { share: true, bg: box, anim: Object.assign({}, box) };
+    }
+    const data = asObject(State.keywords);
+    const bg = normalizeKeywordBox(data.bg != null ? data.bg : data);
+    const share = data.share !== false;
+    return { share, bg, anim: share ? Object.assign({}, bg) : normalizeKeywordBox(data.anim) };
+  })();
+
+  State.bg = (function () {
+    const { data, values, locks } = normalizeControls(State.bg, BG_KEYS);
+    const negText = typeof data.negText === 'string'
+      ? data.negText
+      : (typeof data.negativeText === 'string' ? data.negativeText : DEFAULT_NEG);
+    const negToggle = data.negToggle != null ? data.negToggle !== false : data.negativeOn !== false;
+    return {
+      seed: data.seed != null && String(data.seed).trim() ? String(data.seed) : '1847',
+      clean: data.clean !== false,
+      negToggle,
+      negText,
+      values,
+      locks,
+    };
+  })();
+
+  State.anim = (function () {
+    const { data, values, locks } = normalizeControls(State.anim, ANIM_KEYS);
+    const startingScene = typeof data.startingScene === 'string'
+      ? data.startingScene
+      : (typeof data.sceneText === 'string' ? data.sceneText : '');
+    return {
+      seed: data.seed != null && String(data.seed).trim() ? String(data.seed) : '1847',
+      startingScene,
+      startingSceneLocked: !!(data.startingSceneLocked || data.sceneLocked),
+      loop: !!data.loop,
+      values,
+      locks,
+    };
+  })();
+
+  State.library = (function () {
+    const data = asObject(State.library);
+    const list = (items) => (Array.isArray(items) ? items : []).map(normalizeEntry).filter(Boolean);
+    return {
+      favourites: list(data.favourites).slice(0, 400),
+      history: list(data.history).slice(0, 100),
+    };
+  })();
+
+  if (!Array.isArray(State.keywordRecent)) State.keywordRecent = [];
+  State.keywordRecent = State.keywordRecent.filter((item) => typeof item === 'string' && item.trim()).slice(0, 10);
+  if (!Number.isFinite(State.bgTurn) || State.bgTurn < 0) State.bgTurn = 0;
+  if (!Number.isFinite(State.animTurn) || State.animTurn < 0) State.animTurn = 0;
+
   if (State.library.history.length > 0) {
     State.currentHeroEntry = State.library.history[0];
   }
@@ -899,12 +1003,39 @@
   /* ==========================================================================
      6. GENERATOR LOGIC
      ========================================================================== */
+  function showHeroError() {
+    const textElem = document.getElementById('hero-prompt-text');
+    if (textElem) {
+      textElem.className = 'prompt-text-hero is-error';
+      textElem.textContent = 'Could not write a prompt. Use Generate to try again.';
+    }
+    showToast('Could not write a prompt.', 'error');
+  }
+
+  function bankPick(list, rng) {
+    const bank = Array.isArray(list) ? list.filter((item) => item && item.text) : [];
+    if (!bank.length) return { label: 'Any', text: 'A quiet scene.', place: 'nature', tags: [] };
+    const index = Math.min(bank.length - 1, Math.max(0, Math.floor((rng ? rng() : Math.random()) * bank.length)));
+    return bank[index] || bank[0];
+  }
+
   function generatePrompt() {
+    try {
+      generatePromptNow();
+    } catch (err) {
+      console.error(err);
+      showHeroError();
+    }
+  }
+
+  function generatePromptNow() {
     const isBg = State.section === 'bg';
     let entry;
 
     if (isBg) {
-      const kw = State.keywords.share ? State.keywords.bg.text : State.keywords.bg.text;
+      State.bg.values = asObject(State.bg.values);
+      State.bg.locks = asObject(State.bg.locks);
+      const kw = State.keywords && State.keywords.bg ? State.keywords.bg.text : '';
       const kwMode = State.keywords.bg.mode || 'world';
       const descr = State.keywords.bg.describe || false;
 
@@ -945,7 +1076,7 @@
           const placeCand = candidates.filter((s) => s.place === kwPlace);
           if (placeCand.length > 0) candidates = placeCand;
         }
-        sceneEntry = candidates[Math.floor(rng() * candidates.length)];
+        sceneEntry = bankPick(candidates, rng);
       }
 
       const activePlace = kwPlace || sceneEntry.place || 'nature';
@@ -963,7 +1094,7 @@
         timeEntry = BANKS.times.find((t) => t.label === State.bg.values['time']) || BANKS.times[0];
       } else {
         const candidates = filterCoherentEntries(BANKS.times, activePlace, 'time', rng);
-        timeEntry = candidates[Math.floor(rng() * candidates.length)];
+        timeEntry = bankPick(candidates, rng);
       }
 
       if (activePlace === 'desert') {
@@ -983,7 +1114,7 @@
         lightEntry = BANKS.lighting.find((l) => l.label === State.bg.values['lighting']) || BANKS.lighting[0];
       } else {
         const candidates = filterCoherentEntries(BANKS.lighting, activePlace, 'lighting', rng);
-        lightEntry = candidates[Math.floor(rng() * candidates.length)];
+        lightEntry = bankPick(candidates, rng);
       }
       const lightSentence = lightEntry.text;
       parts.push({ key: 'lighting', label: 'Lighting', text: lightSentence });
@@ -995,7 +1126,7 @@
       } else if (State.bg.values['mood'] && State.bg.values['mood'] !== 'Any') {
         moodEntry = BANKS.moods.find((m) => m.label === State.bg.values['mood']) || BANKS.moods[0];
       } else {
-        moodEntry = BANKS.moods[Math.floor(rng() * BANKS.moods.length)];
+        moodEntry = bankPick(BANKS.moods, rng);
       }
       const moodSentence = `The mood is ${moodEntry.text}.`;
       parts.push({ key: 'mood', label: 'Mood', text: moodSentence });
@@ -1007,7 +1138,7 @@
       } else if (State.bg.values['style'] && State.bg.values['style'] !== 'Any') {
         styleEntry = BANKS.styles.find((s) => s.label === State.bg.values['style']) || BANKS.styles[0];
       } else {
-        styleEntry = BANKS.styles[Math.floor(rng() * BANKS.styles.length)];
+        styleEntry = bankPick(BANKS.styles, rng);
       }
       const styleSentence = styleEntry.text;
       parts.push({ key: 'style', label: 'Art style', text: styleSentence });
@@ -1019,7 +1150,7 @@
       } else if (State.bg.values['palette'] && State.bg.values['palette'] !== 'Any') {
         palEntry = BANKS.palettes.find((p) => p.label === State.bg.values['palette']) || BANKS.palettes[0];
       } else {
-        palEntry = BANKS.palettes[Math.floor(rng() * BANKS.palettes.length)];
+        palEntry = bankPick(BANKS.palettes, rng);
       }
       const palSentence = `The palette is ${palEntry.text}.`;
       parts.push({ key: 'palette', label: 'Colour palette', text: palSentence });
@@ -1031,7 +1162,7 @@
       } else if (State.bg.values['composition'] && State.bg.values['composition'] !== 'Any') {
         compEntry = BANKS.compositions.find((c) => c.label === State.bg.values['composition']) || BANKS.compositions[0];
       } else {
-        compEntry = BANKS.compositions[Math.floor(rng() * BANKS.compositions.length)];
+        compEntry = bankPick(BANKS.compositions, rng);
       }
       const compSentence = compEntry.text;
       parts.push({ key: 'composition', label: 'Composition', text: compSentence });
@@ -1043,7 +1174,7 @@
       } else if (State.bg.values['aspect'] && State.bg.values['aspect'] !== 'Any') {
         aspectEntry = BANKS.aspects.find((a) => a.label === State.bg.values['aspect']) || BANKS.aspects[1];
       } else {
-        aspectEntry = BANKS.aspects[Math.floor(rng() * BANKS.aspects.length)];
+        aspectEntry = bankPick(BANKS.aspects, rng);
       }
       const aspectSentence = aspectEntry.text;
       parts.push({ key: 'aspect', label: 'Aspect ratio', text: aspectSentence });
@@ -1113,9 +1244,12 @@
       Storage.setString('moap.bgTurn', State.bgTurn);
     } else {
       // ANIMATION
-      const kw = State.keywords.share ? State.keywords.bg.text : State.keywords.anim.text;
-      const kwMode = State.keywords.anim.mode || 'world';
-      const descr = State.keywords.anim.describe || false;
+      State.anim.values = asObject(State.anim.values);
+      State.anim.locks = asObject(State.anim.locks);
+      const kwBox = State.keywords && (State.keywords.share ? State.keywords.bg : State.keywords.anim);
+      const kw = kwBox ? kwBox.text : '';
+      const kwMode = (State.keywords.anim && State.keywords.anim.mode) || 'world';
+      const descr = !!(State.keywords.anim && State.keywords.anim.describe);
 
       const seedKey = JSON.stringify({
         kind: 'animation',
@@ -1159,7 +1293,7 @@
           const placeCand = candidates.filter((s) => s.place === kwPlace);
           if (placeCand.length > 0) candidates = placeCand;
         }
-        const pickedScene = candidates[Math.floor(rng() * candidates.length)];
+        const pickedScene = bankPick(candidates, rng);
         scenePlace = pickedScene.place || 'nature';
         startingSceneLabel = pickedScene.label;
 
@@ -1179,7 +1313,7 @@
         motionEntry = BANKS.motions.find((m) => m.label === State.anim.values['motion']) || BANKS.motions[0];
       } else {
         const candidates = filterCoherentEntries(BANKS.motions, scenePlace, 'motion', rng);
-        motionEntry = candidates[Math.floor(rng() * candidates.length)];
+        motionEntry = bankPick(candidates, rng);
       }
       const motionSentence = cleanSentence(motionEntry.text);
       parts.push({ key: 'motion', label: 'Scene motion', text: motionSentence });
@@ -1200,7 +1334,7 @@
           });
           if (followOptions.length > 0) candidates = followOptions;
         }
-        cameraEntry = candidates[Math.floor(rng() * candidates.length)];
+        cameraEntry = bankPick(candidates, rng);
       }
 
       if (isWalkingMotion) {
@@ -1230,7 +1364,7 @@
         } else if (!isLapseMotion) {
           candidates = candidates.filter((f) => !(f.tags || []).includes('lapse'));
         }
-        filmEntry = candidates[Math.floor(rng() * candidates.length)];
+        filmEntry = bankPick(candidates, rng);
       }
 
       if ((filmEntry.tags || []).includes('lapse') && !(motionEntry.tags || []).includes('lapse')) {
@@ -1246,7 +1380,7 @@
       } else if (State.anim.values['speed'] && State.anim.values['speed'] !== 'Any') {
         speedEntry = BANKS.speeds.find((s) => s.label === State.anim.values['speed']) || BANKS.speeds[8];
       } else {
-        speedEntry = BANKS.speeds[Math.floor(rng() * BANKS.speeds.length)];
+        speedEntry = bankPick(BANKS.speeds, rng);
       }
       const speedSentence = cleanSentence(speedEntry.text);
 
@@ -1256,7 +1390,7 @@
       } else if (State.anim.values['duration'] && State.anim.values['duration'] !== 'Any') {
         durationEntry = BANKS.durations.find((d) => d.label === State.anim.values['duration']) || BANKS.durations[1];
       } else {
-        durationEntry = BANKS.durations[Math.floor(rng() * BANKS.durations.length)];
+        durationEntry = bankPick(BANKS.durations, rng);
       }
       const durationSentence = cleanSentence(durationEntry.text);
 
@@ -1298,7 +1432,12 @@
       addRecentKeyword(currentKwLine.trim());
     }
 
+    if (!entry || !String(entry.text || '').trim()) {
+      throw new Error('The prompt came out empty.');
+    }
+
     // Add to top of History (max 100)
+    if (!Array.isArray(State.library.history)) State.library.history = [];
     State.library.history.unshift(entry);
     if (State.library.history.length > 100) {
       State.library.history = State.library.history.slice(0, 100);
@@ -2368,7 +2507,7 @@
       const lock = document.getElementById(`btn-lock-bg-${key}`);
 
       if (select) {
-        select.value = State.bg.values[key] || 'Any';
+        select.value = (State.bg.values && State.bg.values[key]) || 'Any';
         select.addEventListener('change', (e) => {
           State.bg.values[key] = e.target.value;
           Storage.set('moap.bg', State.bg);
@@ -2376,7 +2515,7 @@
       }
 
       if (lock) {
-        const isLocked = Boolean(State.bg.locks[key]);
+        const isLocked = Boolean(State.bg.locks && State.bg.locks[key]);
         lock.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
         lock.innerHTML = `<svg><use href="#icon-${isLocked ? 'lock' : 'unlock'}"></use></svg>`;
 
@@ -2433,7 +2572,7 @@
       const lock = document.getElementById(`btn-lock-anim-${key}`);
 
       if (select) {
-        select.value = State.anim.values[key] || 'Any';
+        select.value = (State.anim.values && State.anim.values[key]) || 'Any';
         select.addEventListener('change', (e) => {
           State.anim.values[key] = e.target.value;
           Storage.set('moap.anim', State.anim);
@@ -2441,7 +2580,7 @@
       }
 
       if (lock) {
-        const isLocked = Boolean(State.anim.locks[key]);
+        const isLocked = Boolean(State.anim.locks && State.anim.locks[key]);
         lock.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
         lock.innerHTML = `<svg><use href="#icon-${isLocked ? 'lock' : 'unlock'}"></use></svg>`;
 
@@ -2779,17 +2918,25 @@
     applyTheme(State.theme);
     applyDye(State.dye);
 
-    populateSelectOptions();
-    setupEventListeners();
+    try { populateSelectOptions(); } catch (err) { console.error(err); }
+    try { setupEventListeners(); } catch (err) { console.error(err); }
 
-    switchSection(State.section);
-    if (State.currentHeroEntry) {
+    try { switchSection(State.section); } catch (err) { console.error(err); }
+    try {
+      Storage.set('moap.keywords', State.keywords);
+      Storage.set('moap.bg', State.bg);
+      Storage.set('moap.anim', State.anim);
+      Storage.set('moap.library', State.library);
+    } catch (err) { console.error(err); }
+    const shown = State.currentHeroEntry && String(State.currentHeroEntry.text || '').trim();
+    if (shown) {
       renderHeroPlate(false);
       renderLibrary();
     } else {
+      State.currentHeroEntry = null;
       generatePrompt();
     }
-    renderRecentKeywordsDropdown();
+    try { renderRecentKeywordsDropdown(); } catch (err) { console.error(err); }
   }
 
   // Initialize once DOM is ready

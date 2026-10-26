@@ -35,6 +35,8 @@ assert(!app.includes("title=\"${escapeHTML(entry.created)}\""), "plates do not t
 assert(!html.includes("Press Generate") && !app.includes("Press Generate"), "the hero does not show a placeholder");
 assert(css.includes("clamp(1rem, 0.9rem + 0.42vw, 1.25rem)") && css.includes("font-style: italic"), "the prompt is italic and moderately sized");
 assert(app.includes("if (State.currentHeroEntry)") && app.includes("generatePrompt();"), "an empty history writes one prompt on load");
+assert(app.includes("normalizeControls") && app.includes("data.fields"), "legacy field settings are read");
+assert(app.includes("showHeroError") && css.includes(".prompt-text-hero.is-error"), "a failed generate shows in the card");
 
 if (failed) {
   console.error(failed + " check(s) failed");
