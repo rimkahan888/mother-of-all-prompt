@@ -1,24 +1,24 @@
 # The Prompt Folio
 
-A single tall page that writes still-image backgrounds and short animation prompts in full sentences. Open `index.html` in a browser. There is no build step and no server. The word banks live in `js/banks.js`, so the page also works when you open the file directly (`file://`).
+A single tall page that writes still-image backgrounds and short animation prompts in full sentences. Open `index.html` in a browser. There is no build step and no server. The page, the stylesheet, and the script sit together at the root (`index.html`, `style.css`, `app.js`), so the folio also works when you open the file directly (`file://`) and when GitHub Pages serves the project.
 
-The look is a noir broadsheet: black and bone, with terracotta used sparingly. The tokens live in `DESIGN.md`. A 12-column grid holds an issue block (huge Anton numerals that step up with each Generate), a Lora italic pull-quote, and a block Generate button with a hard shadow. Keywords sit in a charcoal field. Clay, Indigo, and Moss appear only as the stripe on the issue block and the tab on the rule above Generate. `V` cycles them. A saved Lacquer or Flat choice opens as Clay. Favourites and History are a numbered Contents list. At about 540px the page is one column. The folio opens dark. Light is a secondary theme. A noren photograph can be faded in from the gear menu; it starts off.
+The look is a calm glass bento on parchment. Tiles use a frosted dye: Clay, Indigo, or Moss. Lora carries the prompt. Raleway carries the controls. The page opens dark. Light is the other theme, switched with the sun and moon icon or `T`. A soft vignette sits on the plain ground. `V` cycles the three dyes. A saved dye other than Indigo or Moss opens as Clay.
 
 ## Sections
 
 1. **Backgrounds** — type keywords if you want, press Generate, and one prompt replaces the plate. Earlier prompts stay in History. World is the keyword mode unless you change it in the gear menu. Several comma-separated keywords take turns, one per generation. The link icon keeps one keyword line for Animation too. Copy with the copy icon or a double-click, star it, or send a still to Animation.
 2. **Animation** — the same flow, for a moving picture. Locks and the starting scene sit under Advanced, closed until you open them.
-3. **Favourites** — Contents. A star tab and a clock tab, each with a count. A row starts as one line, numbered, with a still or motion icon. Click to open the full prompt. Double-click copies and does not leave a text selection. Search is the magnifier. Export, import, and clear sit in the ··· menu. Clear asks first.
+3. **Favourites and History** — a star tab and a clock tab, each with a count. A card starts collapsed to two lines. Click to open the full prompt. Double-click copies it as plain text, shows a tick and a toast, and does not leave a word selected. If the clipboard refuses, the card shows a red error and a red toast. Search is the magnifier. Export, import, and clear sit in the ··· menu. Clear asks first.
 
 Each Generate draws the next prompt from a seed kept in this browser. The same seed and the same step rebuild that prompt. Reuse sits under Seed in the gear menu, closed until you open it. The dice there starts a new seed.
 
-The gear holds keyword mode (World, Blend, Exact), “Describe instead of naming”, “Include negative prompt”, the Noren slider (off until you raise it), and Seed, closed until you open it. The detail panel is the right half of a wide page. In a narrow window, including a side panel around 540px, it becomes a bottom sheet at half the height. Double-click any plate to copy its prompt.
+The gear holds keyword mode (World, Blend, Exact), “Describe instead of naming”, “Include negative prompt”, and Seed. The detail panel is the right half of a wide page. In a narrow window, including a side panel around 540px, it becomes a bottom sheet at half the height. There are no size sliders.
 
-Place, weather, light, motion, and camera are chosen so they agree: a desert stays dry, underwater stays with the water, a walking figure is followed rather than orbited. If you pin a combination that disagrees, the prompt is still written and the mismatch is kept quietly. Copy stays on the prompt alone unless **Include negative prompt** is on. Jumps between sections scroll smoothly, and they stay instant when the browser asks for reduced motion.
+Place, weather, light, motion, and camera are chosen so they agree: a desert stays dry, underwater stays with the water, a walking figure is followed rather than orbited. If you pin a combination that disagrees, the prompt is still written and the mismatch is noted in the detail panel. Copy stays on the prompt alone unless **Include negative prompt** is on. Jumps between sections scroll smoothly, and they stay instant when the browser asks for reduced motion.
 
 ## Keyboard shortcuts
 
-Shortcuts pause while the cursor is in a text field, a menu, or a slider.
+Shortcuts pause while the cursor is in a text field or a menu.
 
 | Key | Action |
 | --- | --- |
@@ -42,11 +42,11 @@ Shortcuts pause while the cursor is in a text field, a menu, or a slider.
 
 ## Publish
 
-The workflow in `.github/workflows/pages.yml` publishes the static files on `main`. Pages is set to build from GitHub Actions. The live folio is at <https://rimkahan888.github.io/mother-of-all-prompt/>.
+The workflow in `.github/workflows/pages.yml` publishes `index.html`, `style.css`, and `app.js` on `main`. Pages is set to build from GitHub Actions. The live folio is at <https://rimkahan888.github.io/mother-of-all-prompt/>. Styles and the script are loaded with relative paths (`./style.css`, `./app.js`).
 
 ## Privacy
 
-Favourites, history, theme, the dye, the issue number, keywords and the last ten keyword lines, the Noren slider, seeds, and locks stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
+Favourites, history, theme, the dye, keywords and the last ten keyword lines, seeds, and locks stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
 
 ## License
 

@@ -1,34 +1,29 @@
 ---
 name: The Prompt Folio
-description: A dark editorial folio that writes one still or motion prompt at a time.
+description: A dark glass bento that writes one still or motion prompt at a time.
 colors:
-  paper: "#0a0a0a"
-  paper-2: "#151515"
-  ink: "#f2ede4"
-  ink-2: "#c9c3b9"
-  ink-3: "#a39e94"
-  bone: "#f2ede4"
-  terra: "#e0532a"
-  block: "#121212"
-  rule: "#2c2c2c"
-  clay: "#e0532a"
-  indigo: "#6f86d6"
-  moss: "#7fa877"
-  danger: "#a32a22"
-  danger-ink: "#fff6f2"
-  light-paper: "#ece7dd"
-  light-ink: "#0d0d0d"
+  page: "#151311"
+  page-2: "#1c1916"
+  popover: "#221f1b"
+  ink: "#f2ece1"
+  ink-2: "#b8b0a2"
+  ink-3: "#857e72"
+  terracotta: "#d97258"
+  sage: "#6b826b"
+  clay: "#9a3e28"
+  indigo: "#1c3058"
+  moss: "#24442c"
+  danger: "#a83226"
+  danger-ink: "#ffffff"
+  light-page: "#f3ecdf"
+  light-ink: "#2a2622"
+  light-terracotta: "#c15f45"
 typography:
   prompt:
-    fontFamily: "Lora, Georgia, Palatino Linotype, Palatino, serif"
-    fontStyle: italic
+    fontFamily: "Lora, Georgia, Times New Roman, serif"
     fontWeight: 400
-    fontSize: "clamp(1.6rem, 0.9rem + 1.8vw, 3.1rem)"
-    lineHeight: 1.3
-  display:
-    fontFamily: "Anton, Impact, Arial Narrow, sans-serif"
-    fontWeight: 400
-    letterSpacing: "-0.01em"
+    fontSize: "1.5rem"
+    lineHeight: 1.55
   ui:
     fontFamily: "Raleway, Segoe UI, system-ui, sans-serif"
     fontSize: "0.875rem"
@@ -36,89 +31,78 @@ typography:
     lineHeight: 1.4
   label:
     fontFamily: "Raleway, Segoe UI, system-ui, sans-serif"
-    fontSize: "0.6875rem"
+    fontSize: "0.72rem"
     fontWeight: 700
-    letterSpacing: "0.28em"
+    letterSpacing: "0.08em"
 rounded:
-  none: "0"
+  tile: "22px"
+  button: "12px"
+  pill: "9999px"
 spacing:
-  page: "clamp(18px, 4vw, 64px)"
-  gap: "clamp(14px, 2vw, 28px)"
+  page: "24px 20px 48px"
+  gap: "20px"
 components:
-  button-primary:
-    backgroundColor: "{colors.terra}"
-    textColor: "#0a0a0a"
-    shadow: "7px 7px 0 var(--paper), 7px 7px 0 1px var(--ink)"
-  issue-stripe:
-    backgroundColor: "{colors.dye}"
-    width: "10px"
+  tile:
+    backgroundColor: "{colors.clay}"
+    rounded: "{rounded.tile}"
+    backdropBlur: "16px"
   detail:
-    width: "50%"
-    narrowHeight: "50%"
+    width: "50vw"
+    narrowHeight: "50vh"
 ---
 
 ## Overview
 
-The Prompt Folio is an Operate surface in the Noir Broadsheet: black and bone, one terracotta accent, a 12-column editorial grid. The prompt is a Lora italic pull-quote. The issue numeral, the quotation mark, Contents, and the library numbers are Anton. Everything you touch is Raleway.
+The Prompt Folio is a glass bento. The page ground is `#151311` in the dark theme, which is the first-visit default, and parchment `#f3ecdf` in light. A fixed vignette darkens the edges. Tiles are frosted dye gradients with a 22px radius and a 16px backdrop blur. Lora sets the prompt. Raleway sets everything you touch.
 
-Clay, Indigo, and Moss are not tile fills. They colour the issue block’s left stripe and the dye tab on the rule above Generate. The page opens dark. Light is a secondary theme. The noren photograph is off unless the gear slider is raised.
+Clay, Indigo, and Moss recolour every tile. `V` cycles them. A stored dye other than Indigo or Moss opens as Clay. `data-theme` is `dark` or `light`. `data-dye` is `clay`, `indigo`, or `moss`.
 
-Tokens are custom properties in `css/styles.css`. `data-theme` is `dark` or `light`. `data-grade` is `clay`, `indigo`, or `moss`.
+Tokens are custom properties in `style.css`.
 
 ## Colors
 
-Bone `#f2ede4` on `#0a0a0a` is the reading pair. Terracotta `#e0532a` is Generate, the active dye marker, starred items, open library numbers, and focus. Black `#0a0a0a` on `#e0532a` is the Generate label.
+Dark reading pair: ink `#f2ece1` on page `#151311`. Terracotta `#d97258` is the accent and the focus ring. Popovers use `#221f1b`.
 
-Dyes: Clay `#e0532a`, Indigo `#6f86d6`, Moss `#7fa877`. They set `--dye` only.
+Light reading pair: ink `#2a2622` on parchment `#f3ecdf`. Terracotta is `#c15f45`. Sage `#6b826b` appears in the favicon sprig.
 
-Light mode uses paper `#ece7dd` and ink `#0d0d0d`. The issue block and the detail panel stay black with bone type. The keyword field stays black in both themes. Error toasts are `#a32a22` with `#fff6f2`.
+Dye gradients, dark: Clay from `#782a1a` toward `#9a3e28`, Indigo from `#12203c` toward `#1c3058`, Moss from `#183020` toward `#24442c`. Light dyes are the same families, lighter. Error toasts and a failed copy badge are `#a83226` with white type.
 
-Small labels use `--ink-3` (`#a39e94` in the dark theme, `#3f3b35` in light), kept at or above 4.5:1 on the surface behind them.
+Muted ink `#857e72` stays on popovers and on the dark page at a quiet contrast. Tile type is cream `#fcf9f2`.
 
 ## Typography
 
-Anton for display: the folio word, the issue numeral, the quotation mark, Contents, and the contents numbers. Impact and Arial Narrow sit behind it.
+Lora for the hero prompt, library lines, and the detail panel. Georgia and Times New Roman sit behind it.
 
-Lora italic 400 for the hero prompt, about 1.6–3.1rem at a 1.3 line, and for the keyword field. Georgia sits behind it.
-
-Raleway 400–800 for controls, menus, toasts, and labels. Labels may be 11px uppercase with wide tracking. Body is 16px.
+Raleway for controls, menus, toasts, and labels. Body is 16px.
 
 ## Layout
 
-Twelve columns, max width 1320px. The issue block is columns 1–4. The pull-quote and deck are columns 5–12. Keywords are columns 1–8. The three dye bars are columns 9–12.
+The bento is at most 1360px wide. From 1100px it is four columns: the hero spans the row, keywords span two, the section switch and the tools tile take one each, and the library spans three beside Advanced. From 601px to 1099px it is two columns. At 600px and under, including a 540px side panel, it is one column in this order: hero, keywords, library, switch, tools, Advanced.
 
-The issue numeral increments once per successful Generate and is kept in `moap.issue`. Library row numbers are list indexes, padded to two digits, and are separate from the issue numeral.
-
-At 760px and under, including 540px, the page is one column: bar, issue row, quote, prompt, icon actions, Generate, keywords, dyes, Contents. The detail panel is the right half from 860px wide and a bottom sheet at half the height below that.
+The detail panel is the right half (`50vw`, full height) from 860px wide, and a bottom sheet at half the height (`50vh`, full width) below that. There is no size slider.
 
 ## Elevation and depth
 
-Dark pages use a radial ground and an inset edge vignette. Rules are 10px charcoal `#2c2c2c` on black. Generate, menus, and toasts use a hard offset shadow. The deck rule carries a 72px dye tab.
+Tiles use a soft shadow plus a 1px inset highlight. The hero shadow is dyed. Popovers and the detail panel use a deeper shadow. The vignette is a radial gradient, `multiply` in light and a darker veil in dark.
 
-Motion is 240–800ms on `cubic-bezier(0.22, 1, 0.36, 1)`. A new prompt wipes in. A copied plate stamps a terracotta ring. `prefers-reduced-motion` removes transitions and animations, including smooth scrolling.
+Motion is 160–240ms on `cubic-bezier(0.22, 1, 0.36, 1)`. A new prompt fades and unblurs. `prefers-reduced-motion` removes transitions and animations, including smooth scrolling.
 
 ## Shapes
 
-Corners are square. Icon hits are 44px (40px on a contents row). Icons are 1.5px strokes at 20px, except the filled star and the leaf’s filled blades.
+Tiles are 22px. Icon buttons are 12px and 44px square. Generate is a pill. Icons are 1.5px strokes at 20px, except the filled star.
 
 ## Components
 
-**Issue block.** Huge Anton numeral, “Issue” in the active dye, and Background or Animation along the bottom rule.
+**Hero.** A section chip, icon actions (copy, star, animate, delete), the prompt, and a cream Generate pill. One Generate replaces the plate.
 
-**Prompt.** Lora italic pull-quote under an Anton quotation mark. Copy, star, animate, and delete sit on the deck, left of Generate.
+**Library.** Favourites and History start collapsed to two lines. Click waits so a double-click can copy without expanding and without leaving a word selected. A tick and a toast confirm the copy. A failed copy turns the badge red and shows a red toast. Enter or Space toggles the focused row. `E` expands or collapses the visible shelf. Copy, animate, and delete appear on hover, focus, or when the row is open. The star stays visible.
 
-**Generate.** Terracotta block, black type, hard shadow. Press shifts it into the shadow.
+**Gear.** Keyword mode, describe-instead, include-negative, and a closed Seed row. No backdrop control and no text-size or panel-size sliders.
 
-**Dyes.** Three bars. The active bar grows and shows a small square. `V` cycles Clay, Indigo, Moss.
-
-**Contents.** Favourites and History are numbered rows, one line until opened. Click waits so a double-click can copy without expanding and without leaving a word selection. Enter or Space toggles the focused row. `E` expands or collapses the visible shelf. Copy, star, animate, and delete appear on hover, focus, or when the row is open. A starred row keeps its actions visible. Open state is not stored.
-
-**Gear.** Keyword mode, describe-instead, include-negative, the Noren slider (off at 0), and a closed Seed row. No text-size or panel-size sliders.
-
-**Empty.** A single faint icon, no sentence, except the hero’s “Press Generate.”
+**Empty.** A faint icon in the library. The hero reads “Press Generate.”
 
 ## Do's and Don'ts
 
-Do keep one card per Generate, the three dye ids, and the shortcut list.
+Do keep one card per Generate, the three dyes, the shortcut list, and the half-page detail panel.
 
-Do not paint dyes across tiles, do not put the noren behind the page by default, and do not add a fourth dye, a masthead, batch counts, seed numbers on plates, or size sliders.
+Do not put a photograph or a noren behind the page, do not show timestamps on plates, and do not add a fourth dye, batch counts, seed numbers on plates, or size sliders.
