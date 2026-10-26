@@ -1175,6 +1175,8 @@
     if (settings.keywords) rememberKeyword(settings.keywords);
     renderBatch(kind);
     renderLibrary();
+    const arrived = document.querySelector("#" + (kind === "background" ? "bg-output" : "anim-output") + " .prompt");
+    if (arrived) arrived.classList.add("is-arriving");
     toast("Prompt ready");
     flash(document.getElementById(kind === "background" ? "bg-generate" : "anim-generate"));
     const card = document.querySelector("#" + (kind === "background" ? "bg-output" : "anim-output") + " .card");
