@@ -46,7 +46,7 @@ The workflow in `.github/workflows/pages.yml` publishes `index.html`, `style.css
 
 ## Privacy
 
-Favourites, history, theme, the dye, keywords and the last ten keyword lines, seeds, and locks stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
+Favourites, history, theme, the dye, keywords and the last ten keyword lines, and seeds stay in `localStorage` on this browser. Nothing is sent to a server. Export JSON if you want a copy you can move.
 
 ## License
 

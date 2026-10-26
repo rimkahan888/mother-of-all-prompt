@@ -1106,28 +1106,13 @@ html.has-scene[data-theme="dark"] .scene-panorama::after {
   flex-direction: column;
 }
 
-.advanced-details summary {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
+.advanced-title {
+  margin: 0;
+  font-size: 0.78rem;
   font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.04em;
-  padding: 4px 0;
-}
-
-.advanced-details summary::-webkit-details-marker {
-  display: none;
-}
-
-.advanced-details summary .fold-chevron {
-  transition: transform var(--transition-fast);
-}
-
-.advanced-details[open] summary .fold-chevron {
-  transform: rotate(180deg);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dye-text-muted);
 }
 
 .advanced-content {
@@ -1151,14 +1136,8 @@ html.has-scene[data-theme="dark"] .scene-panorama::after {
   color: var(--dye-text-muted);
 }
 
-.select-with-lock {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .custom-select {
-  flex: 1;
+  width: 100%;
   min-width: 0;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1175,25 +1154,6 @@ html.has-scene[data-theme="dark"] .scene-panorama::after {
 .custom-select optgroup {
   background: var(--paper-popover);
   color: var(--ink-primary);
-}
-
-.btn-lock {
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: var(--radius-btn);
-  color: var(--dye-text);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--transition-fast);
-}
-
-.btn-lock[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.32);
 }
 
 .toggle-row {

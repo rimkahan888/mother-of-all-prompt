@@ -868,16 +868,13 @@
       negToggle: true,
       negText: DEFAULT_NEG,
       values: {},
-      locks: {},
     }),
 
     anim: Storage.get('moap.anim', {
       seed: '1847',
       startingScene: '',
-      startingSceneLocked: false,
       loop: false,
       values: {},
-      locks: {},
     }),
 
     bgTurn: Number(Storage.getString('moap.bgTurn', '0')),
@@ -919,16 +916,15 @@
 
   function normalizeControls(saved, keys) {
     const data = asObject(saved);
+    const valuesBag = asObject(data.values);
+    const fieldsBag = asObject(data.fields);
     const values = {};
-    const locks = {};
     keys.forEach((key) => {
-      const fromValues = data.values ? data.values[key] : undefined;
-      const fromFields = data.fields ? data.fields[key] : undefined;
+      const fromValues = Object.prototype.hasOwnProperty.call(valuesBag, key) ? valuesBag[key] : undefined;
+      const fromFields = Object.prototype.hasOwnProperty.call(fieldsBag, key) ? fieldsBag[key] : undefined;
       values[key] = labelOrAny(fromValues != null ? fromValues : fromFields);
-      const field = fromFields && typeof fromFields === 'object' ? fromFields : null;
-      if ((data.locks && data.locks[key]) || (field && field.locked)) locks[key] = true;
     });
-    return { data, values, locks };
+    return { data, values };
   }
 
   function normalizeEntry(entry) {
@@ -953,7 +949,7 @@
   })();
 
   State.bg = (function () {
-    const { data, values, locks } = normalizeControls(State.bg, BG_KEYS);
+    const { data, values } = normalizeControls(State.bg, BG_KEYS);
     const negText = typeof data.negText === 'string'
       ? data.negText
       : (typeof data.negativeText === 'string' ? data.negativeText : DEFAULT_NEG);
@@ -964,22 +960,19 @@
       negToggle,
       negText,
       values,
-      locks,
     };
   })();
 
   State.anim = (function () {
-    const { data, values, locks } = normalizeControls(State.anim, ANIM_KEYS);
+    const { data, values } = normalizeControls(State.anim, ANIM_KEYS);
     const startingScene = typeof data.startingScene === 'string'
       ? data.startingScene
       : (typeof data.sceneText === 'string' ? data.sceneText : '');
     return {
       seed: data.seed != null && String(data.seed).trim() ? String(data.seed) : '1847',
       startingScene,
-      startingSceneLocked: !!(data.startingSceneLocked || data.sceneLocked),
       loop: !!data.loop,
       values,
-      locks,
     };
   })();
 
@@ -1035,7 +1028,6 @@
 
     if (isBg) {
       State.bg.values = asObject(State.bg.values);
-      State.bg.locks = asObject(State.bg.locks);
       const kw = State.keywords && State.keywords.bg ? State.keywords.bg.text : '';
       const kwMode = State.keywords.bg.mode || 'world';
       const descr = State.keywords.bg.describe || false;
@@ -1048,7 +1040,6 @@
         keywordMode: kwMode,
         describeInstead: descr,
         values: State.bg.values,
-        locks: State.bg.locks,
         clean: State.bg.clean,
         negToggle: State.bg.negToggle,
       });
@@ -1067,9 +1058,7 @@
 
       // Theme / scene
       let sceneEntry;
-      if (State.bg.locks['scene'] && State.bg.values['scene']) {
-        sceneEntry = BANKS.scenes.find((s) => s.label === State.bg.values['scene']) || BANKS.scenes[0];
-      } else if (State.bg.values['scene'] && State.bg.values['scene'] !== 'Any' && State.bg.values['scene'] !== '__from_keywords__') {
+      if (State.bg.values['scene'] && State.bg.values['scene'] !== 'Any' && State.bg.values['scene'] !== '__from_keywords__') {
         sceneEntry = BANKS.scenes.find((s) => s.label === State.bg.values['scene']) || BANKS.scenes[0];
       } else {
         let candidates = BANKS.scenes;
@@ -1089,9 +1078,7 @@
 
       // Time & weather
       let timeEntry;
-      if (State.bg.locks['time'] && State.bg.values['time']) {
-        timeEntry = BANKS.times.find((t) => t.label === State.bg.values['time']) || BANKS.times[0];
-      } else if (State.bg.values['time'] && State.bg.values['time'] !== 'Any') {
+      if (State.bg.values['time'] && State.bg.values['time'] !== 'Any') {
         timeEntry = BANKS.times.find((t) => t.label === State.bg.values['time']) || BANKS.times[0];
       } else {
         const candidates = filterCoherentEntries(BANKS.times, activePlace, 'time', rng);
@@ -1101,7 +1088,7 @@
       if (activePlace === 'desert') {
         const tags = timeEntry.tags || [];
         if (tags.includes('rain') || tags.includes('snow') || tags.includes('storm')) {
-          warnings.push(`These locked choices disagree: desert with ${timeEntry.label.toLowerCase()}.`);
+          warnings.push(`These choices disagree: desert with ${timeEntry.label.toLowerCase()}.`);
         }
       }
       const timeSentence = `It is ${timeEntry.text}.`;
@@ -1109,9 +1096,7 @@
 
       // Lighting
       let lightEntry;
-      if (State.bg.locks['lighting'] && State.bg.values['lighting']) {
-        lightEntry = BANKS.lighting.find((l) => l.label === State.bg.values['lighting']) || BANKS.lighting[0];
-      } else if (State.bg.values['lighting'] && State.bg.values['lighting'] !== 'Any') {
+      if (State.bg.values['lighting'] && State.bg.values['lighting'] !== 'Any') {
         lightEntry = BANKS.lighting.find((l) => l.label === State.bg.values['lighting']) || BANKS.lighting[0];
       } else {
         const candidates = filterCoherentEntries(BANKS.lighting, activePlace, 'lighting', rng);
@@ -1122,9 +1107,7 @@
 
       // Mood
       let moodEntry;
-      if (State.bg.locks['mood'] && State.bg.values['mood']) {
-        moodEntry = BANKS.moods.find((m) => m.label === State.bg.values['mood']) || BANKS.moods[0];
-      } else if (State.bg.values['mood'] && State.bg.values['mood'] !== 'Any') {
+      if (State.bg.values['mood'] && State.bg.values['mood'] !== 'Any') {
         moodEntry = BANKS.moods.find((m) => m.label === State.bg.values['mood']) || BANKS.moods[0];
       } else {
         moodEntry = bankPick(BANKS.moods, rng);
@@ -1134,9 +1117,7 @@
 
       // Style
       let styleEntry;
-      if (State.bg.locks['style'] && State.bg.values['style']) {
-        styleEntry = BANKS.styles.find((s) => s.label === State.bg.values['style']) || BANKS.styles[0];
-      } else if (State.bg.values['style'] && State.bg.values['style'] !== 'Any') {
+      if (State.bg.values['style'] && State.bg.values['style'] !== 'Any') {
         styleEntry = BANKS.styles.find((s) => s.label === State.bg.values['style']) || BANKS.styles[0];
       } else {
         styleEntry = bankPick(BANKS.styles, rng);
@@ -1146,9 +1127,7 @@
 
       // Palette
       let palEntry;
-      if (State.bg.locks['palette'] && State.bg.values['palette']) {
-        palEntry = BANKS.palettes.find((p) => p.label === State.bg.values['palette']) || BANKS.palettes[0];
-      } else if (State.bg.values['palette'] && State.bg.values['palette'] !== 'Any') {
+      if (State.bg.values['palette'] && State.bg.values['palette'] !== 'Any') {
         palEntry = BANKS.palettes.find((p) => p.label === State.bg.values['palette']) || BANKS.palettes[0];
       } else {
         palEntry = bankPick(BANKS.palettes, rng);
@@ -1158,9 +1137,7 @@
 
       // Composition
       let compEntry;
-      if (State.bg.locks['composition'] && State.bg.values['composition']) {
-        compEntry = BANKS.compositions.find((c) => c.label === State.bg.values['composition']) || BANKS.compositions[0];
-      } else if (State.bg.values['composition'] && State.bg.values['composition'] !== 'Any') {
+      if (State.bg.values['composition'] && State.bg.values['composition'] !== 'Any') {
         compEntry = BANKS.compositions.find((c) => c.label === State.bg.values['composition']) || BANKS.compositions[0];
       } else {
         compEntry = bankPick(BANKS.compositions, rng);
@@ -1170,9 +1147,7 @@
 
       // Aspect
       let aspectEntry;
-      if (State.bg.locks['aspect'] && State.bg.values['aspect']) {
-        aspectEntry = BANKS.aspects.find((a) => a.label === State.bg.values['aspect']) || BANKS.aspects[1];
-      } else if (State.bg.values['aspect'] && State.bg.values['aspect'] !== 'Any') {
+      if (State.bg.values['aspect'] && State.bg.values['aspect'] !== 'Any') {
         aspectEntry = BANKS.aspects.find((a) => a.label === State.bg.values['aspect']) || BANKS.aspects[1];
       } else {
         aspectEntry = bankPick(BANKS.aspects, rng);
@@ -1246,7 +1221,6 @@
     } else {
       // ANIMATION
       State.anim.values = asObject(State.anim.values);
-      State.anim.locks = asObject(State.anim.locks);
       const kwBox = State.keywords && (State.keywords.share ? State.keywords.bg : State.keywords.anim);
       const kw = kwBox ? kwBox.text : '';
       const kwMode = (State.keywords.anim && State.keywords.anim.mode) || 'world';
@@ -1260,9 +1234,7 @@
         keywordMode: kwMode,
         describeInstead: descr,
         values: State.anim.values,
-        locks: State.anim.locks,
         startingScene: State.anim.startingScene,
-        startingSceneLocked: State.anim.startingSceneLocked,
         loop: State.anim.loop,
       });
 
@@ -1308,9 +1280,7 @@
 
       // 2. Motion
       let motionEntry;
-      if (State.anim.locks['motion'] && State.anim.values['motion']) {
-        motionEntry = BANKS.motions.find((m) => m.label === State.anim.values['motion']) || BANKS.motions[0];
-      } else if (State.anim.values['motion'] && State.anim.values['motion'] !== 'Any') {
+      if (State.anim.values['motion'] && State.anim.values['motion'] !== 'Any') {
         motionEntry = BANKS.motions.find((m) => m.label === State.anim.values['motion']) || BANKS.motions[0];
       } else {
         const candidates = filterCoherentEntries(BANKS.motions, scenePlace, 'motion', rng);
@@ -1322,9 +1292,7 @@
       // 3. Camera
       let cameraEntry;
       const isWalkingMotion = (motionEntry.tags || []).includes('walk');
-      if (State.anim.locks['camera'] && State.anim.values['camera']) {
-        cameraEntry = BANKS.cameras.find((c) => c.label === State.anim.values['camera']) || BANKS.cameras[0];
-      } else if (State.anim.values['camera'] && State.anim.values['camera'] !== 'Any') {
+      if (State.anim.values['camera'] && State.anim.values['camera'] !== 'Any') {
         cameraEntry = BANKS.cameras.find((c) => c.label === State.anim.values['camera']) || BANKS.cameras[0];
       } else {
         let candidates = filterCoherentEntries(BANKS.cameras, scenePlace, 'camera', rng);
@@ -1341,20 +1309,18 @@
       if (isWalkingMotion) {
         const cTags = cameraEntry.tags || [];
         if (cTags.includes('orbit') || cTags.includes('drone')) {
-          warnings.push(`These locked choices disagree: walking figure with ${cameraEntry.label.toLowerCase()}.`);
+          warnings.push(`These choices disagree: walking figure with ${cameraEntry.label.toLowerCase()}.`);
         }
       }
       if (scenePlace === 'underwater' && (cameraEntry.tags || []).includes('drone')) {
-        warnings.push('These locked choices disagree: underwater scene with aerial drone.');
+        warnings.push('These choices disagree: underwater scene with aerial drone.');
       }
       const cameraSentence = cleanSentence(cameraEntry.text);
       parts.push({ key: 'camera', label: 'Camera movement', text: cameraSentence });
 
       // 4. Film look
       let filmEntry;
-      if (State.anim.locks['film'] && State.anim.values['film']) {
-        filmEntry = BANKS.films.find((f) => f.label === State.anim.values['film']) || BANKS.films[0];
-      } else if (State.anim.values['film'] && State.anim.values['film'] !== 'Any') {
+      if (State.anim.values['film'] && State.anim.values['film'] !== 'Any') {
         filmEntry = BANKS.films.find((f) => f.label === State.anim.values['film']) || BANKS.films[0];
       } else {
         const isLapseMotion = (motionEntry.tags || []).includes('lapse');
@@ -1369,16 +1335,14 @@
       }
 
       if ((filmEntry.tags || []).includes('lapse') && !(motionEntry.tags || []).includes('lapse')) {
-        warnings.push('These locked choices disagree: timelapse look paired with non-timelapse motion.');
+        warnings.push('These choices disagree: timelapse look paired with non-timelapse motion.');
       }
       const filmSentence = cleanSentence(filmEntry.text);
       parts.push({ key: 'film', label: 'Film look', text: filmSentence });
 
       // 5. Timing
       let speedEntry;
-      if (State.anim.locks['speed'] && State.anim.values['speed']) {
-        speedEntry = BANKS.speeds.find((s) => s.label === State.anim.values['speed']) || BANKS.speeds[8];
-      } else if (State.anim.values['speed'] && State.anim.values['speed'] !== 'Any') {
+      if (State.anim.values['speed'] && State.anim.values['speed'] !== 'Any') {
         speedEntry = BANKS.speeds.find((s) => s.label === State.anim.values['speed']) || BANKS.speeds[8];
       } else {
         speedEntry = bankPick(BANKS.speeds, rng);
@@ -1386,9 +1350,7 @@
       const speedSentence = cleanSentence(speedEntry.text);
 
       let durationEntry;
-      if (State.anim.locks['duration'] && State.anim.values['duration']) {
-        durationEntry = BANKS.durations.find((d) => d.label === State.anim.values['duration']) || BANKS.durations[1];
-      } else if (State.anim.values['duration'] && State.anim.values['duration'] !== 'Any') {
+      if (State.anim.values['duration'] && State.anim.values['duration'] !== 'Any') {
         durationEntry = BANKS.durations.find((d) => d.label === State.anim.values['duration']) || BANKS.durations[1];
       } else {
         durationEntry = bankPick(BANKS.durations, rng);
@@ -1912,14 +1874,10 @@
   /* Animate action */
   function animateThisPrompt(text) {
     State.anim.startingScene = text;
-    State.anim.startingSceneLocked = true;
     Storage.set('moap.anim', State.anim);
 
     const animTextarea = document.getElementById('starting-scene-input');
     if (animTextarea) animTextarea.value = text;
-
-    const lockBtn = document.getElementById('btn-lock-starting-scene');
-    if (lockBtn) lockBtn.setAttribute('aria-pressed', 'true');
 
     switchSection('anim');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2523,30 +2481,14 @@
       { id: 'select-bg-aspect', key: 'aspect', name: 'Aspect ratio' },
     ];
 
-    bgFields.forEach(({ id, key, name }) => {
+    bgFields.forEach(({ id, key }) => {
       const select = document.getElementById(id);
-      const lock = document.getElementById(`btn-lock-bg-${key}`);
 
       if (select) {
         select.value = (State.bg.values && State.bg.values[key]) || 'Any';
         select.addEventListener('change', (e) => {
           State.bg.values[key] = e.target.value;
           Storage.set('moap.bg', State.bg);
-        });
-      }
-
-      if (lock) {
-        const isLocked = Boolean(State.bg.locks && State.bg.locks[key]);
-        lock.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
-        lock.innerHTML = `<svg><use href="#icon-${isLocked ? 'lock' : 'unlock'}"></use></svg>`;
-
-        lock.addEventListener('click', () => {
-          const nowLocked = !State.bg.locks[key];
-          State.bg.locks[key] = nowLocked;
-          lock.setAttribute('aria-pressed', nowLocked ? 'true' : 'false');
-          lock.innerHTML = `<svg><use href="#icon-${nowLocked ? 'lock' : 'unlock'}"></use></svg>`;
-          Storage.set('moap.bg', State.bg);
-          showToast(nowLocked ? `${name} pinned` : `${name} can vary`, 'status');
         });
       }
     });
@@ -2588,9 +2530,8 @@
       { id: 'select-anim-film', key: 'film', name: 'Film look' },
     ];
 
-    animFields.forEach(({ id, key, name }) => {
+    animFields.forEach(({ id, key }) => {
       const select = document.getElementById(id);
-      const lock = document.getElementById(`btn-lock-anim-${key}`);
 
       if (select) {
         select.value = (State.anim.values && State.anim.values[key]) || 'Any';
@@ -2599,27 +2540,11 @@
           Storage.set('moap.anim', State.anim);
         });
       }
-
-      if (lock) {
-        const isLocked = Boolean(State.anim.locks && State.anim.locks[key]);
-        lock.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
-        lock.innerHTML = `<svg><use href="#icon-${isLocked ? 'lock' : 'unlock'}"></use></svg>`;
-
-        lock.addEventListener('click', () => {
-          const nowLocked = !State.anim.locks[key];
-          State.anim.locks[key] = nowLocked;
-          lock.setAttribute('aria-pressed', nowLocked ? 'true' : 'false');
-          lock.innerHTML = `<svg><use href="#icon-${nowLocked ? 'lock' : 'unlock'}"></use></svg>`;
-          Storage.set('moap.anim', State.anim);
-          showToast(nowLocked ? `${name} pinned` : `${name} can vary`, 'status');
-        });
-      }
     });
 
     // Animation Starting Scene
     const animStartingScene = document.getElementById('starting-scene-input');
     const btnClearScene = document.getElementById('btn-clear-starting-scene');
-    const btnLockScene = document.getElementById('btn-lock-starting-scene');
 
     if (animStartingScene) {
       animStartingScene.value = State.anim.startingScene || '';
@@ -2635,21 +2560,6 @@
         State.anim.startingScene = '';
         Storage.set('moap.anim', State.anim);
         showToast('Scene cleared', 'status');
-      });
-    }
-
-    if (btnLockScene) {
-      const isLocked = Boolean(State.anim.startingSceneLocked);
-      btnLockScene.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
-      btnLockScene.innerHTML = `<svg><use href="#icon-${isLocked ? 'lock' : 'unlock'}"></use></svg>`;
-
-      btnLockScene.addEventListener('click', () => {
-        const nowLocked = !State.anim.startingSceneLocked;
-        State.anim.startingSceneLocked = nowLocked;
-        btnLockScene.setAttribute('aria-pressed', nowLocked ? 'true' : 'false');
-        btnLockScene.innerHTML = `<svg><use href="#icon-${nowLocked ? 'lock' : 'unlock'}"></use></svg>`;
-        Storage.set('moap.anim', State.anim);
-        showToast(nowLocked ? 'Starting scene pinned' : 'Starting scene can vary', 'status');
       });
     }
 

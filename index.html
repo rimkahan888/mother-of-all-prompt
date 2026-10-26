@@ -71,16 +71,6 @@
       <symbol id="icon-star-filled" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
       </symbol>
-      <!-- Lock -->
-      <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-      </symbol>
-      <!-- Unlock -->
-      <symbol id="icon-unlock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-        <path d="M7 11V7a5 5 0 0 1 9.9-1" />
-      </symbol>
       <!-- Dice -->
       <symbol id="icon-dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
@@ -306,186 +296,109 @@
           <div id="library-items-list" class="library-items-list" role="tabpanel"></div>
         </section>
 
-        <!-- 6. ADVANCED TILE (Collapsible Fold) -->
+        <!-- 6. ADVANCED TILE -->
         <section class="bento-tile tile-advanced" aria-label="Advanced options">
-          <details id="advanced-fold" class="advanced-details">
-            <summary>
-              <span>Advanced</span>
-              <svg class="fold-chevron" style="width:18px;height:18px;"><use href="#icon-chevron"></use></svg>
-            </summary>
-            
-            <div class="advanced-content">
-              <!-- BACKGROUNDS ADVANCED -->
-              <div id="advanced-bg-controls" style="display:flex; flex-direction:column; gap:12px;">
-                <div class="field-group">
-                  <label for="select-bg-scene" class="field-label">Theme / scene</label>
-                  <div class="select-with-lock">
-                    <select id="select-bg-scene" class="custom-select"></select>
-                    <button type="button" id="btn-lock-bg-scene" class="btn-lock" aria-label="Lock theme / scene" aria-pressed="false" title="Lock theme / scene">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
+          <h2 class="advanced-title">Advanced</h2>
 
-                <div class="field-group">
-                  <label for="select-bg-style" class="field-label">Art style</label>
-                  <div class="select-with-lock">
-                    <select id="select-bg-style" class="custom-select"></select>
-                    <button type="button" id="btn-lock-bg-style" class="btn-lock" aria-label="Lock art style" aria-pressed="false" title="Lock art style">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="field-group">
-                  <label for="select-bg-lighting" class="field-label">Lighting</label>
-                  <div class="select-with-lock">
-                    <select id="select-bg-lighting" class="custom-select"></select>
-                    <button type="button" id="btn-lock-bg-lighting" class="btn-lock" aria-label="Lock lighting" aria-pressed="false" title="Lock lighting">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="field-group">
-                  <label for="select-bg-time" class="field-label">Time & weather</label>
-                  <div class="select-with-lock">
-                    <select id="select-bg-time" class="custom-select"></select>
-                    <button type="button" id="btn-lock-bg-time" class="btn-lock" aria-label="Lock time & weather" aria-pressed="false" title="Lock time & weather">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="field-group">
-                  <label for="select-bg-palette" class="field-label">Colour palette</label>
-                  <div class="select-with-lock">
-                    <select id="select-bg-palette" class="custom-select"></select>
-                    <button type="button" id="btn-lock-bg-palette" class="btn-lock" aria-label="Lock colour palette" aria-pressed="false" title="Lock colour palette">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="field-group">
-                  <label for="select-bg-mood" class="field-label">Mood</label>
-                  <div class="select-with-lock">
-                    <select id="select-bg-mood" class="custom-select"></select>
-                    <button type="button" id="btn-lock-bg-mood" class="btn-lock" aria-label="Lock mood" aria-pressed="false" title="Lock mood">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="field-group">
-                  <label for="select-bg-composition" class="field-label">Composition</label>
-                  <div class="select-with-lock">
-                    <select id="select-bg-composition" class="custom-select"></select>
-                    <button type="button" id="btn-lock-bg-composition" class="btn-lock" aria-label="Lock composition" aria-pressed="false" title="Lock composition">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="field-group">
-                  <label for="select-bg-aspect" class="field-label">Aspect ratio</label>
-                  <div class="select-with-lock">
-                    <select id="select-bg-aspect" class="custom-select"></select>
-                    <button type="button" id="btn-lock-bg-aspect" class="btn-lock" aria-label="Lock aspect ratio" aria-pressed="false" title="Lock aspect ratio">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <label class="toggle-row">
-                  <span class="field-label" style="text-transform:none;font-size:0.88rem;">Clean background</span>
-                  <input type="checkbox" id="chk-bg-clean" class="custom-checkbox" checked />
-                </label>
-
-                <label class="toggle-row">
-                  <span class="field-label" style="text-transform:none;font-size:0.88rem;">Negative prompt</span>
-                  <input type="checkbox" id="chk-bg-neg" class="custom-checkbox" checked />
-                </label>
-
-                <div class="field-group">
-                  <textarea id="txt-bg-neg" class="custom-textarea" rows="2" aria-label="Negative prompt text"></textarea>
-                </div>
+          <div class="advanced-content">
+            <div id="advanced-bg-controls" style="display:flex; flex-direction:column; gap:12px;">
+              <div class="field-group">
+                <label for="select-bg-scene" class="field-label">Theme / scene</label>
+                <select id="select-bg-scene" class="custom-select"></select>
               </div>
 
-              <!-- ANIMATION ADVANCED -->
-              <div id="advanced-anim-controls" style="display:none; flex-direction:column; gap:12px;">
-                <div class="field-group">
-                  <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <label for="starting-scene-input" class="field-label">Starting scene</label>
-                    <div style="display:flex; gap:4px;">
-                      <button type="button" id="btn-clear-starting-scene" class="btn-icon" style="width:28px;height:28px;" aria-label="Clear scene" title="Clear scene">
-                        <svg style="width:14px;height:14px;"><use href="#icon-close"></use></svg>
-                      </button>
-                      <button type="button" id="btn-lock-starting-scene" class="btn-icon" style="width:28px;height:28px;" aria-label="Lock starting scene" aria-pressed="false" title="Lock starting scene">
-                        <svg style="width:14px;height:14px;"><use href="#icon-unlock"></use></svg>
-                      </button>
-                    </div>
-                  </div>
-                  <textarea id="starting-scene-input" class="custom-textarea" rows="2" placeholder="Starting scene text..."></textarea>
-                </div>
+              <div class="field-group">
+                <label for="select-bg-style" class="field-label">Art style</label>
+                <select id="select-bg-style" class="custom-select"></select>
+              </div>
 
-                <div class="field-group">
-                  <label for="select-anim-motion" class="field-label">Scene motion</label>
-                  <div class="select-with-lock">
-                    <select id="select-anim-motion" class="custom-select"></select>
-                    <button type="button" id="btn-lock-anim-motion" class="btn-lock" aria-label="Lock motion" aria-pressed="false" title="Lock motion">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
+              <div class="field-group">
+                <label for="select-bg-lighting" class="field-label">Lighting</label>
+                <select id="select-bg-lighting" class="custom-select"></select>
+              </div>
 
-                <div class="field-group">
-                  <label for="select-anim-camera" class="field-label">Camera movement</label>
-                  <div class="select-with-lock">
-                    <select id="select-anim-camera" class="custom-select"></select>
-                    <button type="button" id="btn-lock-anim-camera" class="btn-lock" aria-label="Lock camera" aria-pressed="false" title="Lock camera">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
+              <div class="field-group">
+                <label for="select-bg-time" class="field-label">Time & weather</label>
+                <select id="select-bg-time" class="custom-select"></select>
+              </div>
 
-                <div class="field-group">
-                  <label for="select-anim-film" class="field-label">Film look</label>
-                  <div class="select-with-lock">
-                    <select id="select-anim-film" class="custom-select"></select>
-                    <button type="button" id="btn-lock-anim-film" class="btn-lock" aria-label="Lock film look" aria-pressed="false" title="Lock film look">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
+              <div class="field-group">
+                <label for="select-bg-palette" class="field-label">Colour palette</label>
+                <select id="select-bg-palette" class="custom-select"></select>
+              </div>
 
-                <div class="field-group" title="Speed covers only movement inside the scene, and the camera keeps its own pace.">
-                  <label for="select-anim-speed" class="field-label">Speed</label>
-                  <div class="select-with-lock">
-                    <select id="select-anim-speed" class="custom-select"></select>
-                    <button type="button" id="btn-lock-anim-speed" class="btn-lock" aria-label="Lock speed" aria-pressed="false" title="Lock speed">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
+              <div class="field-group">
+                <label for="select-bg-mood" class="field-label">Mood</label>
+                <select id="select-bg-mood" class="custom-select"></select>
+              </div>
 
-                <div class="field-group">
-                  <label for="select-anim-duration" class="field-label">Duration</label>
-                  <div class="select-with-lock">
-                    <select id="select-anim-duration" class="custom-select"></select>
-                    <button type="button" id="btn-lock-anim-duration" class="btn-lock" aria-label="Lock duration" aria-pressed="false" title="Lock duration">
-                      <svg style="width:16px;height:16px;"><use href="#icon-unlock"></use></svg>
-                    </button>
-                  </div>
-                </div>
+              <div class="field-group">
+                <label for="select-bg-composition" class="field-label">Composition</label>
+                <select id="select-bg-composition" class="custom-select"></select>
+              </div>
 
-                <label class="toggle-row">
-                  <span class="field-label" style="text-transform:none;font-size:0.88rem;">Seamless loop</span>
-                  <input type="checkbox" id="chk-anim-loop" class="custom-checkbox" />
-                </label>
+              <div class="field-group">
+                <label for="select-bg-aspect" class="field-label">Aspect ratio</label>
+                <select id="select-bg-aspect" class="custom-select"></select>
+              </div>
+
+              <label class="toggle-row">
+                <span class="field-label" style="text-transform:none;font-size:0.88rem;">Clean background</span>
+                <input type="checkbox" id="chk-bg-clean" class="custom-checkbox" checked />
+              </label>
+
+              <label class="toggle-row">
+                <span class="field-label" style="text-transform:none;font-size:0.88rem;">Negative prompt</span>
+                <input type="checkbox" id="chk-bg-neg" class="custom-checkbox" checked />
+              </label>
+
+              <div class="field-group">
+                <textarea id="txt-bg-neg" class="custom-textarea" rows="2" aria-label="Negative prompt text"></textarea>
               </div>
             </div>
-          </details>
+
+            <div id="advanced-anim-controls" style="display:none; flex-direction:column; gap:12px;">
+              <div class="field-group">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <label for="starting-scene-input" class="field-label">Starting scene</label>
+                  <button type="button" id="btn-clear-starting-scene" class="btn-icon" style="width:28px;height:28px;" aria-label="Clear scene" title="Clear scene">
+                    <svg style="width:14px;height:14px;"><use href="#icon-close"></use></svg>
+                  </button>
+                </div>
+                <textarea id="starting-scene-input" class="custom-textarea" rows="2" placeholder="Starting scene text..."></textarea>
+              </div>
+
+              <div class="field-group">
+                <label for="select-anim-motion" class="field-label">Scene motion</label>
+                <select id="select-anim-motion" class="custom-select"></select>
+              </div>
+
+              <div class="field-group">
+                <label for="select-anim-camera" class="field-label">Camera movement</label>
+                <select id="select-anim-camera" class="custom-select"></select>
+              </div>
+
+              <div class="field-group">
+                <label for="select-anim-film" class="field-label">Film look</label>
+                <select id="select-anim-film" class="custom-select"></select>
+              </div>
+
+              <div class="field-group" title="Speed covers only movement inside the scene, and the camera keeps its own pace.">
+                <label for="select-anim-speed" class="field-label">Speed</label>
+                <select id="select-anim-speed" class="custom-select"></select>
+              </div>
+
+              <div class="field-group">
+                <label for="select-anim-duration" class="field-label">Duration</label>
+                <select id="select-anim-duration" class="custom-select"></select>
+              </div>
+
+              <label class="toggle-row">
+                <span class="field-label" style="text-transform:none;font-size:0.88rem;">Seamless loop</span>
+                <input type="checkbox" id="chk-anim-loop" class="custom-checkbox" />
+              </label>
+            </div>
+          </div>
         </section>
 
       </main>
