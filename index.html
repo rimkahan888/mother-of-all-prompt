@@ -23,14 +23,14 @@
       (function() {
         try {
           localStorage.removeItem('moap.bgPhoto');
-          var theme = localStorage.getItem('moap.theme');
-          if (theme !== 'light') theme = 'dark';
+          var pick = localStorage.getItem('moap.themePick');
+          var theme = pick === 'dark' ? 'dark' : 'light';
           var dye = localStorage.getItem('moap.cardGrade');
           if (dye !== 'indigo' && dye !== 'moss') dye = 'clay';
           document.documentElement.setAttribute('data-theme', theme);
           document.documentElement.setAttribute('data-dye', dye);
         } catch (e) {
-          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.setAttribute('data-theme', 'light');
           document.documentElement.setAttribute('data-dye', 'clay');
         }
       })();

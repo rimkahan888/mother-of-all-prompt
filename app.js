@@ -844,7 +844,7 @@
 
   const State = {
     section: 'bg', // 'bg' | 'anim'
-    theme: Storage.getString('moap.theme', 'dark') === 'light' ? 'light' : 'dark',
+    theme: Storage.getString('moap.themePick', '') === 'dark' ? 'dark' : 'light',
     dye: (function () {
       const stored = Storage.getString('moap.cardGrade', 'clay');
       return stored === 'indigo' || stored === 'moss' ? stored : 'clay';
@@ -1873,7 +1873,9 @@
     const btnTheme = document.getElementById('btn-theme-toggle');
     if (btnTheme) {
       btnTheme.addEventListener('click', () => {
-        applyTheme(State.theme === 'dark' ? 'light' : 'dark');
+        const next = State.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        Storage.setString('moap.themePick', next);
       });
     }
 
@@ -2707,7 +2709,9 @@
 
       if (key === 'T' || key === 't') {
         e.preventDefault();
-        applyTheme(State.theme === 'dark' ? 'light' : 'dark');
+        const next = State.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        Storage.setString('moap.themePick', next);
         return;
       }
 

@@ -1,8 +1,8 @@
 ---
 name: The Prompt Folio
-description: A dark glass bento that writes one still or motion prompt at a time.
+description: A cream glass bento that writes one still or motion prompt at a time.
 colors:
-  page: "#151311"
+  page: "#f3ecdf"
   page-2: "#1c1916"
   popover: "#221f1b"
   ink: "#f2ece1"
@@ -53,7 +53,7 @@ components:
 
 ## Overview
 
-The Prompt Folio is a glass bento. The page ground is `#151311` in the dark theme, which is the first-visit default, and parchment `#f3ecdf` in light. A fixed vignette darkens the edges. Tiles are frosted dye gradients with a 22px radius and a 16px backdrop blur. Lora sets the prompt. Raleway sets everything you touch.
+The Prompt Folio is a glass bento. A first visit opens on parchment `#f3ecdf` with a faint linen weave and a soft edge. Dark `#151311` is the other theme. Tiles are frosted dye gradients with a 22px radius, a gentle shadow, and a 16px backdrop blur. Lora sets the prompt. Raleway sets everything you touch.
 
 Clay, Indigo, and Moss recolour every tile. `V` cycles them. A stored dye other than Indigo or Moss opens as Clay. `data-theme` is `dark` or `light`. `data-dye` is `clay`, `indigo`, or `moss`.
 
